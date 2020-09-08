@@ -494,7 +494,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             nMatchedAcmeOuterPairs+=1
             if jet.DeltaR(closestAcme)<0.3:
                 nMatchedAcmeInnerPairs+=1
-                print 'building up to', nMatchedAcmeInnerPairs, jet.Pt()
                 if sayalot: print 'skipping reco jet with pT, eta', jet.Pt(), jet.Eta(), jet.DeltaR(acme_objects[0].tlv)
                 continue
         if jet.Pt()>AnHardMetJetPtCut and jet.JetId()<0.5: 
@@ -509,10 +508,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     shouldskipevent = False
     if not nMatchedAcmeOuterPairs==nMatchedAcmeInnerPairs: 
-        print 'contingency a'
         shouldskipevent = True    
     if not nMatchedAcmeInnerPairs==len(acme_objects): 
-        print 'contingency b', nMatchedAcmeInnerPairs, len(acme_objects)     
         shouldskipevent = True
     if shouldskipevent: 
         print ientry, 'acme mismatch'
