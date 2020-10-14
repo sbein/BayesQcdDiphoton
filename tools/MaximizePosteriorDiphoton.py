@@ -135,6 +135,9 @@ is2017 = False
 is2016 = False
 is2018 = False
 
+if 'Fast' in fnamekeyword: isfast = True
+else: isfast = False
+
 if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword: 
     BTAG_deepCSV = 0.6324
     is2016 = True
@@ -152,10 +155,13 @@ BTag_Cut = BTAG_deepCSV
 # Load in chain #
 #################        root://hepxrd01.colorado.edu:1094//store/user/aperloff/SusyRA2Analysis2015/Run2ProductionV17/
 ''' ususally did something like this: 
-ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2*/*/*.root > usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2016/*/*.root > usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2017/*/*.root >> usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*.root >> usefulthings/filelistDiphotonBig.txt
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2016/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2017/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
+
 '''
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
@@ -166,6 +172,7 @@ if not 'DoubleEG' in fnamekeyword:
         fnamefilename = 'usefulthings/filelistV17.txt'
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
+a = fnamekeyword.strip()
 shortfname = fnamekeyword.strip()
 print 'going to check for ', shortfname
 fnamefile.close()
@@ -367,10 +374,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if isdata:  weight = 1.0
     else:  weight = c.CrossSection
 
-    if passesUniversalSelection(c)<0: 
-        if len(c.Photons)>1: hfilterfails.Fill(passesUniversalSelection(c))
-        continue
-    elif len(c.Photons)>1: hfilterfails.Fill(0)
+    if isfast: 
+        if not passesUniversalSelectionFast(c): continue
+    else:
+        if passesUniversalSelection(c)<0: 
+            if len(c.Photons)>1: 
+                hfilterfails.Fill(passesUniversalSelection(c))
+                continue
+            elif len(c.Photons)>1: hfilterfails.Fill(0)
     #if not passesHadronicSusySelection(c): continue
     if not len(c.Photons)>1: continue
 
@@ -469,7 +480,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     recojets_.clear()
     for ijet, jet in enumerate(c.Jets):
         if not (jet.Pt()>2 and abs(jet.Eta())<5.0): continue
-        recojets_.push_back(UsefulJet(jet, c.Jets_bJetTagDeepCSVBvsAll[ijet], float(int(bool(c.Jets_ID[ijet]))), ijet))
+        jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
+        recojets_.push_back(UsefulJet(jettlv, c.Jets_bJetTagDeepCSVBvsAll[ijet], float(int(bool(c.Jets_ID[ijet]))), ijet))
 
 
 
@@ -478,7 +490,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         for ijet, jet in enumerate(c.Jets):
             if not (jet.Pt()>2 and abs(jet.Eta())<5.0): continue
             if abs(jet.Eta())>2.65 and abs(jet.Eta()) < 3.139 and jet.Pt()/c.Jets_jecFactor[ijet]<50: continue #/c.Jets_jerFactor[ijet]
-            recojets_.push_back(UsefulJet(jet, c.Jets_bJetTagDeepCSVBvsAll[ijet], jet.Pt()))  
+            jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
+            recojets_.push_back(UsefulJet(jettlv, c.Jets_bJetTagDeepCSVBvsAll[ijet], jet.Pt()))  
 
 
     ##declare empty vector of UsefulJets (in c++, std::vector<UsefulJet>):
@@ -503,25 +516,27 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         recojets.push_back(ujet)
 
     if not passesJetId: 
-        print 'failed jet ID'
+        print ientry, 'failed jet ID'
         continue
 
     shouldskipevent = False
     if not nMatchedAcmeOuterPairs==nMatchedAcmeInnerPairs: 
+        print 'contingency a'
         shouldskipevent = True    
     if not nMatchedAcmeInnerPairs==len(acme_objects): 
+        print 'contingency b', nMatchedAcmeInnerPairs, len(acme_objects)     
         shouldskipevent = True
     if shouldskipevent: 
         print ientry, 'acme mismatch'
         continue
 
-    print 'but we prevail sometimes'
     if not isdata:
         genjets_.clear()
         for ijet, jet in enumerate(c.GenJets):
             #if not jet.Pt()>15: continue
             #if not abs(jet.Eta())<5: continue
-            ujet = UsefulJet(jet, 0, 0, -1)
+            jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
+            ujet = UsefulJet(jettlv, 0, 0, -1)
             closestAcme = getClosestObject(acme_objects, ujet, 0.1)
             if ujet.DeltaR(closestAcme)<0.1: 
                 if sayalot: print 'ueberspringen jet mit pT, eta', tlvjet.Pt(), tlvjet.Eta(), '(',tlvjet.DeltaR(acme_objects[0]),')'
@@ -638,7 +653,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             JetsAUX.clear()
             JetsAUX_bJetTagDeepCSVBvsAll.clear()
             for ijet, jet in enumerate(c.Jets):
-                JetsAUX.push_back(jet)
+                jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
+                JetsAUX.push_back(jettlv)
                 JetsAUX_bJetTagDeepCSVBvsAll.push_back(c.Jets_bJetTagDeepCSVBvsAll[ijet])
 
             HTAUX[0] = c.HT
@@ -716,7 +732,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     JetsAUX.clear()
                     JetsAUX_bJetTagDeepCSVBvsAll.clear()
                     for ijet, jet in enumerate(c.Jets):
-                        JetsAUX.push_back(jet)
+                        jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
+                        JetsAUX.push_back(jettlv)
                         JetsAUX_bJetTagDeepCSVBvsAll.push_back(c.Jets_bJetTagDeepCSVBvsAll[ijet])                    
                     #do things like they're not RandS
                     IsRandS[0] = 0 

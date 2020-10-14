@@ -1026,19 +1026,20 @@ def passQCDHighMETFilter2(t):
     if len(t.Jets)>0:
         metvec = TLorentzVector()
         metvec.SetPtEtaPhiE(t.MET, 0, t.METPhi,0)
-        if abs(t.Jets[0].DeltaPhi(metvec))>(3.14159-0.4) and t.Jets_neutralEmEnergyFraction[0]<0.03:
+        jetvec = TLorentzVector()
+        jetvec.SetPtEtaPhiE(t.Jets[0].Pt(), t.Jets[0].Eta(), t.Jets[0].Phi(), t.Jets[0].E())
+        if abs(jetvec.DeltaPhi(metvec))>(3.14159-0.4) and t.Jets_neutralEmEnergyFraction[0]<0.03:
             return False
     return True
 
+
+def passesUniversalSelectionFast(t, verbose=True):
+    if not ( t.NVtx>0): return -1
+    return True
+        
 def passesUniversalSelection(t, verbose=True):
     if not ( t.NVtx>0): 
         return -1 #bool(t.JetID) and 
-    if not  passQCDHighMETFilter(t): 
-        return -2
-    if not passQCDHighMETFilter2(t): 
-        return -3
-    if not t.PFCaloMETRatio<5:         
-        return -4
     #featuring:
     #if not t.globalTightHalo2016Filter: return False ##this alone was good # only these comments weren't saved on last submission
     if not bool(t.globalSuperTightHalo2016Filter): 
@@ -1066,6 +1067,13 @@ def passesUniversalSelection(t, verbose=True):
     ####if not t.ecalBadCalibFilter: return False #this says it's deprecated
 
     '''#second half filters low edge               
+
+    if not  passQCDHighMETFilter(t): 
+        return -2
+    if not passQCDHighMETFilter2(t): 
+        return -3
+    if not t.PFCaloMETRatio<5:         
+        return -4    
     return True
 
 def passesHadronicSusySelection(t):
