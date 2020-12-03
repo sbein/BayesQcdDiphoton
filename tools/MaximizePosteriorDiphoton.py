@@ -9,11 +9,10 @@ import numpy as np
 import time
 
 ###stuff that would be nice in a config file:
-met4skim = 80
+met4skim = 100
 mhtjetetacut = 5.0 # also needs be be changed in UsefulJet.h
-lhdHardMetJetPtCut = 15.0
 AnHardMetJetPtCut = 30.0
-rebalancedMetCut = 125
+rebalancedMetCut = 150
 useMediumPho = False
 
 
@@ -69,7 +68,6 @@ llhdHardMetThresh = 15
 mktree = True
 
 
-
 #stuff for Matt's BDT
 reader = TMVA.Reader()
 _Ngoodjets_ = array('f',[0])
@@ -85,7 +83,7 @@ _min_dPhi_ = array('f',[0])
 _dPhi_GGHardMET_ = array('f',[0])
 if mvaversion==2:
     prefix = 'mva_'
-    reader.AddVariable(prefix+"Ngoodjets",_Ngoodjets_)      
+    #reader.AddVariable(prefix+"Ngoodjets",_Ngoodjets_)      
     reader.AddVariable(prefix+"ST",_ST_)          
     reader.AddVariable(prefix+"Pt_jets",_Pt_jets_)
     reader.AddVariable(prefix+"dPhi_GG",_dPhi_GG_)
@@ -98,7 +96,7 @@ if mvaversion==2:
     reader.AddVariable(prefix+"dPhi_GGHardMET",_dPhi_GGHardMET_)
 else:
     prefix = ''
-    reader.AddVariable(prefix+"Ngoodjets",_Ngoodjets_)      
+    #reader.AddVariable(prefix+"Ngoodjets",_Ngoodjets_)      
     reader.AddVariable(prefix+"ST",_ST_)          
     reader.AddVariable(prefix+"Pt_jets",_Pt_jets_)
     reader.AddVariable(prefix+"dPhi_GG",_dPhi_GG_)
@@ -110,7 +108,7 @@ else:
     reader.AddVariable(prefix+"min_dPhi",_min_dPhi_)
     reader.AddVariable(prefix+"dPhi_GGHardMET",_dPhi_GGHardMET_)        
 #reader.BookMVA("BDT", 'usefulthings/TMVAClassification_BDT.weights_MJMay2020.xml')
-reader.BookMVA("BDT", 'usefulthings/bdt_RandS_2016-17_HardMETPt90cut_nobarrelcut.xml')
+
 ###
 
 if bootstrap=='0': 
@@ -138,18 +136,29 @@ is2018 = False
 if 'Fast' in fnamekeyword: isfast = True
 else: isfast = False
 
+
 if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword: 
     BTAG_deepCSV = 0.6324
     is2016 = True
+    xmlfilename = "usefulthings/dataset_bdt_2016_50trees_6maxdepth/weights/TMVAClassification_BDT_50trees_6maxdepth.weights.xml"
+    xmlfilenameStrong = "usefulthings/dataset_bdt_susysig2016_100trees_10maxdepth/weights/TMVAClassification_BDT_100trees_10maxdepth.weights.xml"
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
+    xmlfilename = "usefulthings/dataset_bdt_2017_50trees_6maxdepth/weights/TMVAClassification_BDT_50trees_6maxdepth.weights.xml"
+    xmlfilenameStrong = "usefulthings/dataset_bdt_susysig2017_100trees_10maxdepth/weights/TMVAClassification_BDT_100trees_10maxdepth.weights.xml"
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
+    xmlfilename = "usefulthings/dataset_bdt_2018_50trees_6maxdepth/weights/TMVAClassification_BDT_50trees_6maxdepth.weights.xml"
+    xmlfilenameStrong = "usefulthings/dataset_bdt_susysig2018_100trees_10maxdepth/weights/TMVAClassification_BDT_100trees_10maxdepth.weights.xml"
 
+reader.BookMVA("BDT", xmlfilename)
+reader.BookMVA("BDTstrong", xmlfilenameStrong)
 BTag_Cut = BTAG_deepCSV
 
+
+issignal = abs('Fast' in fnamekeyword)
 
 #################
 # Load in chain #
@@ -160,7 +169,10 @@ ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2017/*/*.root >> usefu
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*.root >> usefulthings/filelistDiphotonBig.txt
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2016/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
 ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2017/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
-ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*.root >> usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*2018A*.root >> usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*2018B*.root >> usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*2018C*.root >> usefulthings/filelistDiphotonBig.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/2018/*/*/*2018D*.root >> usefulthings/filelistDiphotonBig.txt
 
 '''
 
@@ -168,7 +180,7 @@ ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2Producti
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
 fnamefilename = 'usefulthings/filelistDiphotonBig.txt'
 if not 'DoubleEG' in fnamekeyword:
-    if 'Summer16v3.QCD_HT' in fnamekeyword or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword: #or 'Run20' in fnamekeyword
+    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
         fnamefilename = 'usefulthings/filelistV17.txt'
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
@@ -181,9 +193,9 @@ filelist = []
 for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
-    if ('Summer16v3.QCD_HT' in fnamekeyword or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword): fname = ra2bspace+fname
+    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
     fname = fname.replace('/eos/uscms/','root://cmsxrootd.fnal.gov//')
-    if 'WGJets' in fnamekeyword: fname = fname.replace('root://cmsxrootd.fnal.gov///store/group/lpcsusyhad','root://hepxrd01.colorado.edu:1094//store/user/aperloff')
+    #if 'WGJets' in fnamekeyword: fname = fname.replace('root://cmsxrootd.fnal.gov///store/group/lpcsusyhad','root://hepxrd01.colorado.edu:1094//store/user/aperloff')
     print 'adding', fname
     c.Add(fname)
     filelist.append(fname)
@@ -194,9 +206,14 @@ if quickrun:
     n2process = min(30000,n2process)
 
 
-
 print 'will analyze', n2process, 'events'
 c.Show(0)
+
+if issignal:
+    c.GetEntry(0)
+    par1, par2 = c.SignalParameters
+
+
 
 
 
@@ -229,6 +246,8 @@ templateHtAxis = hHtTemplate.GetXaxis()
 ##Create output file
 infileID = fnamekeyword.split('/')[-1].replace('.root','')+'_part'+str(extended)
 newname = 'posterior-'+infileID+'.root'
+if issignal: 
+    newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
 fnew = TFile(newname, 'recreate')
 print 'creating', newname
 
@@ -244,10 +263,7 @@ if mktree:
     tree_out.SetBranchStatus('BTags',0)
     tree_out.SetBranchStatus('Jets',0)
     tree_out.SetBranchStatus('Jets_bJetTagDeepCSVBvsAll',0)    
-
-
     print 'cloned tree'    
-
 
     HardMETPt = np.zeros(1, dtype=float)
     tree_out.Branch('HardMETPt', HardMETPt, 'HardMETPt/D')
@@ -258,7 +274,12 @@ if mktree:
     Pho1_hadTowOverEM = np.zeros(1, dtype=float)    
     tree_out.Branch('Pho1_hadTowOverEM', Pho1_hadTowOverEM, 'Pho1_hadTowOverEM/D')
     Pho2_hadTowOverEM = np.zeros(1, dtype=float)    
-    tree_out.Branch('Pho2_hadTowOverEM', Pho2_hadTowOverEM, 'Pho2_hadTowOverEM/D')    
+    tree_out.Branch('Pho2_hadTowOverEM', Pho2_hadTowOverEM, 'Pho2_hadTowOverEM/D') 
+    Pho1_hasPixelSeed = np.zeros(1, dtype=int)    
+    tree_out.Branch('Pho1_hasPixelSeed', Pho1_hasPixelSeed, 'Pho1_hasPixelSeed/I')
+    Pho2_hasPixelSeed = np.zeros(1, dtype=float)    
+    tree_out.Branch('Pho2_hasPixelSeed', Pho2_hasPixelSeed, 'Pho2_hasPixelSeed/D') 
+           
     NPhotonsLoose = np.zeros(1, dtype=int)
     mass_GG = np.zeros(1, dtype=float)
     tree_out.Branch('mass_GG', mass_GG, 'mass_GG/D')    
@@ -266,29 +287,22 @@ if mktree:
     NPhotonsMedium = np.zeros(1, dtype=int)
     tree_out.Branch('NPhotonsMedium', NPhotonsMedium, 'NPhotonsMedium/I')
 
-
     HardMetMinusMet = np.zeros(1, dtype=float)
     tree_out.Branch('HardMetMinusMet', HardMetMinusMet, 'HardMetMinusMet/D')
-
     IsUniqueSeed = np.zeros(1, dtype=int)
     tree_out.Branch('IsUniqueSeed', IsUniqueSeed, 'IsUniqueSeed/I')
-
     JetsAUX = ROOT.std.vector('TLorentzVector')()
     tree_out.Branch('JetsAUX', JetsAUX)
-
     jetsRebalanced = ROOT.std.vector('TLorentzVector')()
     tree_out.Branch('JetsRebalanced', jetsRebalanced)
-
     JetsAUX_bJetTagDeepCSVBvsAll = ROOT.std.vector('float')()
     tree_out.Branch('Jets_bJetTagDeepCSVBvsAll', JetsAUX_bJetTagDeepCSVBvsAll)
-
     HTAUX = np.zeros(1, dtype=float)
     NJetsAUX = np.zeros(1, dtype=int)
     BTagsAUX = np.zeros(1, dtype=int)
     NSmearsPerEvent = np.zeros(1, dtype=int)
     IsRandS = np.zeros(1, dtype=int)
     NOrigJets15 = np.zeros(1, dtype=int)    
-
     FitSucceed = np.zeros(1, dtype=int)    
     tree_out.Branch('HTAUX', HTAUX, 'HTAUX/D')
     tree_out.Branch('BTagsAUX', BTagsAUX, 'BTagsAUX/I')
@@ -297,8 +311,6 @@ if mktree:
     tree_out.Branch('FitSucceed', FitSucceed, 'FitSucceed/I')   
     tree_out.Branch('IsRandS', IsRandS, 'IsRandS/I')  
     tree_out.Branch('NOrigJets15', NOrigJets15, 'NOrigJets15/I')           
-
-
 
     mva_Ngoodjets = np.zeros(1, dtype=float)
     tree_out.Branch('mva_Ngoodjets', mva_Ngoodjets, 'mva_Ngoodjets/D')
@@ -311,7 +323,7 @@ if mktree:
     mva_Photons0Et = np.zeros(1, dtype=float)
     tree_out.Branch('mva_Photons0Et', mva_Photons0Et, 'mva_Photons0Et/D')    
     mva_Photons1Et = np.zeros(1, dtype=float)
-    tree_out.Branch('mva_Photons1Et', mva_Photons1Et, 'mva_Photons1Et/D')    
+    tree_out.Branch('mva_Photons1Et', mva_Photons1Et, 'mva_Photons1Et/D')  
     mva_HardMET = np.zeros(1, dtype=float)
     tree_out.Branch('mva_HardMET', mva_HardMET, 'mva_HardMET/D')
     mva_Pt_GG = np.zeros(1, dtype=float)
@@ -324,7 +336,8 @@ if mktree:
     tree_out.Branch('mva_dPhi_GGHardMET', mva_dPhi_GGHardMET, 'mva_dPhi_GGHardMET/D') 
     mva_BDT = np.zeros(1, dtype=float)
     tree_out.Branch('mva_BDT', mva_BDT, 'mva_BDT/D')
-
+    mva_BDTstrong = np.zeros(1, dtype=float)
+    tree_out.Branch('mva_BDTstrong', mva_BDTstrong, 'mva_BDTstrong/D')    
 
 
 print 'n(entries) =', n2process
@@ -368,6 +381,37 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry>nentries: break
     c.GetEntry(ientry)
+
+
+    if issignal:
+        par1_, par2_ = c.SignalParameters
+        if not (par1_==par1 and par2_==par2):
+            print 'starting new file'
+
+            par1, par2 = par1_, par2_
+            print 'cross section', par1, par2, c.CrossSection
+            fnew.cd()
+            fnew.cd('../')
+            hHt.Write()
+            hHtWeighted.Write()
+            hfilterfails.Write()
+            tcounter.Write()
+            hPassFit.Write()
+            hTotFit.Write()
+            if mktree:
+                fnew.cd()
+                fnew.cd('TreeMaker2')
+                tree_out.Write()
+            print 'just created', fnew.GetName()
+            for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.SetDirectory(0)
+            fnew.Close()
+            for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.Reset()
+            newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
+            fnew = TFile(newname, 'recreate')
+            fnew.mkdir('TreeMaker2')
+            fnew.cd('TreeMaker2')
+            print 'creating', newname
+
     tcounter.Fill()
     IsUniqueSeed[0] = 1
 
@@ -383,12 +427,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                 continue
             elif len(c.Photons)>1: hfilterfails.Fill(0)
     #if not passesHadronicSusySelection(c): continue
-    if not len(c.Photons)>1: continue
 
+
+    if not len(c.Photons)>1: continue
 
     acme_objects.clear()
     recophotons_loose.clear()
     recophotons_loose_hoe = []
+    recophotons_loose_ppsv = []    
     recophotons_medium.clear()
 
     #build up the vector of jets using TLorentzVectors; 
@@ -408,9 +454,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         acme_objects.push_back(usefulpho)
         #if not c.Photons_genMatched[ipho]: continue
         #if bool(c.Photons_nonPrompt[ipho]): continue
-        if bool(c.Photons_hasPixelSeed[ipho]): continue         
+        ########if bool(c.Photons_hasPixelSeed[ipho]): continue         
         recophotons_loose.push_back(tlvpho)
         recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
+        recophotons_loose_ppsv.append(bool(c.Photons_hasPixelSeed[ipho]))
         if abs(pho.Eta())<1.48:   
             if not (c.Photons_hadTowOverEM[ipho]<0.0396  and c.Photons_sigmaIetaIeta[ipho]<0.01022 and c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725+0.0148*c.Photons[ipho].Pt()+0.000017*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571+0.0047*c.Photons[ipho].Pt())): continue
         if abs(pho.Eta())>=1.48:
@@ -428,14 +475,17 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     else: 
         recophotons = recophotons_loose
         recophotons_hoe = recophotons_loose_hoe
+        recophotons_ppsv = recophotons_loose_ppsv
+        
+    #    if not len(c.Photons)==recophotons.size():
+    #        print ientry, 'this is important'
+    #        continue
 
-#    if not len(c.Photons)==recophotons.size():
-#        print ientry, 'this is important'
-#        continue
 
     if not len(recophotons_loose)>1: continue
     NPhotonsLoose[0] = len(recophotons_loose)
     NPhotonsMedium[0] = len(recophotons_medium)    
+
 
     if not int(recophotons.size())>1: continue
 
@@ -547,16 +597,13 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         matchedBtagscoreVec = createMatchedBtagscoreVector(genjets_, recojets)
         genjets = CreateUsefulJetVector(genjets_, matchedBtagscoreVec)    
 
+
+
     fillth1(hHt, c.HT,1)
 
     ##a few global objects
     MetVec = TLorentzVector()
     MetVec.SetPtEtaPhiE(c.MET,0,c.METPhi,c.MET)
-
-    #CleanMetVec = TLorentzVector()
-    #CleanMetVec.SetPtEtaPhiE(c.METclean,0,c.METPhiclean,c.METclean)
-    #redirtiedMetVec = CleanMetVec.Clone()
-    #redirtiedMetVec-=AcmeVector 
 
     ##observed histogram
     tHt = getHt(recojets,AnHardMetJetPtCut)
@@ -566,7 +613,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tHardMetVec = tHardMhtVec.Clone()
     tHardMetVec-=AcmeVector # this still needed because the reco-jets don't contain the acme_objects
 
-    
+
 
     tHardMetPt, tHardMetPhi = tHardMetVec.Pt(), tHardMetVec.Phi()
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
@@ -576,6 +623,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     mass_GG[0] = (recophotons[0]+recophotons[1]).M()        
     Pho1_hadTowOverEM[0], Pho2_hadTowOverEM[0] = recophotons_hoe[0], recophotons_hoe[1]
+    Pho1_hasPixelSeed[0], Pho2_hasPixelSeed[0] = recophotons_ppsv[0], recophotons_ppsv[1]    
 
     #if  not abs(MetVec.Pt()-tHardMetVec.Pt())<60: continue
     HardMetMinusMet[0] = MetVec.Pt()-tHardMetVec.Pt()
@@ -688,6 +736,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             _min_dPhi_[0] = mva_min_dPhi[0]
             _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
             mva_BDT[0] = reader.EvaluateMVA("BDT")
+            mva_BDTstrong[0] = reader.EvaluateMVA("BDTstrong")
             tree_out.Fill()            
             IsUniqueSeed[0] = 0            
 
@@ -727,7 +776,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if mktree:
             if rpsHardMetPt>met4skim:
 
-                if IsUniqueSeed[0]==1:
+                if IsUniqueSeed[0]==1: ##write the true event if teh R&S hard MET was large enough
 
                     JetsAUX.clear()
                     JetsAUX_bJetTagDeepCSVBvsAll.clear()
@@ -760,20 +809,20 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     _ST_[0] = mva_ST[0]
                     _Pt_jets_[0] = mva_Pt_jets[0]
                     _dPhi_GG_[0] = mva_dPhi_GG[0]
-                    _Photons0Et_[0] = mva_Photons0Et[0]
-                    _Photons1Et_[0] = mva_Photons1Et[0]
                     _HardMET_[0] = mva_HardMET[0]
                     _Pt_GG_[0] = mva_Pt_GG[0]
                     _ST_jets_[0] = mva_ST_jets[0]
                     _min_dPhi_[0] = mva_min_dPhi[0]
                     _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
-                    print 'got bdt', mva_BDT[0], mva_HardMET[0]
+                    mva_BDTstrong[0] = reader.EvaluateMVA("BDTstrong")                    
+                    print 'got bdts', mva_BDT[0], mva_BDTstrong[0], mva_HardMET[0]
                     tree_out.Fill()
                     IsUniqueSeed[0] = 0
 
-                if True:
-
+                if True:##fill with the R&S entry
+                    
+                    IsRandS[0] = 1 
                     JetsAUX.clear()
                     JetsAUX_bJetTagDeepCSVBvsAll.clear()
                     for ijet, jet in enumerate(RplusSJets):
@@ -781,7 +830,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                         JetsAUX_bJetTagDeepCSVBvsAll.push_back(jet.btagscore) 
 
                     #do things like they are RandS
-                    IsRandS[0] = 1 
+                    
 
                     HTAUX[0] = rpsHt
                     NJetsAUX[0] = rpsNJets
@@ -816,17 +865,15 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     _min_dPhi_[0] = mva_min_dPhi[0]
                     _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
-                    print 'got bdt rands', mva_BDT[0], mva_HardMET[0]
+                    mva_BDTstrong[0] = reader.EvaluateMVA("BDTstrong")                    
+                    print 'got bdt rands', mva_BDT[0], mva_BDTstrong[0], mva_HardMET[0]
                     tree_out.Fill()
-
 
     if isdata: continue
 
 
 fnew.cd()
 fnew.cd('../')
-#writeHistoStruct(histoStructDict)
-#hGenMetGenHardMetRatio.Write()
 hHt.Write()
 hHtWeighted.Write()
 hfilterfails.Write()
