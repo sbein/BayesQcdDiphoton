@@ -223,7 +223,9 @@ def namewizard(name):
     if 'DPhiMetSumTags' == name:
         return r'#Delta#phi^{*}'
     if 'St' == name:
-        return r'H_{T}'    
+        return r'H_{T}'
+    name = name.replace('.ZGGToNuNuGG',' Z#gamma#gamma,Z#rightarrow#nu#nu')
+    name = name.replace('.WGJets_MonoPhoton',' W#gamma,W#rightarrow e#nu')    
     return name
 
 
@@ -770,7 +772,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     hComponents.reverse()        
     if abs(hComponents[0].Integral(-1,999)-1)<0.001:
         hComponents[0].GetYaxis().SetTitle('Normalized')
-    else: hComponents[0].GetYaxis().SetTitle('Events/GeV')
+    else: hComponents[0].GetYaxis().SetTitle('Events/bin')
     cGold.Update()
     hObserved.GetYaxis().SetTitle('Normalized')
     hObserved.GetYaxis().SetTitleOffset(1.15)
@@ -894,14 +896,15 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     hObserved.SetTitle(title0)
     pad1.Update()
 
-    return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hError, hComponentsDown]
+    return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hError, hComponentsDown,pad1,pad2]
 
 def stampFab(lumi = 'n/a',datamc='MC'):
     tl.SetTextFont(cmsTextFont)
     tl.SetTextSize(1.6*tl.GetTextSize())
     tl.DrawLatex(0.152,0.82, 'CMS')
     tl.SetTextFont(extraTextFont)
-    tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
+    tl.DrawLatex(0.25,0.82, ('MC' in datamc)*' simulation'+' internal')    
+    #tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
     tl.SetTextFont(regularfont)
     if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
     else: tl.DrawLatex(0.56,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
@@ -1018,7 +1021,9 @@ def passQCDHighMETFilter(t):
     for ijet, jet in enumerate(t.Jets):
         if not (jet.Pt() > 200): continue
         if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
-        if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
+        jetvec = TLorentzVector()
+        jetvec.SetPtEtaPhiE(t.Jets[0].Pt(), t.Jets[0].Eta(), t.Jets[0].Phi(), t.Jets[0].E())
+        if (abs(jetvec.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
     return True
 
 
