@@ -40,7 +40,7 @@ parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER s
 parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',help="you can use this to override the template choice")
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
-parser.add_argument("-muversion", "--muversion", type=bool, default=True,help="short run")
+parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
