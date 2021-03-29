@@ -56,9 +56,9 @@ acme = bool(deactivateAcme)
 
 
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
-fnamefilename = 'usefulthings/filelistDiphotonBig.txt'
+fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
 if not 'DoubleEG' in fnamekeyword:
-    if 'Summer16v3.QCD_HT' in fnamekeyword or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword: 
+    if 'Summer16v3.QCD_HT' in fnamekeyword or 'Summer16v3.WJets' in fnamekeyword: 
         fnamefilename = 'usefulthings/filelistV17.txt'
 fnamefile = open(fnamefilename)
 
@@ -129,15 +129,19 @@ echo $PWD
 export x509userproxy=/uscms/home/sbein/x509up_u47534
 ls
 python ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
-
 for f in *.root
 do 
-   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_28July2020/
+   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
 done
 rm *.root
 '''
 
 main()
 print 'done'
-##   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_v2/
+#   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
+#  xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_skimsv7/
+#   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_muskimsv7/
 ##TreeMakerRandS/
+#TreeMakerRandS_skimsv3
+#TreeMakerRandS_fragmented
+#TreeMakerRandS_muskimsv3

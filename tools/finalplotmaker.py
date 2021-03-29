@@ -5,16 +5,47 @@ gROOT.SetBatch(1)
 
 datamc = 'data'
 
+dolimitinputs = False
+
 #datamc = 'mc'
 
-mcsources = {}
-mcsources['QCD']         = ['output/bigchunks/Summer16v3.QCD.root']
+os.system('rm pdfs/Validation/*.png')
+
+version = 'mumu'
+version = 'badphopho'
+#version = 'phopho'
+version = 'elel'
+
+
+if version == 'mumu': chunk = 'bigchunks/bigmus'
+if version == 'elel': chunk = 'bigchunks/bigels'    
+if version == 'badphopho': chunk = 'bigchunks/bigbadpho'
+if version == 'phopho': chunk = 'bigchunks/bigphotons'
+
+prediction_sources = {}
+if 'pho' in version: prediction_sources['FakeMet']         = 'output/'+chunk+'/Summer16v3.GJets.root'
+else: prediction_sources['FakeMet']         = 'output/'+chunk+'/Summer16v3.DYJetsNoTau.root'
 if datamc=='data':
-    mcsources['ZGGToNuNuGG'] = ['output/bigchunks/Summer16v3.ZGGToNuNuGG.root']
-    mcsources['WGJets'] = ['output/bigchunks/Summer16v3.WGJets_MonoPhoton.root']
+    prediction_sources['#gamma#gamma+Z#rightarrow#nu#bar{#nu}'] = 'output/'+chunk+'/Summer16v3.ZGGToNuNuGG.root'
+    prediction_sources['W#gamma+jets'] = 'output/'+chunk+'/Summer16v3.WGJets_MonoPhoton.root'
+    prediction_sources['t#bar{t}+jets'] = 'output/'+chunk+'/Summer16v3.TTJets.root'
+    prediction_sources['VV'] = 'output/'+chunk+'/Summer16v3.Diboson.root'    
+    prediction_sources['W+jets'] = 'output/'+chunk+'/Summer16v3.WJetsToLNu.root'
+    prediction_sources['Z^{*}#rightarrow#tau#bar{#tau}'] = 'output/'+chunk+'/Summer16v3.DYJetsWithTau.root'
+    prediction_sources['t#bar{t}Z'] = 'output/'+chunk+'/Summer16v3.TTZ.root'
+    
+   
 
-doblinding = True
+colors = [2,4, kTeal-5, kYellow+2, kOrange+1, kGreen-2, kGreen-1, kGreen, kGreen+1, kGreen+2]
+if version=='elel' or version=='mumu':
+    fkeys = [['Z^{*}#rightarrow#tau#bar{#tau}',kViolet],['t#bar{t}Z',kBlack],['VV',kRed+1],['t#bar{t}+jets',kTeal-5],['FakeMet',kOrange+1]]#,['WJets',kYellow+1]
+if 'phopho' in version:
+    fkeys = [['W#gamma+jets',kYellow+1],['Z^{*}#rightarrow#tau#bar{#tau}',kViolet],['#gamma#gamma+Z#rightarrow#nu#bar{#nu}',kViolet+2],['VV',kRed+1],['t#bar{t}+jets',kTeal-5],['FakeMet',kOrange+1]]#,['WJets',kYellow+1]
 
+
+doblinding = False
+blindall = False
+userands = True
 
 try: year = sys.argv[1]
 except:
@@ -22,23 +53,26 @@ except:
     year = '2016'
 
 
-datasource = 'output/mediumchunks/weightedHists_Run2016C-17Jul2018-v1.SinglePhoton_YesAcme.root'
-datasource = 'output/mediumchunks/weightedHists_Run2016B-17Jul2018_ver2-v1.SinglePhoton_YesAcme.root'
-datasource = 'output/mediumchunks/weightedHists_Run2018AEGamma_YesAcme.root'###need to check it out
-datasource = 'output/mediumchunks/weightedHists_Run2018DEGamma_YesAcme.root'###need to check it out
-datasource = 'output/mediumchunks/weightedHists_Run2018CEGamma_YesAcme.root'###need to check it out
-
-
+signals = ['output/signals/weightedHists_posterior-Summer16v3Fast.SMS-T5Wg_m1800.0d1650.0_RA2AnalysisTree_YesAcme.root',
+           'output/signals/weightedHists_posterior-Summer16v3Fast.SMS-T6Wg_m1800.0d1000.0_RA2AnalysisTree_YesAcme.root',
+           'output/signals/weightedHists_posterior-Summer16v3Fast.SMS-T6Wg_m1800.0d50.0_RA2AnalysisTree_YesAcme.root']
+signals = []
+sigcolors = [kBlue+1, kRed+1, kGray+1, kMagenta, kTeal-5]
 
 if year=='2016':
     lumi = 35.9 # 2016 
-    #lumi = 2.57
-    #lumi = 5.746 # B    
-    datasource = 'output/bigchunks/Run2016_Photon.root'
-    datasource = 'output/bigchunks/Run2016_DoubleEG.root'
+    #lumi = 2.57 #lumi = 5.746 # B    
+    if version=='mumu': datasource = 'output/'+chunk+'/Run2016_SingleMu.root'
+    if version=='elel': datasource = 'output/'+chunk+'/Run2016_DoubleEG.root'
+    if 'phopho' in version: datasource = 'output/'+chunk+'/Run2016_DoubleEG.root'
 if year=='2017':
-    datasource = 'output/bigchunks/Run2017_Photon.root'
+    datasource = 'output/'+chunk+'/Run2017_Photon.root'
+    datasource = 'output/'+chunk+'/Run2017_DoubleEG.root'
     lumi = 41.52
+
+if year=='2018':
+    datasource = 'output/'+chunk+'/Run2018_DoubleEG.root'
+    lumi = 54.52
 
 if year=='2018A':
 	lumi = 13.95
@@ -56,28 +90,23 @@ fdata.ls()
 keys = fdata.GetListOfKeys()
 keys = sorted(keys,key=lambda thing: thing.GetName())
 
-redoBinning = {}#binningUser
-#redoBinning['Pho1Pt'] = [25,50,550]
-#redoBinning['Pho2Pt'] = [25,50,550]
-#redoBinning['HardMet'] = [20,120,520]
-#redoBinning['mva_BDT'] = [12,-1.1,1.1]
+redoBinning = {}
 
 linscale = False
 
 gStyle.SetOptStat(0)
 gROOT.ForceStyle()
-colors = [2,4, kTeal-5, kYellow+2, kOrange+1, kGreen-2, kGreen-1, kGreen, kGreen+1, kGreen+2]
-colors = [kTeal-5, kGreen+2,kOrange+1]
+
 from random import shuffle
 #shuffle(colors)
 
-newfile = TFile('plots_'+year+'_'+datamc+'.root','recreate')
+newfile = TFile('plots_'+year+'_'+datamc+'_'+version+'.root','recreate')
 
-userands = True
 
 
 for key in keys:
     name = key.GetName()
+    if 'Vs' in name: continue
     if not name[0]=='h': continue
     if not 'obs' in name: continue
     hObserved = fdata.Get(name)
@@ -86,43 +115,53 @@ for key in keys:
     hObserved.SetTitle('Data ('+year+')')
     histoStyler(hObserved, 1)
     hpreds = []
-    fkeys = mcsources.keys()
     #fkeys.reverse()
-    for ifname, fkey in enumerate(fkeys):
-        fnamemc = mcsources[fkey][0]
-        if 'QCD' in fnamemc:
-            print 'part 1'            
+    for fkey, color in fkeys:
+        fname_pred = prediction_sources[fkey]
+        print 'fkey', fkey
+        if 'FakeMet' in fkey:          
             if userands: 
                 #hpred = fpred.Get(name.replace('obs','rands'))
+                fpred = TFile()
                 hpred = fdata.Get(name.replace('obs','rands'))
-                hpred.SetTitle('R&S prediction ('+year+')')
+                hpred.SetTitle('R&S prediction')
+                hpred.Scale(1.16)
+
+                ftt = TFile(prediction_sources['t#bar{t}+jets'])
+                htt = ftt.Get(name.replace('obs','rands'))
+                htt.Scale(1000*lumi)
+                if version == 'mumu': htt.Scale(0.75)
+                hpred.Add(htt,-1)
+                ftt.Close()
+
                 print 'jamming', name.replace('obs','rands'), 'from', fdata.GetName(), 'into the list'
-                
-                
+                #fdata.ls()
+                #exit(0)
             else:  
-                fnamemc = mcsources[fkey][0]
-                fpred = TFile(fnamemc)                            
-                fnamemc = mcsources[fkey][0]
-                fpred = TFile(fnamemc)                   
+                fpred = TFile(fname_pred)
                 hpred = fpred.Get(name)                            
-                hpred.SetTitle(fnamemc.split('/')[-1].replace('.root',''))
+                hpred.SetTitle('DY#rightarrow ee/#mu#mu, fake MET MC')#namewizard(fname_pred.split('/')[-1].replace('.root','')))                
             
             print 'getting from data file', name.replace('obs','rands')
             
         else:
-            fnamemc = mcsources[fkey][0]
-            fpred = TFile(fnamemc)
+            fname_pred = prediction_sources[fkey]
+            fpred = TFile(fname_pred)
             print 'trying to get', name, 'from', fpred.GetName()
             hpred = fpred.Get(name)
-            hpred.SetTitle(fnamemc.split('/')[-1].replace('.root',''))
+            hpred.SetTitle(fkey)#namewizard(fname_pred.split('/')[-1].replace('.root','')))
+            if version == 'mumu': hpred.Scale(0.75)
         
-        if 'QCD' in fnamemc and (userands): 
+        if 'FakeMet' in fkey and (userands): 
             if datamc=='data': hpred.Scale(1)
-            if datamc=='mc': hpred.Scale(1000*lumi)                
-        else: hpred.Scale(1000*lumi)
+            if datamc=='mc': hpred.Scale(1000*lumi)
+        else: 
+            hpred.Scale(1000*lumi)
         hpred.SetDirectory(0)
+        #if 'ZGGToNuNuGG' in fkey: hpred.Scale(13.7)
+        #if 'WGJets' in fkey: hpred.Scale(3)
         
-        histoStyler(hpred, colors[ifname])     
+        histoStyler(hpred, color)     
         hpred.SetFillColor(hpred.GetLineColor())
         hpreds.append(hpred)   
         hpreds[-1].SetDirectory(0)        
@@ -154,36 +193,65 @@ for key in keys:
             xax = hObserved.GetXaxis()
             for ibin in range(1,xax.GetNbins()+1):
                 if hObserved.GetBinLowEdge(ibin)>0.5: hObserved.SetBinContent(ibin, -99)
-        if kinvar=='xHardMet':
+        if kinvar=='HardMet' and not 'LDP' in name:
             xax = hObserved.GetXaxis()
             for ibin in range(1,xax.GetNbins()+1):
-                if hObserved.GetBinLowEdge(ibin)>199: hObserved.SetBinContent(ibin, -99)
+                if hObserved.GetBinLowEdge(ibin)>200: hObserved.SetBinContent(ibin, -99)
+        if ('BDT' in kinvar):
+            xax = hObserved.GetXaxis()
+            for ibin in range(1,xax.GetNbins()+1):
+                if hObserved.GetBinLowEdge(ibin)>0.1: hObserved.SetBinContent(ibin, -99)                    
 
-    if not linscale: hObserved.GetYaxis().SetRangeUser(max(0.0001,min(0.01, 0.01*hObserved.GetMinimum())),max(700000, 10*hObserved.GetMaximum()))
+    if not linscale: hObserved.GetYaxis().SetRangeUser(max(0.001,min(0.05, 0.01*hObserved.GetMinimum())),max(700000, 10*hObserved.GetMaximum()))
 
     oldalign = tl.GetTextAlign()    
     tl.SetTextAlign(oldalign)
-    leg = mklegend(x1=.4, y1=.58, x2=.92, y2=.8, color=kWhite)
+    leg = mklegend(x1=.65, y1=.48, x2=.987, y2=.8, color=kWhite)
+    #hpreds = [hpreds[2], hpreds[0], hpreds[1]]
+    newfile.cd() 
+    if dolimitinputs:   
+        hObserved.Write()
+        for h in hpreds: h.Write(h.GetTitle().replace('(','').replace(')','').replace('&','').replace(' ',''))
+    if blindall: hObserved.Reset()
     hratio, hmethodsyst = FabDrawSystyRatio(cGold,leg,hObserved,hpreds,datamc=datamc,lumi=str(lumi), title = '',LinearScale=linscale,fractionthing='observed/method')
 
+    pad1, pad2 = hmethodsyst[-2], hmethodsyst[-1]
     
     for ih in range(len(hpreds)): 
         if linscale:            
-            hpreds[ih].GetYaxis().SetRangeUser(0.0,80)
+            hpreds[ih].GetYaxis().SetRangeUser(0.0,2.0*hpreds[ih].GetMaximum())
         else:
-            hpreds[ih].GetYaxis().SetRangeUser(0.04,500)
-        
-    hratio.GetYaxis().SetRangeUser(-0.2,2.2)
+            hpreds[ih].GetYaxis().SetRangeUser(0.04,5000)
+
+    pad1.cd()
+    sighists = []
+    leg2 = mklegend(x1=.16, y1=.58, x2=.47, y2=.82, color=kWhite)
+    for isig, fsigname in enumerate(signals):
+        fsig = TFile(fsigname)
+        hist = fsig.Get(name)
+        hist.SetDirectory(0)
+        hist.Scale(1000*lumi)
+        histoStyler(hist, sigcolors[isig])
+        hist.SetLineWidth(3)
+        fsig.Close()
+        sighists.append(hist)
+        sighists[-1].Draw('hist same')
+        leg2.AddEntry(hist, fsigname.split('SMS-')[-1].split('_RA2')[0])
+    leg2.Draw('same')
+    hratio.GetYaxis().SetRangeUser(0.0,2.0)
     print 'setting', kinvar, 'title to', kinvar.replace('mva_','(for MVA) ')
     hratio.GetXaxis().SetTitle(kinvar.replace('mva_','(for MVA) '))
     cname = 'c_'+name[1:]
     newfile.cd()
     cGold.Write(cname)
     #print 'trying:','pdfs/ClosureTests/'+selection+'_'+method+'And'+standard+'_'+kinvar+'.pdf'
-    cGold.Print('pdfs/Validation/'+datasource.split('/')[-1].replace('.root','')+cname[1:]+'.pdf')
+    cGold.Print('pdfs/Validation/'+datasource.split('/')[-1].replace('.root','')+cname[1:]+'.png')
 
 
 print 'just created', newfile.GetName()
+'''
+scp pdfs/Validation/ beinsam@naf-cms11.desy.de:/afs/desy.de/user/b/beinsam/www/Diphoton/Validation/23March2021/TwoElectrons/
+'''
 
 
 

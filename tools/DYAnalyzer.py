@@ -23,6 +23,7 @@ nametag = {'Nom':'', 'Up': 'JerUp'}
 '''
 python tools/DYAnalyzer.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_Tune --quickrun True
 python tools/submitHistJobs.py --analyzer tools/DYAnalyzer.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_Tune
+python tools/submitHistJobs.py --analyzer tools/DYAnalyzer.py --fnamekeyword Run2016B-17Jul2018_ver2-v1.DoubleEG
 '''
 
 ##load in UsefulJet class, which the rebalance and smear code uses
