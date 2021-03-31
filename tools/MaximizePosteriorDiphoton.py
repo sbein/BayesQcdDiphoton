@@ -41,6 +41,7 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
@@ -56,9 +57,13 @@ verbosity = args.verbosity
 printevery = args.printevery
 debugmode = args.debugmode
 muversion = args.muversion
+poofmu = args.poofmu
 printevery = args.printevery
 quickrun = args.quickrun
 sayalot = args.sayalot
+
+if poofmu:
+    met4skim = 0.0
 
 if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
     
@@ -176,8 +181,9 @@ python tools/globthemfiles.py
 '''
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
-fnamefilename = 'usefulthings/filelistDiphoton.txt'
-fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
+#fnamefilename = 'usefulthings/filelistDiphoton.txt'
+#fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
+fnamefilename = 'usefulthings/filelist_all.txt'
 if not 'DoubleEG' in fnamekeyword:
     if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
         fnamefilename = 'usefulthings/filelistV17.txt'
@@ -193,7 +199,10 @@ for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
     if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
-    fname = fname.replace('/eos/uscms/','root://cmsxrootd.fnal.gov//')
+    if '/eos/uscms/' in fname:
+        fname = fname.replace('/eos/uscms/','root://cmsxrootd.fnal.gov//')
+    else:
+        fname = fname.replace('/store/','root://cmseos.fnal.gov//store/')
     #if 'WJets' in fnamekeyword: fname = fname.replace('root://cmsxrootd.fnal.gov///store/group/lpcsusyhad','root://hepxrd01.colorado.edu:1094//store/user/aperloff')
     print 'adding', fname
     c.Add(fname)
@@ -249,6 +258,7 @@ if issignal:
     newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
 
 if muversion: newname = newname.replace('.root','_muskim.root')
+if poofmu: newname = newname.replace('.root','_poofmu.root')
 fnew = TFile(newname, 'recreate')
 print 'creating', newname
 
@@ -287,10 +297,11 @@ if mktree:
            
     NPhotons = np.zeros(1, dtype=int)
     mass_GG = np.zeros(1, dtype=float)
+    mass_mumu = np.zeros(1, dtype=float)
 
     analysisPhotons = ROOT.std.vector('TLorentzVector')()
     tree_out.Branch('analysisPhotons', analysisPhotons)
-    
+    tree_out.Branch('mass_mumu',mass_mumu, 'mass_mumu/D')
     tree_out.Branch('mass_GG', mass_GG, 'mass_GG/D')    
     tree_out.Branch('NPhotons', NPhotons, 'NPhotons/I')
 
@@ -358,7 +369,6 @@ if mktree:
     tree_out.Branch('mva_dRjet2photon1', mva_dRjet2photon1, 'mva_dRjet2photon1/D')        
     mva_dRjet2photon2 = np.zeros(1, dtype=float)
     tree_out.Branch('mva_dRjet2photon2', mva_dRjet2photon2, 'mva_dRjet2photon2/D')    
-
 
     
     mva_BDT = np.zeros(1, dtype=float)
@@ -492,8 +502,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     if muversion: 
         if not len(c.Muons)>1: continue
-    else: 
+    else:
         if not len(c.Photons)>1: continue
+
+    if poofmu:
+        if not len(c.Muons)>1: continue
+        if not len(c.Photons)>1: continue
+        
+
 
 
     acme_objects.clear()
@@ -707,6 +723,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tjets_pt = tHardMhtVec.Clone()
     tjets_pt*=-1
 
+    if poofmu:
+        if len(recomuons)>1:
+            mass_mumu[0] = (recomuons[0]+recomuons[1]).M()
+            tHardMetVec+=recomuons[0]
+            tHardMetVec+=recomuons[1]
+            MetVec+=recomuons[0]
+            MetVec+=recomuons[1]
+    
     mass_GG[0] = (recophotons[0]+recophotons[1]).M()   
     if muversion:      
         Pho1_hadTowOverEM[0], Pho2_hadTowOverEM[0] = 0, 0
