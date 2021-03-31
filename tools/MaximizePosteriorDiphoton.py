@@ -587,13 +587,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     recophotons_sieie = recophotons_loose_sieie
     recophotons_hoe = recophotons_loose_hoe
     recophotons_hps = recophotons_loose_hps
-        
-    #    if not len(c.Photons)==recophotons.size():
-    #        print ientry, 'this is important'
-    #        continue
 
-
-
+    
     NPhotons[0] = len(recophotons)
     analysisPhotons.clear()
     for photon in recophotons: analysisPhotons.push_back(photon)
