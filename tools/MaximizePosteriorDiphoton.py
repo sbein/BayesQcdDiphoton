@@ -41,7 +41,7 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
-parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=True, help="for poofing muons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
@@ -499,7 +499,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
 
 
-
+    mass_mumu[0] = -1.0
     if muversion: 
         if not len(c.Muons)>1: continue
     else:
