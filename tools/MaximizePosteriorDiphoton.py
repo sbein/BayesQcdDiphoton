@@ -182,8 +182,8 @@ python tools/globthemfiles.py
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
 #fnamefilename = 'usefulthings/filelistDiphoton.txt'
-#fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
-fnamefilename = 'usefulthings/filelist_all.txt'
+fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
+#fnamefilename = 'usefulthings/filelist_all.txt'
 if not 'DoubleEG' in fnamekeyword:
     if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
         fnamefilename = 'usefulthings/filelistV17.txt'
@@ -784,58 +784,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         drjet2pho2 = -1.0
 
 
-
-        
-
-    fitsucceed = RebalanceJets(recojets)
-    rebalancedJets = _Templates_.dynamicJets
-
-    hadronicJets.clear()
-    for jet in recojets:
-        hadronicJets.push_back(jet.tlv)
-    
-
-    for obj in acme_objects: ##this has got to come after the rebalancing
-        recojets.push_back(obj)
-    sortThatThang(recojets)
-    NOrigJets15[0] = len(recojets)
-    
-    
-    mHardMetVec = getHardMet(rebalancedJets,AnHardMetJetPtCut, mhtjetetacut)
-        
-    mHardMetVec-=AcmeVector # this is now done because the acme_objects were not stuck back into the reblanced jets
-    mHardMetPt, mHardMetPhi = mHardMetVec.Pt(), mHardMetVec.Phi()
-
-    rebalancedHardMet[0] = mHardMetPt
-
-    mBTags = countBJets(rebalancedJets,AnHardMetJetPtCut)###
-
-    fitsucceed = (fitsucceed and mHardMetPt<rebalancedMetCut)# mHardMetPt>min(mHt/2,180):# was 160	
-
-    #redoneMET = redoMET(MetVec,recojets,rebalancedJets)
-    #mMetPt,mMetPhi = redoneMET.Pt(), redoneMET.Phi()
-    
-
-    fillth1(hTotFit, mBTags, weight)
-
-    if fitsucceed: fillth1(hPassFit, mBTags, weight)
-
-    for ijet, jet in enumerate(rebalancedJets):
-        jetsRebalanced.push_back(jet.tlv)
-
     nsmears = smears*bootupfactor
-    if isdata: weight = 1.0/nsmears
-    else: weight = c.puWeight * c.CrossSection / nsmears
-
-    if debugmode:
-        print 'MET, MHT, HardMet', c.MET, c.MHT, tHardMetVec.Pt()
-        print 'recojets:'
-        for ijet, jet in enumerate(recojets):
-            print ientry, ijet, jet.Pt()
-        print 'acmes:'  
-        for iobj, obj in enumerate(acme_objects):      
-            print iobj, obj, obj.Pt()
-        print ientry, 'tHardMetVec.DeltaPhi(recophotons[0]+recophotons[1])', tHardMetVec.DeltaPhi(recophotons[0]+recophotons[1])
 
     if mktree and tHardMetPt>met4skim:
 
@@ -896,6 +845,46 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             IsUniqueSeed[0] = 0            
 
 
+    if nsmears==0: continue
+
+    fitsucceed = RebalanceJets(recojets)
+    rebalancedJets = _Templates_.dynamicJets
+
+    hadronicJets.clear()
+    for jet in recojets:
+        hadronicJets.push_back(jet.tlv)
+    
+
+    for obj in acme_objects: ##this has got to come after the rebalancing
+        recojets.push_back(obj)
+    sortThatThang(recojets)
+    NOrigJets15[0] = len(recojets)
+    
+    
+    mHardMetVec = getHardMet(rebalancedJets,AnHardMetJetPtCut, mhtjetetacut)
+        
+    mHardMetVec-=AcmeVector # this is now done because the acme_objects were not stuck back into the reblanced jets
+    mHardMetPt, mHardMetPhi = mHardMetVec.Pt(), mHardMetVec.Phi()
+
+    rebalancedHardMet[0] = mHardMetPt
+
+    mBTags = countBJets(rebalancedJets,AnHardMetJetPtCut)###
+
+    fitsucceed = (fitsucceed and mHardMetPt<rebalancedMetCut)# mHardMetPt>min(mHt/2,180):# was 160	
+
+    #redoneMET = redoMET(MetVec,recojets,rebalancedJets)
+    #mMetPt,mMetPhi = redoneMET.Pt(), redoneMET.Phi()
+    
+
+    fillth1(hTotFit, mBTags, weight)
+
+    if fitsucceed: fillth1(hPassFit, mBTags, weight)
+
+    for ijet, jet in enumerate(rebalancedJets):
+        jetsRebalanced.push_back(jet.tlv)
+
+
+        
 
     for i in range(nsmears):
 
