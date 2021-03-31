@@ -499,7 +499,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
 
 
-
+    mass_mumu[0] = -1.0
     if muversion: 
         if not len(c.Muons)>1: continue
     else:
