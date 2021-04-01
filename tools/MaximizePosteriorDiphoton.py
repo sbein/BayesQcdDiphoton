@@ -539,7 +539,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
         acme_objects.push_back(usefulpho)        
-        if not pho.Pt()>75: continue
+        if poofmu: 
+            if not pho.Pt()>35: continue
+        else:
+            if not pho.Pt()>75: continue            
 
         
         #if not c.Photons_genMatched[ipho]: continue
