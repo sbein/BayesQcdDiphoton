@@ -115,7 +115,8 @@ else: isfast = False
 if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword: 
     BTAG_deepCSV = 0.6324
     is2016 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    #xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
@@ -186,9 +187,9 @@ ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2Producti
 #fnamefilename = 'usefulthings/filelistDiphoton.txt'
 fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
 #fnamefilename = 'usefulthings/filelist_all.txt'
-if not 'DoubleEG' in fnamekeyword:
-    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
-        fnamefilename = 'usefulthings/filelistV17.txt'
+#if not 'DoubleEG' in fnamekeyword:
+#    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
+#        fnamefilename = 'usefulthings/filelistV17.txt'
 print 'as file list, using', fnamefilename
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
@@ -200,7 +201,7 @@ filelist = []
 for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
-    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
+#    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
     if '/eos/uscms/' in fname:
         fname = fname.replace('/eos/uscms/','root://cmsxrootd.fnal.gov//')
     else:
