@@ -82,107 +82,108 @@ plotBundle = {}
 
 #2d plots
 '''
-#plotBundle['TwoPho_EtaVsPhi'] = ['Photons[0].Eta():Photons[0].Phi()>>hadc(320,-3.2,3.2,320,-3.2,3.2)','HardMETPt>120 && NPhotons==2',True]
-plotBundle['TwoPho_Pho1EtaVsPhi'] = ['Photons[0].Eta():Photons[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>120 && NPhotons==2',True]
-plotBundle['TwoPho_Jet1EtaVsPhi'] = ['JetsAUX[0].Eta():JetsAUX[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>120 && NPhotons==2',True]
-plotBundle['TwoPho_Jet2EtaVsPhi'] = ['JetsAUX[1].Eta():JetsAUX[1].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>120 && NPhotons==2',True]
-plotBundle['TwoPhoHighMet_Jet1EtaVsPhi'] = ['JetsAUX[0].Eta():JetsAUX[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>250 && NPhotons==2',True]
-plotBundle['TwoPhoHighMet_Jet2EtaVsPhi'] = ['JetsAUX[1].Eta():JetsAUX[1].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>250 && NPhotons==2',True]
-plotBundle['TwoPho_HardMETPhi'] = ['HardMETPhi>>hadc(32,0,3.2)','HardMETPt>120 && NPhotons==2',True]
+#plotBundle['TwoPho_EtaVsPhi'] = ['Photons[0].Eta():Photons[0].Phi()>>hadc(320,-3.2,3.2,320,-3.2,3.2)','HardMETPt>130 && NPhotons>=2',False]
+plotBundle['TwoPho_Pho1EtaVsPhi'] = ['Photons[0].Eta():Photons[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>130 && NPhotons>=2',False]
+plotBundle['TwoPho_Jet1EtaVsPhi'] = ['JetsAUX[0].Eta():JetsAUX[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>130 && NPhotons>=2',False]
+plotBundle['TwoPho_Jet2EtaVsPhi'] = ['JetsAUX[1].Eta():JetsAUX[1].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>130 && NPhotons>=2',False]
+plotBundle['TwoPhoHighMet_Jet1EtaVsPhi'] = ['JetsAUX[0].Eta():JetsAUX[0].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>250 && NPhotons>=2',False]
+plotBundle['TwoPhoHighMet_Jet2EtaVsPhi'] = ['JetsAUX[1].Eta():JetsAUX[1].Phi()>>hadc(160,-3.2,3.2,160,-3.2,3.2)','HardMETPt>250 && NPhotons>=2',False]
+plotBundle['TwoPho_HardMETPhi'] = ['HardMETPhi>>hadc(32,0,3.2)','HardMETPt>130 && NPhotons>=2',False]
 '''
 
 #SR plots
-if not ('SR' in SpecialSettings or 'Agnostic' in SpecialSettings):
-    plotBundle['TwoPho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_HardMet'] = ['min(HardMETPt,619)>>hadc(20,120,620)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_ST'] = ['mva_ST>>hadc(10,100,2300)','HardMETPt>120 && NPhotons==2',True]
+if False and not ('SR' in SpecialSettings or 'Agnostic' in SpecialSettings):
+    plotBundle['TwoPho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_HardMet'] = ['min(HardMETPt,499)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_ST'] = ['mva_ST>>hadc(10,100,2300)','HardMETPt>130 && NPhotons>=2',False]
     
-    plotBundle['TwoPhoHighMet_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>300 && NPhotons==2',True]
-    plotBundle['TwoPhoHighMet_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>300 && NPhotons==2',True]
-    plotBundle['TwoPhoHighMet_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>300 && NPhotons==2',True]
-    plotBundle['TwoPhoHighMet_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>300 && NPhotons==2',True]
-    plotBundle['TwoPhoHighMet0b_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>300 && NPhotons==2 && BTagsAUX==0',True]
-    plotBundle['TwoPhoHighMet0b_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>300 && NPhotons==2 && BTagsAUX==0',True]
-    plotBundle['TwoPhoHighMet0b_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>300 && NPhotons==2 && BTagsAUX==0',True]
-    plotBundle['TwoPhoHighMet0b_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>300 && NPhotons==2 && BTagsAUX==0',True]
-    plotBundle['TwoPhoOnZ_HardMet'] = ['min(HardMETPt,619)>>hadc(20,120,620)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)<10',True]
-    plotBundle['TwoPhoOnZ_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)<10',True]    
-    plotBundle['TwoPhoOnZ_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)<10',True]
-    plotBundle['TwoPhoOnZLDP_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)<10  && mva_min_dPhi<0.5',True]
-    plotBundle['TwoPhoOnZLDP_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)<10  && mva_min_dPhi<0.5',True]    
-    plotBundle['TwoPhoOffZ_HardMet'] = ['min(HardMETPt,619)>>hadc(20,120,620)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)>10',True]
-    plotBundle['TwoPhoOffZ_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)>10',True]    
-    plotBundle['TwoPhoOffZ_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>120 && NPhotons==2 && abs(mass_GG-91)>10',True]
-    
-#plotBundle['TwoPho_SR'] = ['min(HardMETPt,419)>>hadc(2,120,420)','HardMETPt>120 && NPhotons==2',True]
-#plotBundle['SignalRegionTwoPho_HardMet'] = ['min(HardMETPt,619)>>hadc(1,250,640)','HardMETPt>250 && NPhotons==2',True]
+    plotBundle['TwoPhoHighMet_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>300 && NPhotons>=2',False]
+    plotBundle['TwoPhoHighMet_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>300 && NPhotons>=2',False]
+    plotBundle['TwoPhoHighMet_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>300 && NPhotons>=2',False]
+    plotBundle['TwoPhoHighMet_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>300 && NPhotons>=2',False]
+    plotBundle['TwoPhoHighMet0b_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>300 && NPhotons>=2 && BTagsAUX==0',False]
+    plotBundle['TwoPhoHighMet0b_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>300 && NPhotons>=2 && BTagsAUX==0',False]
+    plotBundle['TwoPhoHighMet0b_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>300 && NPhotons>=2 && BTagsAUX==0',False]
+    plotBundle['TwoPhoHighMet0b_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>300 && NPhotons>=2 && BTagsAUX==0',False]
+    plotBundle['TwoPhoOnZ_HardMet'] = ['min(HardMETPt,499)>>hadc(20,120,620)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)<10',False]
+    plotBundle['TwoPhoOnZ_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)<10',False]    
+    plotBundle['TwoPhoOnZ_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)<10',False]
+    plotBundle['TwoPhoOnZLDP_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)<10  && mva_min_dPhi<0.5',False]
+    plotBundle['TwoPhoOnZLDP_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)<10  && mva_min_dPhi<0.5',False]    
+    plotBundle['TwoPhoOffZ_HardMet'] = ['min(HardMETPt,499)>>hadc(20,120,620)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)>10',False]
+    plotBundle['TwoPhoOffZ_BTags'] = ['BTagsAUX>>hadc(6,0,6)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)>10',False]    
+    plotBundle['TwoPhoOffZ_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2 && abs(mass_GG-91)>10',False]
+
+if 'SR' in SpecialSettings:
+    plotBundle['SignalRegionTwoPho_HardMet'] = ['min(HardMETPt,499)>>hadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT>-0.26',False]
+    plotBundle['TwoPho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2',False]
 
 
-plotBundle['TwoPhoFailsieieta2_SigmaIetaIeta1'] = ['Photons_sigmaIetaIeta[0]>>hadc(20,0,0.1)','HardMETPt>120 && NPhotons==2 && Pho2_passLooseSigmaIetaIeta==0',True]
-plotBundle['TwoPhoFailsieieta1_SigmaIetaIeta2'] = ['Photons_sigmaIetaIeta[1]>>hadc(20,0,0.1)','HardMETPt>120 && NPhotons==2 && Pho1_passLooseSigmaIetaIeta==0',True]
+#plotBundle['TwoPhoFailsieieta2_SigmaIetaIeta1'] = ['Photons_sigmaIetaIeta[0]>>hadc(20,0,0.1)','HardMETPt>130 && NPhotons>=2 && Pho2_passLooseSigmaIetaIeta==0',False]
+#plotBundle['TwoPhoFailsieieta1_SigmaIetaIeta2'] = ['Photons_sigmaIetaIeta[1]>>hadc(20,0,0.1)','HardMETPt>130 && NPhotons>=2 && Pho1_passLooseSigmaIetaIeta==0',False]
 
-plotBundle['TwoPhoLDP_SigmaIetaIeta1'] = ['Photons_sigmaIetaIeta[0]>>hadc(20,0,0.1)','HardMETPt>120 && NPhotons==2  && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_SigmaIetaIeta2'] = ['Photons_sigmaIetaIeta[1]>>hadc(20,0,0.1)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
+plotBundle['TwoPhoLDP_SigmaIetaIeta1'] = ['Photons_sigmaIetaIeta[0]>>hadc(20,0,0.1)','HardMETPt>130 && NPhotons>=2  && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_SigmaIetaIeta2'] = ['Photons_sigmaIetaIeta[1]>>hadc(20,0,0.1)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 
 
 #LDP plots
-plotBundle['TwoPhoLDP_HardMet'] = ['min(HardMETPt,619)>>hadc(20,120,620)','NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>120 && NPhotons==2',True]##this appears twice
-plotBundle['TwoPhoLDP_massGG'] = ['mass_GG>>hadc(20,0,400)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-plotBundle['TwoPhoLDP_mva_ST'] = ['mva_ST>>hadc(10,100,2300)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-#plotBundle['TwoPhoLDP_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
-#plotBundle['TwoPhoLDP_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120 && NPhotons==2 && mva_min_dPhi<0.5',True]
+plotBundle['TwoPhoLDP_HardMet'] = ['min(HardMETPt,499)>>hadchadc(74,130,500)','NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2',False]##this appears twice
+plotBundle['TwoPhoLDP_massGG'] = ['mass_GG>>hadc(20,0,400)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+plotBundle['TwoPhoLDP_mva_ST'] = ['mva_ST>>hadc(10,100,2300)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+#plotBundle['TwoPhoLDP_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+#plotBundle['TwoPhoLDP_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 
 
-if 'SR' in SpecialSettings and False:
-    plotBundle['TwoPhoLowBDT_HardMet'] = ['HardMETPt>>hadc(20,120,620)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>120  && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>120  && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2 && mva_BDT<-0.2',True]    
-    plotBundle['TwoPhoLowBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
-    plotBundle['TwoPhoLowBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>120 && NPhotons==2 && mva_BDT<-0.2',True]
+if 'SR' in SpecialSettings and True:
+    plotBundle['TwoPhoLowBDT_HardMet'] = ['HardMETPt>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]    
+    plotBundle['TwoPhoLowBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
     
 
 if 'Summer' in fileskey and False:
-    plotBundle['TwoPhoHDP_HardMet'] = ['HardMETPt>>hadc(20,120,520)','NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]
-    plotBundle['TwoPhoHDP_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>120  && NPhotons==2 && mva_min_dPhi>0.3',True]    
+    plotBundle['TwoPhoHDP_HardMet'] = ['HardMETPt>>hadc(74,130,500)','NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]
+    plotBundle['TwoPhoHDP_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>130  && NPhotons>=2 && mva_min_dPhi>0.3',False]    
 
-    plotBundle['TwoPho_HardMet'] = ['HardMETPt>>hadc(20,120,520)','NPhotons==2',True]
-    plotBundle['TwoPho_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>120  && NPhotons==2',True]
-    plotBundle['TwoPho_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>120  && NPhotons==2',True]
-    plotBundle['TwoPho_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2',True]
-    plotBundle['TwoPho_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>120  && NPhotons==2',True]
-    plotBundle['TwoPho_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>120  && NPhotons==2',True]    
+    plotBundle['TwoPho_HardMet'] = ['HardMETPt>>hadc(20,120,520)','NPhotons>=2',False]
+    plotBundle['TwoPho_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2',False]
+    plotBundle['TwoPho_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2',False]
+    plotBundle['TwoPho_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2',False]
+    plotBundle['TwoPho_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_BDT'] = ['mva_BDT>>hadc(12,-1.2,1.2)','HardMETPt>130  && NPhotons>=2',False]    
 
-    plotBundle['TwoPho_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2',True]
-    plotBundle['TwoPho_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>120 && NPhotons==2',True]    
-    plotBundle['BasleineTwoPho_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(18,-0.2,3.4)','HardMETPt>120 && NPhotons==2',True]    
+    plotBundle['TwoPho_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2',False]
+    plotBundle['TwoPho_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2',False]    
+    plotBundle['BasleineTwoPho_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(18,-0.2,3.4)','HardMETPt>130 && NPhotons>=2',False]    
 
     
 
@@ -199,7 +200,7 @@ c1 = mkcanvas()
 c2 = mkcanvas('c2')
 
 for key in plotBundle:
-    drawarg, constraint, usernsvalue = plotBundle[key]
+    drawarg, constraint, blinding = plotBundle[key]
     obsweight = evtweight+'*('+constraint + ' && '+ universalconstraint + ' && IsRandS==0)'
     #puWeight
     print 'drawing', drawarg, ', with constraint:', obsweight
@@ -216,6 +217,7 @@ for key in plotBundle:
     print 'drawing', drawarg, ', with constraint:', methweight
     chain.Draw(drawarg, methweight, 'e')
     hrands = chain.GetHistogram().Clone(key+'_rands') 
+    if blinding and 'Run20' in fileskey: hobs = hrands.Clone(key+'_obs')
     if not ('Vs' in drawarg): hrands.GetYaxis().SetRangeUser(0.01,10000*hrands.GetMaximum())
     if 'ZGG' in fileskey: histoStyler(hrands, kViolet+1)
     else: histoStyler(hrands, kAzure-8)
