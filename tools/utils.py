@@ -286,6 +286,7 @@ def writeHistoStruct(hStructDict):
         hStructDict[key].RplusS.Write()
 
 
+
 def pause(str_='push enter key when ready'):
         import sys
         print str_
@@ -414,7 +415,7 @@ def getLeadingBJet(RecoJets, CsvVec, BTAG_CSV):
 
 
 
-def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs', printtable = True):
     cGold.cd()
     pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
     pad1.SetBottomMargin(0.0)
@@ -426,6 +427,10 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
     #pad1.SetGridy()
     pad1.Draw()
     pad1.cd()
+
+
+
+        
     for ih in range(1,len(hComponents[1:])+1):
         hComponents[ih].Add(hComponents[ih-1])
     hComponents.reverse()        
@@ -606,156 +611,7 @@ def FabDraw(cGold,leg,hObserved,hComponents,datamc='mc',lumi='arbitrary', title 
 '''
 
 
-def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
-    cGold.cd()
-    pad1 = TPad("pad1", "pad1", 0, 0.45, 1, 1.0)
-    pad1.SetBottomMargin(0.0)
-    pad1.SetLeftMargin(0.12)
-    if not LinearScale:
-        pad1.SetLogy()
-
-    #pad1.SetGridx()
-    #pad1.SetGridy()
-    pad1.Draw()
-    pad1.cd()
-    for ih in range(1,len(hComponents[1:])+1):
-        hComponents[ih].Add(hComponents[ih-1])
-    hComponents.reverse()        
-    if abs(hComponents[0].Integral(-1,999)-1)<0.001:
-        hComponents[0].GetYaxis().SetTitle('Normalized')
-    else: hComponents[0].GetYaxis().SetTitle('Events/bin')
-    cGold.Update()
-    hTruth.GetYaxis().SetTitle('Normalized')
-    hTruth.GetYaxis().SetTitleOffset(1.2)
-    hTruth.SetMarkerStyle(20)
-    histheight = 1.5*max(hComponents[0].GetMaximum(),hTruth.GetMaximum())
-    if LinearScale: low, high = 0, histheight
-    else: low, high = max(0.001,max(hComponents[0].GetMinimum(),hTruth.GetMinimum())), 1000*histheight
-
-    title0 = hTruth.GetTitle()
-    if datamc=='MC':
-        for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
-        leg.AddEntry(hTruth,hTruth.GetTitle(),'p')        
-    else:
-        for ihComp, hComp in enumerate(hComponents):
-            leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
-        leg.AddEntry(hTruth,title0,'p')    
-    hTruth.SetTitle('')
-    hComponents[0].SetTitle('')	
-    xax = hComponents[0].GetXaxis()
-    hComponentsUp = hComponents[0].Clone(hComponents[0].GetName()+'UpVariation')
-    hComponentsUp.SetLineColor(kWhite)	
-    hComponentsDown = hComponents[0].Clone(hComponents[0].GetName()+'DownVariation')	
-    hComponentsDown.SetFillColor(10)
-    hComponentsDown.SetFillStyle(1001)
-    hComponentsDown.SetLineColor(kWhite)
-    for ibin in range(1, xax.GetNbins()+1):
-        hComponentsUp.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)+hComponents[0].GetBinError(ibin))
-        hComponentsDown.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)-hComponents[0].GetBinError(ibin))		
-
-    hComponentsUp.GetYaxis().SetTitleSize(0.11)
-    hComponentsUp.GetYaxis().SetTitleOffset(0.5)
-    hComponentsUp.GetYaxis().SetLabelSize(0.095)
-    #hComponentsUp.Draw('hist')
-    hComponents[0].SetLineColor(kGray+1)
-    hComponents[0].SetLineWidth(2)
-    hComponents[0].Draw('hist e')
-    #hComponentsDown.Draw('hist same')
-    for h in hComponents[1:]: 
-        #h.SetFillStyle(3244)
-        print 'there are actually components here!'
-        h.Draw('hist same')
-    ErrorHistogram = hComponents[0].Clone('ErrorHistogram')
-    ErrorHistogram.SetFillStyle(3244)
-    ErrorHistogram.SetFillColor(kGray)
-    ErrorHistogram.Draw('e2 sames')		
-    cGold.Update()
-    #hComponents[0].Draw('same') 
-    hTruth.Draw('p same')
-    hTruth.Draw('e same')    
-    cGold.Update()
-    hComponents[0].Draw('axis same')           
-    leg.Draw()        
-    cGold.Update()
-    stampFab(lumi,datamc)
-    cGold.Update()
-    cGold.cd()
-    pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.45)
-    pad2.SetTopMargin(0.0)
-    pad2.SetBottomMargin(0.3)
-    pad2.SetLeftMargin(0.12)
-    #pad2.SetGridx()
-    pad2.SetGridy()
-    pad2.Draw()
-    pad2.cd()
-    hTruthCopy = hTruth.Clone('hTruthClone'+hComponents[0].GetName())
-    hRatio = hTruthCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
-    hRatio.SetMarkerStyle(20)
-    #hFracDiff = hComponents[0].Clone('hFracDiff')
-    #hFracDiff.SetMarkerStyle(20)
-    hTruthCopy.SetMarkerStyle(20)
-    hTruthCopy.SetMarkerColor(1) 
-    #histoStyler(hFracDiff, 1)
-    histoStyler(hTruthCopy, 1)
-    #hFracDiff.Add(hTruthCopy,-1)
-    #hFracDiff.Divide(hTruthCopy)
-    #hRatio.Divide(hTruthCopy)
-    histoByWhichToDivide = hComponents[0].Clone()
-    for ibin in range(1, xax.GetNbins()+1): histoByWhichToDivide.SetBinError(ibin, 0)
-    hRatio.Divide(histoByWhichToDivide)
-    hRatio.GetYaxis().SetRangeUser(0.0,.1)###
-    hRatio.SetTitle('')
-    if 'prediction' in title0: hFracDiff.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
-    else: hRatio.GetYaxis().SetTitle(fractionthing)
-    hRatio.GetXaxis().SetTitleSize(0.13)
-    hRatio.GetXaxis().SetLabelSize(0.13)
-    hRatio.GetYaxis().SetTitleSize(0.13)
-    hRatio.GetYaxis().SetLabelSize(0.13)
-    hRatio.GetYaxis().SetNdivisions(5)
-    hRatio.GetXaxis().SetNdivisions(10)
-    hRatio.GetYaxis().SetTitleOffset(0.4)
-    hRatio.GetXaxis().SetTitleOffset(1.0)
-    hRatio.GetXaxis().SetTitle(hTruth.GetXaxis().GetTitle())
-    hRatio.Draw()
-
-
-    histoMethodFracErrorNom = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystNom')
-    histoMethodFracErrorNom.SetLineColor(kBlack)
-    histoMethodFracErrorNom.SetFillStyle(1)
-    histoMethodFracErrorUp = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystUp')
-    histoMethodFracErrorUp.SetFillStyle(3001)
-    histoMethodFracErrorUp.SetLineColor(kWhite)	
-    histoMethodFracErrorUp.SetFillColor(kGray)#hComponents[0].GetFillColor())	
-    histoMethodFracErrorUp.SetFillStyle(3244)
-    histoMethodFracErrorDown = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystDown')
-    histoMethodFracErrorDown.SetLineColor(kWhite)
-    #histoMethodFracErrorDown.SetFillStyle(1001)
-    histoMethodFracErrorDown.SetFillColor(10)
-    for ibin in range(1, xax.GetNbins()+1): 
-        content = histoMethodFracErrorUp.GetBinContent(ibin)
-        if content>0: err = histoMethodFracErrorUp.GetBinError(ibin)/content
-        else: err = 0
-        histoMethodFracErrorUp.SetBinContent(ibin, 1+err)
-        histoMethodFracErrorUp.SetBinError(ibin, 0)
-        histoMethodFracErrorDown.SetBinContent(ibin, 1-err)
-        histoMethodFracErrorDown.SetBinError(ibin, 0)		
-        histoMethodFracErrorNom.SetBinContent(ibin, 1)		
-        histoMethodFracErrorNom.SetBinError(ibin, 0)
-    hRatio.GetYaxis().SetRangeUser(-0.2,2.7)	
-    hRatio.Draw('e0')
-    histoMethodFracErrorUp.Draw('same hist')	
-    histoMethodFracErrorNom.Draw('same')
-    histoMethodFracErrorDown.Draw('same hist')
-    hRatio.Draw('e0 same')
-    hRatio.Draw('axis same')
-    pad1.cd()
-    hComponents.reverse()
-    hTruth.SetTitle(title0)
-    pad1.Update()
-
-    return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown, ErrorHistogram,pad1, pad2]
-
-def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs', printtable=True):
     cGold.cd()
     pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
     pad1.SetBottomMargin(0.0)
@@ -763,16 +619,53 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     if not LinearScale:
         pad1.SetLogy()
 
+
+    if printtable:
+        hComponents.reverse()
+        table = r'''\begin{tabular}{'''
+        structure = '|c'*(len(hComponents)+3)
+        table+=structure+'|}\n'
+        table+=r'\hline'+'\n'        
+        hskel = hComponents[0].Clone()
+        sxax = hskel.GetXaxis()
+        table+='bin '
+        for ih, h in enumerate(hComponents):
+            table+=' & $'+(str(h.GetTitle().split('#rightarrow')[0].replace('+',' ').replace('&',r'\&')).replace('prediction','').replace('#','\\')).replace('faking','\\text{\\,faking\\,}')+'$'
+        table+=' & tot. bkg.'
+        table+=' & obs.'
+        table+=r'''\\'''
+        table+='\n'
+        table+=r'\hline'+'\n'
+        htot = TH1F('htot','htot',1,0,1)
+        htot.Sumw2()
+        hdyn = TH1F('hdyn','hdyn',1,0,1)
+        hdyn.Sumw2()        
+        for ibin in range(1,sxax.GetNbins()+1):
+
+            table += str(ibin)
+            htot.Reset()            
+            for ih, h in enumerate(hComponents):
+                table+=' & %.2f $\\pm$ %.2f' % (round(h.GetBinContent(ibin),2), round(h.GetBinError(ibin),2))
+                hdyn.SetBinContent(1, h.GetBinContent(ibin))
+                hdyn.SetBinError(1, h.GetBinError(ibin))                
+                htot+=hdyn
+            table+=' &  %.2f $\\pm$ %.2f' % (round(htot.GetBinContent(1),2), round(htot.GetBinError(1),2))
+            table+=' & '+str(int(hObserved.GetBinContent(ibin)))
+            table+=r'''\\'''
+            table+='\n'
+            table+=r'\hline'+'\n'
+        table+=r'''\end{tabular}'''
+        print table
+        hComponents.reverse()
+        
     #pad1.SetGridx()
     #pad1.SetGridy()
     pad1.Draw()
     pad1.cd()
     for ih in range(1,len(hComponents[1:])+1):
         hComponents[ih].Add(hComponents[ih-1])
-    hComponents.reverse()        
-    if abs(hComponents[0].Integral(-1,999)-1)<0.001:
-        hComponents[0].GetYaxis().SetTitle('Normalized')
-    else: hComponents[0].GetYaxis().SetTitle('Events/bin')
+    hComponents.reverse()
+    hComponents[0].GetYaxis().SetTitle('Events/bin')
     cGold.Update()
     hObserved.GetYaxis().SetTitle('Normalized')
     hObserved.GetYaxis().SetTitleOffset(1.15)
@@ -813,7 +706,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     #hComponents[0].Draw('same') 
     hError = hComponents[0].Clone(hComponents[0].GetName()+'_err')
     hError.SetFillStyle(3244)
-    hError.SetFillColor(kRed)    
+    hError.SetFillColor(kGray+2)    
     hError.Draw("E2 sames")
     hObserved.Draw('p same')
     hObserved.Draw('e same')    
@@ -835,6 +728,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     hObservedCopy = hObserved.Clone('hObservedClone'+hComponents[0].GetName())
     hRatio = hObservedCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
     hRatio.SetMarkerStyle(20)
+    hComponents[0].SetLineWidth(0)
     #hFracDiff = hComponents[0].Clone('hFracDiff')
     #hFracDiff.SetMarkerStyle(20)
     hObservedCopy.SetMarkerStyle(20)
@@ -1061,18 +955,12 @@ def passesUniversalSelection(t, verbose=True):
         return -10
     if not bool(t.CSCTightHaloFilter): 
         return -11
-    if not bool(t.EcalDeadCellTriggerPrimitiveFilter): 
+    if not bool(t.EcalDeadCellTriggerPrimitiveFilter): #not andrew
         return -12     ##I think this one makes a sizeable difference    
     if not bool(t.ecalBadCalibReducedExtraFilter): 
         return -13
     if not bool(t.ecalBadCalibReducedFilter): 
-        return -14
-    '''#first half filters up edge    
-    #first half filters low edge           
-    ####if not t.ecalBadCalibFilter: return False #this says it's deprecated
-
-    '''#second half filters low edge               
-
+        return -14             
     if not  passQCDHighMETFilter(t): 
         return -2
     if not passQCDHighMETFilter2(t): 

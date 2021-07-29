@@ -131,16 +131,16 @@ ls
 python ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
 for f in *.root
 do 
-   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
+   xrdcp "$f" root://cmseos.fnal.gov//store/user/sbein/Anomaly/
 done
 rm *.root
 '''
 
 main()
 print 'done'
-#   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
-#  xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_skimsv7/
-#   xrdcp "$f" root://cmseos.fnal.gov//store/user/lpcsusyphotons/TreeMakerRandS_muskimsv7/
+#   xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
+#  xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_skimsv7/
+#   xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_muskimsv7/
 ##TreeMakerRandS/
 #TreeMakerRandS_skimsv3
 #TreeMakerRandS_fragmented

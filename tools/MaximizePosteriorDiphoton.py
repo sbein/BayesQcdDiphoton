@@ -23,7 +23,9 @@ gROOT.ProcessLine(open('src/BayesRandS.cc').read())
 exec('from ROOT import *')
 
 '''
-python tools/MaximizePosteriorDiphoton.py --fnamekeyword Summer16v3Fast.SMS-T5Wg_Tune  --smears 1 --quickrun True
+python tools/MaximizePosteriorDiphoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
+
+"/eos/uscms/store/group/lpcsusyphotons/TreeMaker/Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2AnalysisTree.root"
 '''
 
 ##read in command line arguments
@@ -41,7 +43,7 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
-parser.add_argument("-poofmu", "--poofmu", type=bool, default=True, help="for poofing muons")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
@@ -66,7 +68,7 @@ if poofmu:
     met4skim = 0.0
 
 if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
-    
+
 
 debugmode = False
 
@@ -87,7 +89,7 @@ else:
     print 'thisbootstrap, nbootstraps', thisbootstrap, nbootstraps
     bootupfactor = nbootstraps
 
-    
+
 if 'Summer16' in fnamekeyword or 'Fall17' in fnamekeyword or 'Autumn18' in fnamekeyword:
     isdata = False
 else: 
@@ -294,7 +296,7 @@ if mktree:
     tree_out.Branch('Pho1_hasPixelSeed', Pho1_hasPixelSeed, 'Pho1_hasPixelSeed/I')
     Pho2_hasPixelSeed = np.zeros(1, dtype=int)    
     tree_out.Branch('Pho2_hasPixelSeed', Pho2_hasPixelSeed, 'Pho2_hasPixelSeed/I') 
-           
+
     NPhotons = np.zeros(1, dtype=int)
     mass_GG = np.zeros(1, dtype=float)
     mass_mumu = np.zeros(1, dtype=float)
@@ -317,7 +319,7 @@ if mktree:
     tree_out.Branch('JetsRebalanced', jetsRebalanced)
     rebalancedHardMet =np.zeros(1, dtype=float)
     tree_out.Branch('rebalancedHardMet', rebalancedHardMet, 'rebalancedHardMet/D')
-        
+
     JetsAUX_bJetTagDeepCSVBvsAll = ROOT.std.vector('float')()
     tree_out.Branch('Jets_bJetTagDeepCSVBvsAll', JetsAUX_bJetTagDeepCSVBvsAll)
     HTAUX = np.zeros(1, dtype=float)
@@ -370,7 +372,7 @@ if mktree:
     mva_dRjet2photon2 = np.zeros(1, dtype=float)
     tree_out.Branch('mva_dRjet2photon2', mva_dRjet2photon2, 'mva_dRjet2photon2/D')    
 
-    
+
     mva_BDT = np.zeros(1, dtype=float)
     tree_out.Branch('mva_BDT', mva_BDT, 'mva_BDT/D')
 
@@ -413,7 +415,7 @@ ntot = 0
 n2pho = 0
 for ientry in range((extended-1)*n2process, extended*n2process):
 
-    if ientry%printevery==0:
+    if ientry%printevery==-1:
         print "processing event", ientry, '/', extended*n2process, 'time', time.time()-t0
 
     if debugmode:
@@ -423,9 +425,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry>nentries: break
     c.GetEntry(ientry)
-
-
-
 
     if issignal:
 
@@ -443,7 +442,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         #print 'br22pho =', 1.0*n2pho/ntot
         #pause()
         '''
-            
+
         par1_, par2_ = c.SignalParameters
         if not (par1_==par1 and par2_==par2):
             print 'starting new file'
@@ -508,7 +507,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if poofmu:
         if not len(c.Muons)>1: continue
         if not len(c.Photons)>1: continue
-        
+
 
 
 
@@ -525,16 +524,22 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #idea: use HT to reference prior instead of ST
 
 
+    npasspixelseed = 0
     for ipho, pho in enumerate(c.Photons):
         if not pho.Pt()>20: continue #trigger is pho 70
+
+
         if not abs(pho.Eta())<2.4: continue        
-        
-        #if not bool(c.Photons_fullID[ipho]): continue 
+
+
+        if not bool(c.Photons_fullID[ipho]): continue 
+        '''
         if abs(pho.Eta())<1.48:
             if not (c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())): continue
         if abs(pho.Eta())>=1.48:
             if not (c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_pfChargedIsoRhoCorr[ipho]<2.089 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(19.722 +0.0117*pho.Pt()+0.000023*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(4.162 + 0.0037*pho.Pt())): continue
-            
+        '''
+
         tlvpho = TLorentzVector()
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
@@ -542,9 +547,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if poofmu: 
             if not pho.Pt()>35: continue
         else:
-            if not pho.Pt()>75: continue            
+            if not pho.Pt()>75: continue  
 
-        
+
+
         #if not c.Photons_genMatched[ipho]: continue
         #if bool(c.Photons_nonPrompt[ipho]): continue
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
@@ -568,6 +574,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
             print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
 
+
+    if not len(recophotons_loose)>1: continue
+    if not npasspixelseed==1: continue
+
+
+
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
         if not mu.Pt()>20: continue
@@ -583,7 +595,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if not mu.Pt()>75: continue
         recomuons.push_back(tlvmu)		
     #if not len(recomuons)==0: continue  
-    
+
     if muversion: recophotons = recomuons
     else: recophotons = recophotons_loose
 
@@ -591,7 +603,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     recophotons_hoe = recophotons_loose_hoe
     recophotons_hps = recophotons_loose_hps
 
-    
+
     NPhotons[0] = len(recophotons)
     analysisPhotons.clear()
     for photon in recophotons: analysisPhotons.push_back(photon)
@@ -599,6 +611,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if not int(recophotons.size())>1: continue
 
     dphiGG = abs(recophotons[0].DeltaPhi(recophotons[1]))
+
+    drGG = abs(recophotons[0].DeltaR(recophotons[1]))
 
     recoelectrons.clear()
     for iel, el in enumerate(c.Electrons):
@@ -637,7 +651,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             jettlv = TLorentzVector(jet.Px(),jet.Py(),jet.Pz(), jet.E())
             recojets_.push_back(UsefulJet(jettlv, c.Jets_bJetTagDeepCSVBvsAll[ijet], float(int(bool(c.Jets_ID[ijet]))), ijet))
 
-            
+
 
     ##declare empty vector of UsefulJets (in c++, std::vector<UsefulJet>):
     recojets.clear()
@@ -661,19 +675,19 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         recojets.push_back(ujet)
 
     if not passesJetId: 
-        print ientry, 'failed jet ID'
+        ###print ientry, 'failed jet ID'
         continue
 
 
     shouldskipevent = False
     if not nMatchedAcmeOuterPairs==nMatchedAcmeInnerPairs: 
-        print 'contingency a'
+        ##print 'contingency a'
         shouldskipevent = True    
     if not nMatchedAcmeInnerPairs==len(acme_objects): 
-        print 'contingency b', nMatchedAcmeInnerPairs, len(acme_objects)     
+        ##print 'contingency b', nMatchedAcmeInnerPairs, len(acme_objects)     
         shouldskipevent = True
     if shouldskipevent: 
-        print ientry, 'acme mismatch'
+        ##print ientry, 'acme mismatch'
         continue
 
 
@@ -714,9 +728,26 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tHardMetVec-=AcmeVector # this still needed because the reco-jets don't contain the acme_objects
 
 
-
     tHardMetPt, tHardMetPhi = tHardMetVec.Pt(), tHardMetVec.Phi()
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
+
+    print ientry, "here we are", tHardMetPt
+    print 'jet size', countJets(recojets,AnHardMetJetPtCut, 5.0)
+    sumjetpt = TLorentzVector()
+    for irjet, rjet in enumerate(recojets):
+        if not rjet.Pt()>30: continue
+        print ientry, rjet.Pt()
+        sumjetpt-=rjet.tlv
+    print "sum jet pt", sumjetpt.Pt()
+    print 'len photons', len(recophotons)
+
+
+    if tHardMetPt> met4skim:
+        #print str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum)
+        continue
+
+
+
 
     tjets_pt = tHardMhtVec.Clone()
     tjets_pt*=-1
@@ -728,7 +759,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             tHardMetVec+=recomuons[1]
             MetVec+=recomuons[0]
             MetVec+=recomuons[1]
-    
+
     mass_GG[0] = (recophotons[0]+recophotons[1]).M()   
     if muversion:      
         Pho1_hadTowOverEM[0], Pho2_hadTowOverEM[0] = 0, 0
@@ -764,7 +795,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         drjet1pho2 = abs(recojets[0].tlv.DeltaR(recophotons[1]))
         drjet2pho1 = abs(recojets[1].tlv.DeltaR(recophotons[0]))
         drjet2pho2 = abs(recojets[1].tlv.DeltaR(recophotons[1]))
-        
+
     elif len(recojets)>0:
         tdphi1 = abs(recojets[0].tlv.DeltaPhi(tHardMetVec))
         tdphi2 = 4.0
@@ -772,7 +803,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         drjet1pho2 = abs(recojets[0].tlv.DeltaR(recophotons[1]))
         drjet2pho1 = -1.0
         drjet2pho2 = -1.0
-        
+
     else:
         tdphi1 = 4.0
         tdphi2 = 4.0
@@ -819,7 +850,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             mva_dRjet1photon2[0] = drjet1pho2
             mva_dRjet2photon1[0] = drjet2pho1
             mva_dRjet2photon2[0] = drjet2pho2
-            
+
             _Ngoodjets_[0] = int(mva_Ngoodjets[0])
             _ST_[0] = mva_ST[0]
             _Pt_jets_[0] = mva_Pt_jets[0]/_ST_[0]
@@ -837,7 +868,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             _dRjet1photon2_[0] = mva_dRjet1photon2[0]
             _dRjet2photon1_[0] = mva_dRjet2photon1[0]
             _dRjet1photon2_[0] = mva_dRjet2photon2[0]
-                        
+
             mva_BDT[0] = reader.EvaluateMVA("BDT")
             tree_out.Fill()            
             IsUniqueSeed[0] = 0            
@@ -851,16 +882,16 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     hadronicJets.clear()
     for jet in recojets:
         hadronicJets.push_back(jet.tlv)
-    
+
 
     for obj in acme_objects: ##this has got to come after the rebalancing
         recojets.push_back(obj)
     sortThatThang(recojets)
     NOrigJets15[0] = len(recojets)
-    
-    
+
+
     mHardMetVec = getHardMet(rebalancedJets,AnHardMetJetPtCut, mhtjetetacut)
-        
+
     mHardMetVec-=AcmeVector # this is now done because the acme_objects were not stuck back into the reblanced jets
     mHardMetPt, mHardMetPhi = mHardMetVec.Pt(), mHardMetVec.Phi()
 
@@ -872,7 +903,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     #redoneMET = redoMET(MetVec,recojets,rebalancedJets)
     #mMetPt,mMetPhi = redoneMET.Pt(), redoneMET.Phi()
-    
+
 
     fillth1(hTotFit, mBTags, weight)
 
@@ -882,7 +913,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         jetsRebalanced.push_back(jet.tlv)
 
 
-        
+
 
     for i in range(nsmears):
 
@@ -901,14 +932,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         rpsHardMetVec-=AcmeVector # this is now done because the acme_objects are not stuck back into the R&S jets yet
         rpsHardMetPt, rpsHardMetPhi = rpsHardMetVec.Pt(), rpsHardMetVec.Phi()
 
-        
+
         rpsNJets = countJets(RplusSJets,AnHardMetJetPtCut)
         rpsBTags = countBJets(RplusSJets,AnHardMetJetPtCut)
         rpsmindphi = 4
         for jet in RplusSJets[:4]: 
             if jet.Pt()>30:
                 rpsmindphi = min(rpsmindphi, abs(jet.tlv.DeltaPhi(rpsHardMetVec)))
-            
+
         if len(RplusSJets)>1:
             rpsdphi1 = abs(RplusSJets[0].tlv.DeltaPhi(tHardMetVec))
             rpsdphi2 = abs(RplusSJets[1].tlv.DeltaPhi(tHardMetVec))
@@ -916,7 +947,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             rpsdrjet1pho2 = abs(RplusSJets[0].tlv.DeltaR(recophotons[1]))
             rpsdrjet2pho1 = abs(RplusSJets[1].tlv.DeltaR(recophotons[0]))
             rpsdrjet2pho2 = abs(RplusSJets[1].tlv.DeltaR(recophotons[1]))
-        
+
         elif len(RplusSJets)>0:
             rpsdphi1 = abs(RplusSJets[0].tlv.DeltaPhi(tHardMetVec))
             rpsdphi2 = 4.0
@@ -924,7 +955,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             rpsdrjet1pho2 = abs(RplusSJets[0].tlv.DeltaR(recophotons[1]))
             rpsdrjet2pho1 = -1.0
             rpsdrjet2pho2 = -1.0
-            
+
         else:
             rpsdphi1 = 4.0
             rpsdphi2 = 4.0
@@ -933,7 +964,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             rpsdrjet2pho1 = -1.0
             rpsdrjet2pho2 = -1.0
 
-        
+
 
 
         hadronicJets.clear()
@@ -980,12 +1011,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     mva_dPhi_GGHardMET[0] = abs(tHardMetVec.DeltaPhi(recophotons[0]+recophotons[1]))#
                     mva_dPhi1[0] = tdphi1
                     mva_dPhi2[0] = tdphi2
-                    
+
                     mva_dRjet1photon1[0] = drjet1pho1
                     mva_dRjet1photon2[0] = drjet1pho2
                     mva_dRjet2photon1[0] = drjet2pho1
                     mva_dRjet2photon2[0] = drjet2pho2
-                    
+
 
                     _Ngoodjets_[0] = int(mva_Ngoodjets[0])
                     _ST_[0] = mva_ST[0]
@@ -1004,14 +1035,13 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     _dRjet1photon2_[0] = mva_dRjet1photon2[0]
                     _dRjet2photon1_[0] = mva_dRjet2photon1[0]
                     _dRjet1photon2_[0] = mva_dRjet2photon2[0]
-                                         
+
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
-                    print 'got bdt', mva_BDT[0]
                     tree_out.Fill()
                     IsUniqueSeed[0] = 0
 
                 if True:##fill with the R&S entry
-                    
+
                     IsRandS[0] = 1 
                     JetsAUX.clear()
                     JetsAUX_bJetTagDeepCSVBvsAll.clear()
@@ -1020,7 +1050,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                         JetsAUX_bJetTagDeepCSVBvsAll.push_back(jet.btagscore) 
 
                     #do things like they are RandS
-                    
+
 
                     HTAUX[0] = rpsHt
                     NJetsAUX[0] = rpsNJets
@@ -1068,9 +1098,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     _dRjet1photon2_[0] = mva_dRjet1photon2[0]
                     _dRjet2photon1_[0] = mva_dRjet2photon1[0]
                     _dRjet1photon2_[0] = mva_dRjet2photon2[0]
-                                        
+
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
-                    print ientry, 'got bdt rands', mva_BDT[0], mva_HardMET[0], 'orig MET', c.MET, 'after met', HardMETPt[0]
                     tree_out.Fill()
 
     if isdata: continue
