@@ -1,5 +1,6 @@
 from ROOT import *
 from array import array
+import numpy as np
 
 tl = TLatex()
 tl.SetNDC()
@@ -45,6 +46,39 @@ binning['MinDeltaPhi'] = binning['DPhi1']
 binning['PhoPt']=[20,0,800]
 binning['Pho1Pt']=binning['PhoPt']
 binning['Pho2Pt']=binning['PhoPt']
+
+binning_mva = {}
+binning_mva['mva_ST'] = [20, 0, 2000]
+binning_mva['mva_Pt_jets'] = [20, 0, 2000]
+binning_mva['mva_dPhi_GG'] = [8, 0, 3.2]
+binning_mva['mva_Photons0Et'] = [30, 0, 1200]
+binning_mva['mva_Photons1Et'] = [30, 0, 1200]
+#binning_mva['mva_HardMET'] = [30, 100, 600]
+binning_mva['mva_HardMET'] = [130, 150, 185, 250, 500]
+binning_mva['mva_Pt_GG'] = [30, 0, 1200]
+binning_mva['mva_ST_jets'] = [20, 0, 2000]
+binning_mva['mva_min_dPhi'] = [8, 0, 3.2]
+binning_mva['mva_dPhi1'] = binning_mva['mva_min_dPhi']
+binning_mva['mva_dPhi2'] = binning_mva['mva_dPhi1']
+binning_mva['mva_dPhi_GGHardMET'] =[8, 0, 3.2]
+binning_mva['mva_minOmega'] = [8, 0, 3.2]
+binning_mva['mva_BDT'] = [100, -1.0, 1.0]
+binning_mva['mva_BDTstrong_v2'] = [20, -1, 1]
+binning_mva['mva_HardMET/mva_ST'] = [20, 0, 1]
+binning_mva['mva_Pt_jets/mva_ST'] = [20, 0, 1]
+binning_mva['mva_Photons0Et/mva_ST'] = [20, 0, 1]
+binning_mva['mva_Photons1Et/mva_ST'] = [20, 0, 1]
+binning_mva['mva_Pt_GG/mva_ST'] = [20, 0, 1]
+binning_mva['mva_ST_jets/mva_ST'] = [20, 0, 1]
+binning_mva['mva_ST/mva_ST'] = [20, 0, 1.2]
+binning_mva['mva_dRjet1photon1'] = [60, 0, 6]
+binning_mva['mva_dRjet1photon2'] = binning_mva['mva_dRjet1photon1']
+binning_mva['mva_dRjet2photon1'] = binning_mva['mva_dRjet1photon1']
+binning_mva['mva_dRjet2photon2'] = binning_mva['mva_dRjet1photon1']
+binning_mva['mva_Ngoodjets'] = [8, 0, 8]
+binning_mva['mass_GG'] = [40, 0, 400]
+binning_mva['mass_mumu'] = [40, 0, 400]
+binning_mva['mass_ee'] = [40, 0, 400]
 
 binningUser = dict(binning)
 binningUser['HardMet'] = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,200,250,450]
@@ -972,3 +1006,4 @@ def passesUniversalSelection(t, verbose=True):
 def passesHadronicSusySelection(t):
     if not (t.NElectrons==0 and t.NMuons==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
     return True
+

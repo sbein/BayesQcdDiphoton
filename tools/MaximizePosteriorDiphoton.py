@@ -44,6 +44,7 @@ parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="sh
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
 parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
+parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="for poofing electrons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
@@ -60,11 +61,12 @@ printevery = args.printevery
 debugmode = args.debugmode
 muversion = args.muversion
 poofmu = args.poofmu
+poofe = args.poofe
 printevery = args.printevery
 quickrun = args.quickrun
 sayalot = args.sayalot
 
-if poofmu:
+if poofmu or poofe:
     met4skim = 0.0
 
 if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
@@ -115,7 +117,8 @@ else: isfast = False
 if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword: 
     BTAG_deepCSV = 0.6324
     is2016 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    #xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
@@ -186,9 +189,9 @@ ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2Producti
 #fnamefilename = 'usefulthings/filelistDiphoton.txt'
 fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
 #fnamefilename = 'usefulthings/filelist_all.txt'
-if not 'DoubleEG' in fnamekeyword:
-    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
-        fnamefilename = 'usefulthings/filelistV17.txt'
+#if not 'DoubleEG' in fnamekeyword:
+#    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
+#        fnamefilename = 'usefulthings/filelistV17.txt'
 print 'as file list, using', fnamefilename
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
@@ -200,7 +203,7 @@ filelist = []
 for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
-    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
+#    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
     if '/eos/uscms/' in fname:
         fname = fname.replace('/eos/uscms/','root://cmsxrootd.fnal.gov//')
     else:
@@ -261,10 +264,14 @@ if issignal:
 
 if muversion: newname = newname.replace('.root','_muskim.root')
 if poofmu: newname = newname.replace('.root','_poofmu.root')
+if poofe: newname = newname.replace('.root', '_poofe.root')
 fnew = TFile(newname, 'recreate')
 print 'creating', newname
 
 
+###--Get Scale Factor hist---------------
+photonSF2016_file = TFile('usefulthings/Fall17V2_2016_Loose_photons.root')
+photonSF2016_hist = photonSF2016_file.Get('EGamma_SF2D')
 
 if mktree:
     print 'cloning tree'
@@ -297,15 +304,30 @@ if mktree:
     Pho2_hasPixelSeed = np.zeros(1, dtype=int)    
     tree_out.Branch('Pho2_hasPixelSeed', Pho2_hasPixelSeed, 'Pho2_hasPixelSeed/I') 
 
+    Pho1_SF = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho1_SF', Pho1_SF, 'Pho1_SF/D')
+    Pho2_SF = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho2_SF', Pho2_SF, 'Pho2_SF/D')
+    Pho1_SFE = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho1_SFE', Pho1_SFE, 'Pho1_SFE/D')
+    Pho2_SFE = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho2_SFE', Pho2_SFE, 'Pho2_SFE/D')    
+
+   
     NPhotons = np.zeros(1, dtype=int)
+    NPhotons_hpsv = np.zeros(1, dtype=int)
     mass_GG = np.zeros(1, dtype=float)
     mass_mumu = np.zeros(1, dtype=float)
+    mass_ee = np.zeros(1, dtype=float)
 
+    
     analysisPhotons = ROOT.std.vector('TLorentzVector')()
     tree_out.Branch('analysisPhotons', analysisPhotons)
     tree_out.Branch('mass_mumu',mass_mumu, 'mass_mumu/D')
-    tree_out.Branch('mass_GG', mass_GG, 'mass_GG/D')    
+    tree_out.Branch('mass_GG', mass_GG, 'mass_GG/D')
+    tree_out.Branch('mass_ee', mass_ee, 'mass_ee/D')
     tree_out.Branch('NPhotons', NPhotons, 'NPhotons/I')
+    tree_out.Branch('NPhotons_hpsv', NPhotons_hpsv, 'NPhotons_hpsv/I')
 
     HardMetMinusMet = np.zeros(1, dtype=float)
     tree_out.Branch('HardMetMinusMet', HardMetMinusMet, 'HardMetMinusMet/D')
@@ -404,7 +426,7 @@ recojets = vector('UsefulJet')()
 recoelectrons = vector('TLorentzVector')()
 recomuons = vector('TLorentzVector')()
 genjets_ = vector('TLorentzVector')()
-
+ipvelectrons = vector('TLorentzVector')()
 
 ntot = 0
 ndipho = 0
@@ -413,6 +435,7 @@ t0 = time.time()
 
 ntot = 0
 n2pho = 0
+
 for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry%printevery==-1:
@@ -496,8 +519,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #if not passesHadronicSusySelection(c): continue
 
 
-
-
+    npsv = 0
+    mass_ee[0] = -1.0
     mass_mumu[0] = -1.0
     if muversion: 
         if not len(c.Muons)>1: continue
@@ -508,9 +531,13 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if not len(c.Muons)>1: continue
         if not len(c.Photons)>1: continue
 
+        
+    if poofe:
+#        if not len(c.Electrons)>1: continue
+        if not len(c.Photons)>3: continue
 
 
-
+    ipvelectrons.clear()
     acme_objects.clear()
     recophotons_loose.clear()
     recophotons_loose_hoe = []
@@ -544,12 +571,18 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
         acme_objects.push_back(usefulpho)        
-        if poofmu: 
-            if not pho.Pt()>35: continue
+
+        if poofmu or poofe:
+            if not pho.Pt()>30: continue
+
         else:
-            if not pho.Pt()>75: continue  
+            if not pho.Pt()>75: continue
 
-
+        if bool(c.Photons_hasPixelSeed[ipho]):
+            ipvelectrons.push_back(tlvpho)
+        
+        if not bool(c.Photons_hasPixelSeed[ipho]):
+            NPhotons_hpsv[0] += 1
 
         #if not c.Photons_genMatched[ipho]: continue
         #if bool(c.Photons_nonPrompt[ipho]): continue
@@ -575,11 +608,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
 
 
-    if not len(recophotons_loose)>1: continue
-    if not npasspixelseed==1: continue
-
-
-
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
         if not mu.Pt()>20: continue
@@ -592,7 +620,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         usefulmu = UsefulJet(tlvmu, 0, 0, -1)
         acme_objects.push_back(usefulmu)
         if not abs(mu.Eta())<2.4: continue		
-        if not mu.Pt()>75: continue
+        if not mu.Pt()>30: continue  #Changed from 75 to 30 to check muon poofing (5/3/2021)
         recomuons.push_back(tlvmu)		
     #if not len(recomuons)==0: continue  
 
@@ -603,11 +631,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     recophotons_hoe = recophotons_loose_hoe
     recophotons_hps = recophotons_loose_hps
 
-
+    
     NPhotons[0] = len(recophotons)
     analysisPhotons.clear()
-    for photon in recophotons: analysisPhotons.push_back(photon)
-
+    for photon in recophotons: 
+        analysisPhotons.push_back(photon)
+    
     if not int(recophotons.size())>1: continue
 
     dphiGG = abs(recophotons[0].DeltaPhi(recophotons[1]))
@@ -760,6 +789,16 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             MetVec+=recomuons[0]
             MetVec+=recomuons[1]
 
+    
+    if poofe:
+        if len(ipvelectrons)>1:
+            mass_ee[0] = (ipvelectrons[0]+ipvelectrons[1]).M()
+            tHardMetVec+=ipvelectrons[0]
+            tHardMetVec+=ipvelectrons[1]
+            MetVec+=ipvelectrons[0]
+            MetVec+=ipvelectrons[1]
+    
+
     mass_GG[0] = (recophotons[0]+recophotons[1]).M()   
     if muversion:      
         Pho1_hadTowOverEM[0], Pho2_hadTowOverEM[0] = 0, 0
@@ -815,6 +854,17 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     nsmears = smears*bootupfactor
 
+    pt1 = recophotons[0].Pt()
+    pt2 = recophotons[1].Pt()
+    if pt1 > 500:
+        pt1 = 499
+    if pt1 > 500:
+        pt2 = 499
+    Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    Pho2_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
+
     if mktree and tHardMetPt>met4skim:
 
             IsRandS[0] = 0 
@@ -828,6 +878,18 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             HTAUX[0] = c.HT
             NJetsAUX[0] = c.NJets
             BTagsAUX[0] = c.BTags
+
+
+    #        pt1 = recophotons[0].Pt()
+    #        pt2 = recophotons[1].Pt()
+    #        if pt1 > 500:
+    #            pt1 = 499
+    #        if pt1 > 500:
+    #            pt2 = 499
+    #        Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    #        Pho2_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    #        Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    #        Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
 
             HardMETPt[0] = tHardMetPt
             HardMETPhi[0] = tHardMetPhi
