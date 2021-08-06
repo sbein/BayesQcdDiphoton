@@ -122,11 +122,11 @@ if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword:
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
 
 
 #stuff for Matt's BDT
@@ -181,13 +181,13 @@ issignal = abs('Fast' in fnamekeyword)
 #################        root://hepxrd01.colorado.edu:1094//store/user/aperloff/SusyRA2Analysis2015/Run2ProductionV17/
 
 '''
-ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/*.root > usefulthings/filelistDiphotonBigV2.txt
+ls -1 -d /eos/uscms//store/group/lpcsusyphotons/TreeMaker/*.root > usefulthings/filelistDiphoton.txt
 python tools/globthemfiles.py
 '''
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
 #fnamefilename = 'usefulthings/filelistDiphoton.txt'
-fnamefilename = 'usefulthings/filelistDiphotonBigV2.txt'
+fnamefilename = 'usefulthings/filelistDiphoton.txt'
 #fnamefilename = 'usefulthings/filelist_all.txt'
 #if not 'DoubleEG' in fnamekeyword:
 #    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
