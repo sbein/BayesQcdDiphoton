@@ -772,8 +772,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
 
     if tHardMetPt> met4skim:
-        #print str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum)
-        continue
+        print str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum)
+        #continue
 
 
 
@@ -865,7 +865,9 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
     Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
 
+    print ientry, 'tHardMetPt', tHardMetPt
     if mktree and tHardMetPt>met4skim:
+            print 'we made it in here!'
 
             IsRandS[0] = 0 
             JetsAUX.clear()
@@ -932,7 +934,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             _dRjet1photon2_[0] = mva_dRjet2photon2[0]
 
             mva_BDT[0] = reader.EvaluateMVA("BDT")
-            tree_out.Fill()            
+            tree_out.Fill()
+            print ientry, 'surely this must happen sometimes'
             IsUniqueSeed[0] = 0            
 
 
