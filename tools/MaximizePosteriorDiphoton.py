@@ -761,7 +761,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
 
     print ientry, "here we are", tHardMetPt
-#    print 'jet size', countJets(recojets,AnHardMetJetPtCut, 5.0)
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
