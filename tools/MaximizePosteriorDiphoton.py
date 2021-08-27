@@ -118,16 +118,21 @@ if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword:
     BTAG_deepCSV = 0.6324
     is2016 = True
     xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    photonSF_file = TFile('usefulthings/Fall17V2_2016_Loose_photons.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
     #xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
     xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    photonSF_file = TFile('usefulthings/2017_Loose_photons.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
     xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
-
+    photonSF_file = TFile('usefulthings/2018_Loose_photons.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 
 #stuff for Matt's BDT
 reader = TMVA.Reader()
@@ -268,10 +273,6 @@ if poofe: newname = newname.replace('.root', '_poofe.root')
 fnew = TFile(newname, 'recreate')
 print 'creating', newname
 
-
-###--Get Scale Factor hist---------------
-photonSF2016_file = TFile('usefulthings/Fall17V2_2016_Loose_photons.root')
-photonSF2016_hist = photonSF2016_file.Get('EGamma_SF2D')
 
 if mktree:
     print 'cloning tree'
@@ -859,10 +860,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         pt1 = 499
     if pt1 > 500:
         pt2 = 499
-    Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    Pho2_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
-    Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    Pho1_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    Pho2_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(recophotons[1].Eta(), pt2))
 
     print ientry, 'tHardMetPt', tHardMetPt
     if mktree and tHardMetPt>met4skim:
@@ -887,10 +888,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #            pt1 = 499
     #        if pt1 > 500:
     #            pt2 = 499
-    #        Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    #        Pho2_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
-    #        Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    #        Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    #        Pho1_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    #        Pho2_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(recophotons[1].Eta(), pt2))
+    #        Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(recophotons[0].Eta(), pt1))
+    #        Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(recophotons[1].Eta(), pt2))
 
             HardMETPt[0] = tHardMetPt
             HardMETPhi[0] = tHardMetPhi
