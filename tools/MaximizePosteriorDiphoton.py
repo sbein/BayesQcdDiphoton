@@ -124,14 +124,14 @@ if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword:
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
-    photonSF_file = TFile('usefulthings/2017_Loose_photons.root')
+    xmlfilename = "usefulthings/Phase1_BDT_T5Wg_m19XX_T6Wg_m17XX_normbyngen_Aug25_weights.xml"
+    photonSF_file = TFile('usefulthings/2017_PhotonsLoose.root')
     photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
-    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
-    photonSF_file = TFile('usefulthings/2018_Loose_photons.root')
+    xmlfilename = "usefulthings/Phase1_BDT_T5Wg_m19XX_T6Wg_m17XX_normbyngen_Aug25_weights.xml"
+    photonSF_file = TFile('usefulthings/2018_PhotonsLoose.root')
     photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 
 #stuff for Matt's BDT
