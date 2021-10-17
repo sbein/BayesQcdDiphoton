@@ -46,6 +46,8 @@ parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="
 parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
 parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="for poofing electrons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
+parser.add_argument("-directoryout", "--directoryout", type=bool, default=False,help="only used in submitjobs.py")
+
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
 args = parser.parse_args()
@@ -124,13 +126,13 @@ if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword:
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
-    xmlfilename = "usefulthings/Phase1_BDT_T5Wg_m19XX_T6Wg_m17XX_normbyngen_Aug25_weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
     photonSF_file = TFile('usefulthings/2017_PhotonsLoose.root')
     photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
-    xmlfilename = "usefulthings/Phase1_BDT_T5Wg_m19XX_T6Wg_m17XX_normbyngen_Aug25_weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
     photonSF_file = TFile('usefulthings/2018_PhotonsLoose.root')
     photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 
@@ -191,9 +193,7 @@ python tools/globthemfiles.py
 '''
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
-#fnamefilename = 'usefulthings/filelistDiphoton.txt'
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
-#fnamefilename = 'usefulthings/filelist_all.txt'
 #if not 'DoubleEG' in fnamekeyword:
 #    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
 #        fnamefilename = 'usefulthings/filelistV17.txt'
@@ -205,7 +205,7 @@ print 'going to check for ', shortfname
 fnamefile.close()
 c = TChain('TreeMaker2/PreSelection')
 filelist = []
-for line in lines:
+for iline, line in enumerate(lines):
     if not shortfname in line: continue
     fname = line.strip()
 #    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
@@ -217,11 +217,11 @@ for line in lines:
     print 'adding', fname
     c.Add(fname)
     filelist.append(fname)
-    if quickrun: break
+    if quickrun and iline>10: break
 n2process = c.GetEntries()
 nentries = c.GetEntries()
 if quickrun: 
-    n2process = min(1000,n2process)
+    n2process = min(20000,n2process)
 
 
 print 'will analyze', n2process, 'events'
@@ -512,11 +512,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if isfast: 
         if not passesUniversalSelectionFast(c): continue
     else:
+
         if passesUniversalSelection(c)<0: 
             if len(c.Photons)>1: 
                 hfilterfails.Fill(passesUniversalSelection(c))
                 continue
-            elif len(c.Photons)>1: hfilterfails.Fill(0)
+            elif len(c.Photons)>1: hfilterfails.Fill(0)    
     #if not passesHadronicSusySelection(c): continue
 
 
@@ -550,7 +551,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #this is where you have to interface with the input format you're using
     if not (len(c.Photons)>0 or len(c.Electrons)>0 or len(c.Muons)>0): continue
     #idea: use HT to reference prior instead of ST
-
 
     npasspixelseed = 0
     for ipho, pho in enumerate(c.Photons):
@@ -639,6 +639,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         analysisPhotons.push_back(photon)
     
     if not int(recophotons.size())>1: continue
+
 
     dphiGG = abs(recophotons[0].DeltaPhi(recophotons[1]))
 
