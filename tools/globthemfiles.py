@@ -1,7 +1,7 @@
 from glob import glob
 
 
-fname = 'usefulthings/filelistDiphotonBigV2.txt'
+fname = 'usefulthings/filelistDiphoton.txt'
 flist = glob('/eos/uscms//store/group/lpcsusyphotons/TreeMaker/*.root')
 flistf = open(fname,'w')
 for f in flist:

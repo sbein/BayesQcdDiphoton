@@ -1,26 +1,29 @@
 import os, sys
 from ROOT import *
 from utils import *
-from glob import glob
 gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 
 dopred = False
+dosignals = True
 
+#eosls /store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8 > usefulthings/filelistDiphotonSignalSkims.txt
+if dosignals: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8'
+else: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_skimsv8'
 '''
-python tools/DrawAnalyze.py "/eos/uscms//store/group/lpcsusyphotons/TreeMakerRandS_skimsv5/*Summer16v3.DYJetsToLL_M-50_HT-2500*.root" NoTau
-python tools/DrawAnalyze.py "/eos/uscms//store/group/lpcsusyphotons/TreeMakerRandS_skimsv5/*Run2016B-17Jul2018_ver2-v1.DoubleEG*" &
+eosls /store/group/lpcsusyphotons/TreeMakerRandS_skimsv8/ > usefulthings/filelistDiphotonSkims.txt
+python tools/DrawAnalyze.py Summer16v3.DYJetsToLL_M-50_HT-2500 NoTau
+python tools/DrawAnalyze.py Run2016B-17Jul2018_ver2-v1.DoubleEG &
 '''
 
-try: fileskey = sys.argv[1]
-except: fileskey = '/eos/uscms//store/user/sbein/RebalanceAndSmear/Run2ProductionV17/*Summer16v3.QCD*.root'
+try: fileskey = sys.argv[1].split('/')[-1]
+except: fileskey = 'DYJetsToLL_M-50_HT-2500'
 
 
 print 'fileskey', fileskey
 if 'Run20' in fileskey: isdata = True
 else: isdata = False
 
-    
 try: SpecialSettings = ''.join(sys.argv[2:])
 except: SpecialSettings =  ''
 
@@ -42,23 +45,37 @@ print 'SpecialSettings:', SpecialSettings, showershapestring
 #exit(0)
 
 
-universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>80 && mva_Ngoodjets>1 && (abs(analysisPhotons[0].Eta())<1.5 || abs(analysisPhotons[1].Eta())<1.5)'+taustring + showershapestring
+universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>80 && mva_Ngoodjets>1 && (abs(analysisPhotons[0].Eta())<1.5 || abs(analysisPhotons[1].Eta())<1.5)'+ showershapestring
 universalconstraint += taustring
 universalconstraint += pixelseedstring
 
+print dosignals
 
-fins = glob(fileskey)
+if dosignals: filefile = open('usefulthings/filelistDiphotonSignalSkims.txt')
+else: filefile = open('usefulthings/filelistDiphotonSkims.txt')
+fins = filefile.readlines()
+    
 if not isdata:
     ccounter = TChain('tcounter')
-    for fname in fins: ccounter.Add(fname.replace('/eos/uscms/','root://cmseos.fnal.gov//'))
+    for fname in fins:
+        if not fileskey in fname: continue
+        thing2add = 'root://cmsxrootd.fnal.gov/'+eosdir+'/'+fname.strip()
+        print 'trying to add to ccounter', thing2add.strip()
+        ccounter.Add(thing2add)
     nev_total = ccounter.GetEntries()
     print 'nevents in total =', nev_total
+
     
 chain = TChain('TreeMaker2/PreSelection')
 print 'fileskey', fileskey
-for fname in fins: chain.Add(fname.replace('/eos/uscms/','root://cmseos.fnal.gov//'))
+for fname in fins:
+    if not fileskey in fname: continue
+    thing2add = 'root://cmseos.fnal.gov/'+eosdir+'/'+fname.strip()
+    print 'trying to add to chain', thing2add
+    chain.Add(thing2add)
 chain.Show(0)
 print 'nevents in skim =', chain.GetEntries()
+
 
 #chain.SetBranchStatus('NJets', 1)
 #chain.SetBranchStatus('HT', 1)
@@ -136,6 +153,7 @@ plotBundle['TwoPhoLDP_SigmaIetaIeta2'] = ['Photons_sigmaIetaIeta[1]>>hadc(20,0,0
 
 
 #LDP plots
+'''
 plotBundle['TwoPhoLDP_HardMet'] = ['min(HardMETPt,499)>>hadchadc(74,130,500)','NPhotons>=2 && mva_min_dPhi<0.5',False]
 plotBundle['TwoPhoLDP_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 plotBundle['TwoPhoLDP_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2',False]##this appears twice
@@ -148,21 +166,45 @@ plotBundle['TwoPhoLDP_mva_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 &
 plotBundle['TwoPhoLDP_mva_dPhi_GGHardMET'] = ['mva_dPhi_GGHardMET>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 plotBundle['TwoPhoLDP_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 plotBundle['TwoPhoLDP_mva_ST'] = ['mva_ST>>hadc(10,100,2300)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
+'''
+
 #plotBundle['TwoPhoLDP_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 #plotBundle['TwoPhoLDP_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130 && NPhotons>=2 && mva_min_dPhi<0.5',False]
 
 
 if 'SR' in SpecialSettings and True:
-    plotBundle['TwoPhoLowBDT_HardMet'] = ['HardMETPt>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.26',False]    
-    plotBundle['TwoPhoLowBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
-    plotBundle['TwoPhoLowBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.26',False]
+    plotBundle['TwoPhoLowBDT_HardMet'] = ['min(499,HardMETPt)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+    plotBundle['TwoPhoLowBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.13',False]
+    plotBundle['TwoPhoLowBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT<-0.13',False]    
+    #plotBundle['TwoPhoLowBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+    #plotBundle['TwoPhoLowBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2 && mva_BDT<-0.13',False]
+
+    plotBundle['TwoPhoMidBDT_HardMet'] = ['min(499,HardMETPt)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    plotBundle['TwoPhoMidBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    plotBundle['TwoPhoMidBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]    
+    #plotBundle['TwoPhoMidBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoMidBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2 && mva_BDT>=-0.13 && mva_BDT<0.03',False]
+
+    plotBundle['TwoPhoHighBDT_HardMet'] = ['min(499,HardMETPt)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03',False]
+    plotBundle['TwoPhoHighBDT_NJets'] = ['mva_Ngoodjets>>hadc(12,-2,10)','HardMETPt>130  && NPhotons>=2 && mva_BDT>0.03',False]
+    plotBundle['TwoPhoHighBDT_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130  && NPhotons>=2 && mva_BDT>0.03',False]
+    #plotBundle['TwoPhoHighBDT_Pho1_hadTowOverEM'] = ['Pho1_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoHighBDT_Pho2_hadTowOverEM'] = ['Pho2_hadTowOverEM>>hadc(16,0,0.08)','HardMETPt>130  && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]    
+    #plotBundle['TwoPhoHighBDT_Pho1Pt'] = ['mva_Photons0Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoHighBDT_Pho2Pt'] = ['mva_Photons1Et>>hadc(10,50,1050)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoHighBDT_mva_Pt_GG'] = ['mva_Pt_GG>>hadc(10,0,750)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoHighBDT_mva_ST_jets'] = ['mva_ST_jets>>hadc(16,0,800)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]
+    #plotBundle['TwoPhoHighBDT_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(16,0,3.2)','HardMETPt>130 && NPhotons>=2 && mva_BDT>0.03 && mva_BDT<0.03',False]      
     
 
 if 'Summer' in fileskey and False:

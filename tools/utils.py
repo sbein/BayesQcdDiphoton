@@ -184,13 +184,15 @@ def mkcanvas(name='c1'):
     #c1.SetRightMargin(.04)
     return c1
 
+
+
 def mkcanvas_wide(name):
     c1 = TCanvas(name,name,1200,700)
     c1.Divide(2,1)
     c1.GetPad(1).SetBottomMargin(.14)
     c1.GetPad(1).SetLeftMargin(.14)
     c1.GetPad(2).SetBottomMargin(.14)
-    c1.GetPad(2).SetLeftMargin(.14)    
+    c1.GetPad(2).SetLeftMargin(.14)
     c1.GetPad(1).SetGridx()
     c1.GetPad(1).SetGridy()
     c1.GetPad(2).SetGridx()
@@ -700,6 +702,8 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
         hComponents[ih].Add(hComponents[ih-1])
     hComponents.reverse()
     hComponents[0].GetYaxis().SetTitle('Events/bin')
+    hComponents[0].GetYaxis().SetTitleSize(0.075)
+    hComponents[0].GetYaxis().SetTitleOffset(0.7)    
     cGold.Update()
     hObserved.GetYaxis().SetTitle('Normalized')
     hObserved.GetYaxis().SetTitleOffset(1.15)
@@ -756,7 +760,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     pad2.SetBottomMargin(0.3)
     pad2.SetLeftMargin(0.12)
     #pad2.SetGridx()
-    pad2.SetGridy()
+    #pad2.SetGridy()
     pad2.Draw()
     pad2.cd()
     hObservedCopy = hObserved.Clone('hObservedClone'+hComponents[0].GetName())
@@ -831,11 +835,11 @@ def stampFab(lumi = 'n/a',datamc='MC'):
     tl.SetTextSize(1.6*tl.GetTextSize())
     tl.DrawLatex(0.152,0.82, 'CMS')
     tl.SetTextFont(extraTextFont)
-    tl.DrawLatex(0.25,0.82, ('MC' in datamc)*' simulation'+' internal')    
+    tl.DrawLatex(0.25,0.82, 'internal')    
     #tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
     tl.SetTextFont(regularfont)
     if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
-    else: tl.DrawLatex(0.56,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
+    else: tl.DrawLatex(0.63,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
     #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
     tl.SetTextSize(tl.GetTextSize()/1.6)
 
