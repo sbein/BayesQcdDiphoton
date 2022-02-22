@@ -714,12 +714,13 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
 
     title0 = hObserved.GetTitle()
     if datamc=='MC':
-        for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
         leg.AddEntry(hObserved,hObserved.GetTitle(),'lpf')        
+        for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
     else:
+    	leg.AddEntry(hObserved,title0,'lp')    
         for ihComp, hComp in enumerate(hComponents):
             leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
-        leg.AddEntry(hObserved,title0,'lp')    
+        
     hObserved.SetTitle('')
     hComponents[0].SetTitle('')	
     xax = hComponents[0].GetXaxis()
@@ -839,7 +840,7 @@ def stampFab(lumi = 'n/a',datamc='MC'):
     #tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
     tl.SetTextFont(regularfont)
     if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
-    else: tl.DrawLatex(0.63,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
+    else: tl.DrawLatex(0.6,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
     #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
     tl.SetTextSize(tl.GetTextSize()/1.6)
 

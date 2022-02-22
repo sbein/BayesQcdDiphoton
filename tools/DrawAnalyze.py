@@ -5,11 +5,7 @@ gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 
 dopred = False
-dosignals = True
 
-#eosls /store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8 > usefulthings/filelistDiphotonSignalSkims.txt
-if dosignals: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8'
-else: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_skimsv8'
 '''
 eosls /store/group/lpcsusyphotons/TreeMakerRandS_skimsv8/ > usefulthings/filelistDiphotonSkims.txt
 python tools/DrawAnalyze.py Summer16v3.DYJetsToLL_M-50_HT-2500 NoTau
@@ -18,6 +14,14 @@ python tools/DrawAnalyze.py Run2016B-17Jul2018_ver2-v1.DoubleEG &
 
 try: fileskey = sys.argv[1].split('/')[-1]
 except: fileskey = 'DYJetsToLL_M-50_HT-2500'
+
+
+if 'T5' in fileskey or 'T6' in fileskey: dosignals = True
+else: dosignals = False
+
+#eosls /store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8 > usefulthings/filelistDiphotonSignalSkims.txt
+if dosignals: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8'
+else: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_skimsv8'
 
 
 print 'fileskey', fileskey
@@ -59,7 +63,7 @@ if not isdata:
     ccounter = TChain('tcounter')
     for fname in fins:
         if not fileskey in fname: continue
-        thing2add = 'root://cmsxrootd.fnal.gov/'+eosdir+'/'+fname.strip()
+        thing2add = 'root://cmseos.fnal.gov/'+eosdir+'/'+fname.strip()
         print 'trying to add to ccounter', thing2add.strip()
         ccounter.Add(thing2add)
     nev_total = ccounter.GetEntries()

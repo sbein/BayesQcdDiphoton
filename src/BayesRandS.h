@@ -357,13 +357,11 @@ string constraintPhiName = "MhtPhi";
     {
       char gname[100];
       name = sprintf (gname, "splines/hGen%sPtB0(ght%2.1f-%2.1f)_graph", constraintName.c_str(), templateHtAxis->GetBinLowEdge(iht), templateHtAxis->GetBinUpEdge(iht));
-		cout << "gleaning " << gname << endl;      
       TGraph* fb0 = (TGraph*)fprior->Get(gname);
       gGenMhtPtTemplatesB0.push_back(fb0);
       char gnamePhi[100];
       name = sprintf (gnamePhi, "splines/hGen%sB0(ght%2.1f-%2.1f)_graph", constraintPhiName.c_str(), templateHtAxis->GetBinLowEdge(iht), templateHtAxis->GetBinUpEdge(iht));
       TGraph* fb0phi = (TGraph*)fprior->Get(gnamePhi);
-    cout << "gleaning " << gnamePhi << endl;
       gGenMhtDPhiTemplatesB0.push_back(fb0phi);
       name = sprintf (gname, "splines/hGen%sPtB1(ght%2.1f-%2.1f)_graph", constraintName.c_str(), templateHtAxis->GetBinLowEdge(iht), templateHtAxis->GetBinUpEdge(iht));
       TGraph* fb1 = (TGraph*)fprior->Get(gname);

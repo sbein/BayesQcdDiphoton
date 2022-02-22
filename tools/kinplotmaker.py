@@ -10,16 +10,24 @@ gROOT.SetBatch(1)
 python tools/kinplotmaker.py 2016 High
 python tools/kinplotmaker.py 2016 Mid
 python tools/kinplotmaker.py 2016 Low
+
+python tools/kinplotmaker.py 2017 High
+python tools/kinplotmaker.py 2017 Mid
+python tools/kinplotmaker.py 2017 Low
+
+
+python tools/kinplotmaker.py 2018 High
+python tools/kinplotmaker.py 2018 Mid
+python tools/kinplotmaker.py 2018 Low
 '''
 
 
 datamc = 'mc'
-datamc = 'data'
+#datamc = 'data'
 
 
-dolimitinputs = False
+dolimitinputs = True
 from random import shuffle
-#datamc = 'mc'
 
 
 #/eos/uscms//store/group/lpcsusyphotons/hists_20July2021/ElectronBkgEst_BDTcut.root
@@ -31,11 +39,6 @@ from random import shuffle
 
 eosdir = '/eos/uscms//store/group/lpcsusyphotons/background_hists_24August2021'
 
-topology = 'mumu'
-topology = 'badphopho'
-topology = 'elel'
-topology = 'phopho'
-
 
 try: year = sys.argv[1]
 except:
@@ -46,14 +49,15 @@ except:
     bdtselection = 'Low'
     bdtselection = 'Mid'
     bdtselection = 'High'
+if year=='2016': datamc = 'data'
 
     
 mcstring = {}
 mcstring['2016'] = 'Summer16v3'
 #mcstring['2017'] = 'Fall17'
-mcstring['2017'] = 'Summer16v3'
+mcstring['2017'] = 'Fall17'
 #mcstring['2018'] = 'Autumn18'
-mcstring['2018'] = 'Summer16v3'
+mcstring['2018'] = 'Autumn18'
 mcstring['Run2'] = 'Summer16v3'
 
 
@@ -62,6 +66,10 @@ mcstring['Run2'] = 'Summer16v3'
 
 #bdtselection = 'allbdt' # this may only be suitable for MC version
 
+topology = 'mumu'
+topology = 'badphopho'
+topology = 'elel'
+topology = 'phopho'
 
 if topology == 'mumu': chunk = 'bigchunks/bigmus'
 if topology == 'elel': chunk = 'bigchunks/bigels'    
@@ -117,17 +125,19 @@ if 'phopho' in topology:
 
 doblinding = True
 
-if bdtselection=='low': doblinding = False
+if bdtselection=='Low': doblinding = False
 blindall = True
 userands = True
 
 
 
-#signals = ['output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T6Wg_m1800.0d900.0_RA2AnalysisTree_SR.root',
-#           'output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T5Wg_m1300.0d1200.0_RA2AnalysisTree_SR.root',
-#           'output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T5Wg_m1700.0d100.0_RA2AnalysisTree_SR.root']
-signals = glob('output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS*.root')
-#shuffle(signals)n#signals = signals[:5]
+signals = ['output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T6Wg_m1800.0d1000.0_RA2AnalysisTree_SR.root',
+           'output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T5Wg_m1300.0d1200.0_RA2AnalysisTree_SR.root',
+           'output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS-T5Wg_m1700.0d100.0_RA2AnalysisTree_SR.root']
+#if year=='2018': signals = []
+#signals = glob('output/signals/weightedHists_posterior-'+mcstring[year]+'Fast.SMS*.root')
+#shuffle(signals)
+#signals = signals[:4]
 sigcolors = [kBlue+1, kRed+1, kGray+1, kMagenta, kTeal-5]
 for i in range(20): sigcolors+=sigcolors
 
@@ -186,9 +196,11 @@ for key in keys:
     if not name[0]=='h': continue
     if not 'obs' in name: continue
     if not bdtselection in name: continue
-    if datamc == 'data':
-        if not 'HardMet' in name: continue
+    #if datamc == 'data':
+    if not 'HardMet' in name: continue
+    print 'extracting', name, 'from', fdata.GetName()
     hObserved = fdata.Get(name)
+    hObserved.SetDirectory(0)
     #if datamc=='mc': hObserved.Scale(1000*lumi)
 
     hObserved.SetTitle('Data ('+year+')')
@@ -235,10 +247,15 @@ for key in keys:
                 
             print 'trying to get', thename, 'from', fpred.GetName()
             hpred = fpred.Get(thename)
-            hpred.SetTitle(fkey)#namewizard(fname_pred.split('/')[-1].replace('.root',''))
+            try: 
+               hpred.SetTitle(fkey)#namewizard(fname_pred.split('/')[-1].replace('.root',''))
+            except: 
+               newfile.cd()
+               continue
             newfile.cd()
             #hpred.Write(fkey.replace(' ','').replace('#','').replace('+','plus'))
             #if topology == 'mumu': hpred.Scale(0.75)
+            
         
         if 'FakeMet' in fkey and (userands): 
             if datamc=='data': hpred.Scale(1)
@@ -257,7 +274,7 @@ for key in keys:
     if 'mva' in name: kinvar = '_'.join(name.split('_')[1:]).replace('_obs','')
     elif 'hadTowOverEM' in name: kinvar = 'hadTowOverEM'
     else: kinvar = name.split('_')[1]
-    if not kinvar=='HardMet': continue
+    ###if not kinvar=='HardMet': continue
     
     print 'found kinvar', kinvar, 'from', name
     cGold = TCanvas('cEnchilada','cEnchilada', 800, 800)
@@ -276,27 +293,36 @@ for key in keys:
 
             
         hObserved = hObserved.Rebin(nbins,'',newxs)
+        hObserved.SetDirectory(0)
         for ih in range(len(hpreds)):  hpreds[ih] = hpreds[ih].Rebin(nbins,'',newxs)
+        print 'weve still got', hObserved.GetName()
         fpred.Close()
+        print 'weve still got2', hObserved.GetName()
 
     newfile.cd()
-    for ih in range(len(hpreds)): hpreds[ih].Write(hpreds[ih].GetTitle())
+    #for ih in range(len(hpreds)): hpreds[ih].Write(hpreds[ih].GetTitle())
         
         
     if doblinding:
+    	xax = hObserved.GetXaxis()
         if (kinvar=='MinDPhiHardMetJets' or kinvar=='mva_min_dPhi') and not 'LowBDT' in name:
-            xax = hObserved.GetXaxis()
             for ibin in range(1,xax.GetNbins()+1):
-                if hObserved.GetBinLowEdge(ibin)>0.3: hObserved.SetBinContent(ibin, -99)
-        if kinvar=='HardMet' and (not 'LDP' in name) and (not 'LowBDT' in name):
-            xax = hObserved.GetXaxis()
+                if hObserved.GetBinLowEdge(ibin)>0.3: 
+                	hObserved.SetBinContent(ibin, 0)
+                	hObserved.SetBinError(ibin, 0)
+        elif kinvar=='HardMet' and ('LowBDT' in name):
             for ibin in range(1,xax.GetNbins()+1):
-                if hObserved.GetBinLowEdge(ibin)>=100: hObserved.SetBinContent(ibin, -99)
-        if ('BDT' in kinvar):
-            xax = hObserved.GetXaxis()
+                if hObserved.GetBinLowEdge(ibin)>=150: 
+                	hObserved.SetBinContent(ibin, 0)
+                	hObserved.SetBinError(ibin, 0)
+        elif ('BDT' in kinvar):            
             for ibin in range(1,xax.GetNbins()+1):
-                if hObserved.GetBinLowEdge(ibin)>-0.2: hObserved.SetBinContent(ibin, -99)                    
-
+                if hObserved.GetBinLowEdge(ibin)>-0.2: 
+                	hObserved.SetBinContent(ibin, 0)
+                	hObserved.SetBinError(ibin, 0)
+        else:
+            for ibin in range(1,xax.GetNbins()+1):
+                if hObserved.GetBinLowEdge(ibin)>-0.2: hObserved.SetBinContent(ibin, -99)                                    
     if not linscale: hObserved.GetYaxis().SetRangeUser(max(0.0005,min(0.001, 0.01*hObserved.GetMinimum())),max(700000, 10*hObserved.GetMaximum()))
 
     newfile.cd()
@@ -309,8 +335,8 @@ for key in keys:
     #hpreds = [hpreds[2], hpreds[0], hpreds[1]]
     newfile.cd() 
     if dolimitinputs:   
-        ##hObserved.Write()
-        for h in hpreds: h.Write(h.GetTitle().replace('(','').replace(')','').replace('&','').replace(' ',''))
+        hObserved.Write(hObserved.GetName().replace(bdtselection+'BDT',''))
+        for h in hpreds: h.Write(h.GetTitle().replace('(','').replace(')','').replace('&',''))#.replace(' ','')
     #if doblinding and blindall: hObserved.Reset()
     hratio, hmethodsyst = FabDrawSystyRatio(cGold,leg,hObserved,hpreds,datamc=datamc,lumi=str(lumi), title = '',LinearScale=linscale,fractionthing='observed/method')
 

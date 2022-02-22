@@ -240,11 +240,11 @@ std::vector<UsefulJet> CreateUsefulJetVector(std::vector<TLorentzVector> tlvVec,
 bool functionForMaxElement(UsefulJet i, UsefulJet j) { return i.Pt() < j.Pt(); }//This needs to be there
 
 
-int countJets(std::vector<UsefulJet> jets, double thresh){
+int countJets(std::vector<UsefulJet> jets, double thresh, double etathresh = 2.4){
   int count = 0;
   for (unsigned int j=0; j<jets.size(); j++){
     if (!(jets[j].Pt()>thresh)) continue;
-    if (!(abs(jets[j].Eta())<2.4)) continue;
+    if (!(abs(jets[j].Eta())<etathresh)) continue;
     count+=1;
   }
   return count;
