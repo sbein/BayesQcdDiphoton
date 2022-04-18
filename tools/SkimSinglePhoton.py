@@ -802,6 +802,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         pt1 = 499
     Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
 
+    hadronicJets.clear()
+    for jet in recojets:
+        hadronicJets.push_back(jet.tlv)
+        
+        
     print ientry, 'tHardMetPt', tHardMetPt
     if mktree and tHardMetPt>met4skim:
             print 'we made it in here!'
@@ -873,10 +878,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     fitsucceed = RebalanceJets(recojets)
     rebalancedJets = _Templates_.dynamicJets
-
-    hadronicJets.clear()
-    for jet in recojets:
-        hadronicJets.push_back(jet.tlv)
 
 
     for obj in acme_objects: ##this has got to come after the rebalancing
