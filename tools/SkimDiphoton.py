@@ -852,7 +852,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         drjet2pho1 = -1.0
         drjet2pho2 = -1.0
 
-
+    hadronicJets.clear()
+    for jet in recojets:
+        hadronicJets.push_back(jet.tlv)
+        
+        
     nsmears = smears*bootupfactor
 
     pt1 = recophotons[0].Pt()
@@ -945,9 +949,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     fitsucceed = RebalanceJets(recojets)
     rebalancedJets = _Templates_.dynamicJets
 
-    hadronicJets.clear()
-    for jet in recojets:
-        hadronicJets.push_back(jet.tlv)
 
 
     for obj in acme_objects: ##this has got to come after the rebalancing
