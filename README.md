@@ -37,7 +37,7 @@ This script defaults to submitting one job per input file. Assuming you have a v
 
 ```
 bash tools/CleanJobs.sh
-python tools/submitjobs.py --analyzer tools/MaximizePosteriorTM.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
+python tools/submitjobs.py --analyzer tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
 ```
 The quickrun option set to true tells the script to only run over 10,000 events per file. This argument can be removed when you're ready to max out your statistics. Output files will be put in the local output/<keyword> directory matching the specified keyword for the filename. The status of the jobs can be checked with
 
