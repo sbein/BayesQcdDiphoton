@@ -7,8 +7,8 @@ This is the package for running a photon-friendly rebalance and smear implementa
 cmsrel CMSSW_10_1_0
 cd CMSSW_10_1_0/src
 cmsenv
-git clone https://github.com/sbein/BayesQcd/
-cd BayesQcd/
+git clone https://github.com/sbein/SusyDiphoton/
+cd SusyDiphoton/
 mkdir jobs
 mkdir output
 mkdir pdfs
