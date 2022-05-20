@@ -21,6 +21,7 @@ binning['HardMet']=binning['Met']
 binning['MetSignificance']=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 10.0, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 11.0, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 12.0]
 binning['NJets']=[10,0,10]
 binning['NLeptons']=[5,0,5]
+binning['NEGammas']=binning['NLeptons']
 binning['NElectrons']=binning['NLeptons']
 binning['NPhotons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
@@ -44,8 +45,11 @@ binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [34,0,34]
 binning['MinDeltaPhi'] = binning['DPhi1']
 binning['PhoPt']=[20,0,800]
+binning['PhoEta']=[20,-2.5,2.5]
 binning['Pho1Pt']=binning['PhoPt']
 binning['Pho2Pt']=binning['PhoPt']
+binning['Pho1Eta']=binning['PhoEta']
+binning['Pho2Eta']=binning['PhoEta']
 
 binning_mva = {}
 binning_mva['mva_ST'] = [20, 0, 2000]
@@ -294,6 +298,8 @@ def mkHistoStruct(hname, binning):
         histoStruct.Gen = TH1F('h'+hname+'Gen',hname+'Gen',nbins,low,high)
         histoStruct.Rebalanced = TH1F('h'+hname+'Rebalanced',hname+'Rebalanced',nbins,low,high)
         histoStruct.RplusS = TH1F('h'+hname+'RplusS',hname+'RplusS',nbins,low,high)
+        histoStruct.Electron = TH1F('h'+hname+'Electron',hname+'Electron',nbins,low,high)
+        histoStruct.EfgMethod = TH1F('h'+hname+'EfgMethod',hname+'EfgMethod',nbins,low,high)        
     else:
         nBin = len(binning[var])-1
         binArr = array('d',binning[var])
@@ -303,23 +309,29 @@ def mkHistoStruct(hname, binning):
         histoStruct.Gen = TH1F('h'+hname+'Gen',hname+'Gen',nBin,binArr)
         histoStruct.Rebalanced = TH1F('h'+hname+'Rebalanced',hname+'Rebalanced',nBin,binArr)
         histoStruct.RplusS = TH1F('h'+hname+'RplusS',hname+'RplusS',nBin,binArr)
+        histoStruct.Electron = TH1F('h'+hname+'Electron',hname+'Electron',nBin,binArr)        
+        histoStruct.EfgMethod = TH1F('h'+hname+'EfgMethod',hname+'EfgMethod',nBin,binArr)                
     histoStyler(histoStruct.Branch,kRed)
     histoStyler(histoStruct.Observed,kRed)
     histoStyler(histoStruct.GenSmeared,kBlack)
     histoStyler(histoStruct.Gen,kGreen)
     histoStyler(histoStruct.Rebalanced,kBlue)
     histoStyler(histoStruct.RplusS,kBlack)
+    histoStyler(histoStruct.Electron,kGreen+1)
+    histoStyler(histoStruct.EfgMethod,kTeal-5)        
     return histoStruct
 
-def writeHistoStruct(hStructDict):
+def writeHistoStruct(hStructDict, opt='BranchObservedGenSmearedGenRebalancedRplusSElectronEfgMethod'):
     for key in hStructDict:
         #print 'writing histogram structure:', key
-        hStructDict[key].Branch.Write()
-        hStructDict[key].Observed.Write()
-        hStructDict[key].GenSmeared.Write()
-        hStructDict[key].Gen.Write()
-        hStructDict[key].Rebalanced.Write()
-        hStructDict[key].RplusS.Write()
+        if 'Branch' in opt: hStructDict[key].Branch.Write()
+        if 'Observed' in opt: hStructDict[key].Observed.Write()
+        if 'GenSmeared' in opt: hStructDict[key].GenSmeared.Write()
+        if 'Gen' in opt: hStructDict[key].Gen.Write()
+        if 'Rebalanced' in opt: hStructDict[key].Rebalanced.Write()
+        if 'RplusS' in opt: hStructDict[key].RplusS.Write()
+        if 'Electron' in opt: hStructDict[key].Electron.Write()
+        if 'EfgMethod' in opt: hStructDict[key].EfgMethod.Write()        
 
 
 
@@ -530,7 +542,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
     #hFracDiff.Divide(hTruthCopy)
     #hRatio.Divide(hTruthCopy)
     hRatio.Divide(hComponents[0])
-    hRatio.GetYaxis().SetRangeUser(0.0,.1)###
+    hRatio.GetYaxis().SetRangeUser(0.0,2.1)###
     hRatio.SetTitle('')
     if 'prediction' in title0: hFracDiff.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
     else: hRatio.GetYaxis().SetTitle(fractionthing)

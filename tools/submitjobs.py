@@ -13,6 +13,7 @@ parser.add_argument("-hemcut", "--hemcut", type=str, default='',help="you can us
 parser.add_argument("-branchonly", "--branchonly", type=bool, default=False,help="skip rebalancing and smearing")
 parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="used to poof the muons from MET")
 parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="used to poof the electrons from MET")
+parser.add_argument("-genmatch", "--genmatch", type=str, default='False',help="short run")
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
 parser.add_argument("-deactivateAcme", "--deactivateAcme", type=str, default='False')
 parser.add_argument("-directoryout", "--directoryout", type=str, default="TreeMakerRandS_skimsv8", help="This is the directory where the output will go")
@@ -36,6 +37,7 @@ Bootstrap = args.Bootstrap
 smears = args.smears
 quickrun = args.quickrun
 dout = args.directoryout
+genmatch = bool(args.genmatch=='True')
 
 if Bootstrap=='0': 
     bootstrapmode = False
