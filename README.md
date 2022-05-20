@@ -19,7 +19,7 @@ mkdir pdfs/ClosureTests
 I'm skipping the steps needed to create the prior and smearing templates. This command will run rebalance and smear and create histograms for the "truth" and "method" distributions with 10,000 events in one GJets file:
 
 ```
-python tools/MaximizePosteriorTM.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
+python tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
 ```
 
 Generate plots overlaying observed and R&S histograms
@@ -37,7 +37,7 @@ This script defaults to submitting one job per input file. Assuming you have a v
 
 ```
 bash tools/CleanJobs.sh
-python tools/submitjobs.py --analyzer tools/MaximizePosteriorTM.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
+python tools/submitjobs.py --analyzer tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
 ```
 The quickrun option set to true tells the script to only run over 10,000 events per file. This argument can be removed when you're ready to max out your statistics. Output files will be put in the local output/<keyword> directory matching the specified keyword for the filename. The status of the jobs can be checked with
 
