@@ -7,8 +7,8 @@ This is the package for running a photon-friendly rebalance and smear implementa
 cmsrel CMSSW_10_1_0
 cd CMSSW_10_1_0/src
 cmsenv
-git clone https://github.com/sbein/SusyDiphoton/
-cd SusyDiphoton/
+git clone https://github.com/sbein/SusyPhotons/
+cd SusyPhotons/
 mkdir jobs
 mkdir output
 mkdir pdfs
