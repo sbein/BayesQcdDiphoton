@@ -1,4 +1,4 @@
-# BayesQcd
+# SUSY photons skimmer and analysis code
 
 This is the package for running a photon-friendly rebalance and smear implementation on Ra2/b-style ntuples while on an LPC machine. 
 ## Set up code in a nobackup area (modify appropriately if you forked the repo)
