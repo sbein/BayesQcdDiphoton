@@ -1,4 +1,5 @@
 
+
 #Welcome to the industrial age of Sam's rebalance and smear code. You're going to have a lot of fun!
 import os,sys
 from ROOT import *
@@ -37,8 +38,8 @@ python tools/efgClosurePlotter.py
 
 python tools/efgClosurePlotter.py GenMatchTrue
 python tools/efgClosurePlotter.py GenMatchFalse
-python tools/whiphtml.py "/uscms_data/d3/sbein/Diphoton/18Jan2019/CMSSW_10_1_0/src/BayesQcdDiphoton/pngs/GenMatchTrue/*.png"
-python tools/whiphtml.py "/uscms_data/d3/sbein/Diphoton/18Jan2019/CMSSW_10_1_0/src/BayesQcdDiphoton/pngs/GenMatchFalse/*.png"
+python tools/whiphtml.py "/uscms_data/d3/sbein/Diphoton/18Jan2019/CMSSW_10_1_0/src/SusyDiphoton/pngs/GenMatchTrue/*.png"
+python tools/whiphtml.py "/uscms_data/d3/sbein/Diphoton/18Jan2019/CMSSW_10_1_0/src/SusyDiphoton/pngs/GenMatchFalse/*.png"
 scp -r pngs/ ${DESY}:/afs/desy.de/user/b/beinsam/www/Diphoton/May2022
 
 '''
