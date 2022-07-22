@@ -12,5 +12,3 @@
 #include "src/BayesRandS.h"
 
 using namespace std;
-
-

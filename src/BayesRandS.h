@@ -5,8 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
-#include "TMinuit.h"
 #include "TLorentzVector.h"
+#include "TMinuit.h"
 #include "TF1.h"
 #include "TH1F.h"
 #include "TGraph.h"
@@ -25,8 +25,6 @@ int _ietaNew_, _iptNew_, _otherbin_;
 double _rmht_, _rdphi_;
 
 
-  
-  
 void findJetToPin(std::vector<UsefulJet> jetVec, int nparams, int & ipin, double & cstart )
 {
   double ht = getHt(jetVec, JET_PT_THRESH);
@@ -215,7 +213,7 @@ bool RebalanceJets(std::vector<UsefulJet> originalJets){
   gMinuit->mnexcm( "MINIMIZE", arglist, 2, ierflg );
   //cout << "minimized" << endl;
   if (ierflg!=0){
-    cout << "ierflg!=0" << endl;
+    //cout << "ierflg!=0" << endl;
     TLorentzVector omhtVec = getHardMet(originalJets, JET_PT_THRESH);
     TLorentzVector rmhtVec = getHardMet(_Templates_.dynamicJets, JET_PT_THRESH);
     return false;

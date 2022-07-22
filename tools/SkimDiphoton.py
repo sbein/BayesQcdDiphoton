@@ -96,7 +96,6 @@ else:
     from random import randint
     thisbootstrap, nbootstraps = bootstrap.split('of')
     thisbootstrap, nbootstraps = int(thisbootstrap), int(nbootstraps)
-    print 'thisbootstrap, nbootstraps', thisbootstrap, nbootstraps
     bootupfactor = nbootstraps
 
 
@@ -203,11 +202,11 @@ fnamefilename = 'usefulthings/filelistDiphoton.txt'
 #if not 'DoubleEG' in fnamekeyword:
 #    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
 #        fnamefilename = 'usefulthings/filelistV17.txt'
-print 'as file list, using', fnamefilename
+print ('as file list, using', fnamefilename)
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
 shortfname = fnamekeyword.split('/')[-1].strip().replace('*','')
-print 'going to check for ', shortfname
+print ('going to check for ', shortfname)
 fnamefile.close()
 c = TChain('TreeMaker2/PreSelection')
 filelist = []
@@ -220,7 +219,7 @@ for iline, line in enumerate(lines):
     else:
         fname = fname.replace('/store/','root://cmseos.fnal.gov//store/')
     #if 'WJets' in fnamekeyword: fname = fname.replace('root://cmsxrootd.fnal.gov///store/group/lpcsusyhad','root://hepxrd01.colorado.edu:1094//store/user/aperloff')
-    print 'adding', fname
+    print ('adding', fname)
     c.Add(fname)
     filelist.append(fname)
     if quickrun and iline>10: break
@@ -230,7 +229,7 @@ if quickrun:
     n2process = min(20000,n2process)
 
 
-print 'will analyze', n2process, 'events'
+print ('will analyze', n2process, 'events')
 c.Show(0)
 
 if issignal:
@@ -249,7 +248,7 @@ if ('Autumn18' in fnamekeyword or 'Run2018' in fnamekeyword):
     templateFileName = 'usefulthings/ResponseFunctionsMC18'+nametag[JerUpDown]+'_deepCsv.root'
 if not forcetemplates=='': templateFileName = forcetemplates
 
-print 'using templates from',templateFileName
+print ('using templates from',templateFileName)
 ftemplate = TFile(templateFileName)
 ftemplate.ls()
 hPtTemplate = ftemplate.Get('hPtTemplate')
@@ -277,11 +276,10 @@ if muversion: newname = newname.replace('.root','_muskim.root')
 if poofmu: newname = newname.replace('.root','_poofmu.root')
 if poofe: newname = newname.replace('.root', '_poofe.root')
 fnew = TFile(newname, 'recreate')
-print 'creating', newname
+print ('creating', newname)
 
 
 if mktree:
-    print 'cloning tree'
     fnew.mkdir('TreeMaker2')
     fnew.cd('TreeMaker2/')
     tree_out = c.CloneTree(0)
@@ -290,7 +288,6 @@ if mktree:
     tree_out.SetBranchStatus('BTags',0)
     tree_out.SetBranchStatus('Jets',0)
     tree_out.SetBranchStatus('Jets_bJetTagDeepCSVBvsAll',0)    
-    print 'cloned tree'    
 
     HardMETPt = np.zeros(1, dtype=float)
     tree_out.Branch('HardMETPt', HardMETPt, 'HardMETPt/D')
@@ -424,7 +421,7 @@ if mktree:
     tree_out.Branch('mva_BDT', mva_BDT, 'mva_BDT/D')
 
 
-print 'n(entries) =', n2process
+print ('n(entries) =', n2process)
 
 hHt = TH1F('hHt','hHt',120,0,2500)
 hHt.Sumw2()
@@ -462,7 +459,7 @@ n2pho = 0
 for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry%printevery==-1:
-        print "processing event", ientry, '/', extended*n2process, 'time', time.time()-t0
+        print ("processing event", ientry, '/', extended*n2process, 'time', time.time()-t0)
 
     if debugmode:
         #if not ientry>102000 and ientry < 112850: continue
@@ -491,10 +488,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         par1_, par2_ = c.SignalParameters
         if not (par1_==par1 and par2_==par2):
-            print 'starting new file'
+            print ('starting new file')
 
             par1, par2 = par1_, par2_
-            print 'cross section', par1, par2, c.CrossSection
+            print ('cross section', par1, par2, c.CrossSection)
             fnew.cd()
             fnew.cd('../')
             hHt.Write()
@@ -507,7 +504,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                 fnew.cd()
                 fnew.cd('TreeMaker2')
                 tree_out.Write()
-            print 'just created', fnew.GetName()
+            print ('just created', fnew.GetName())
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.SetDirectory(0)
             fnew.Close()
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.Reset()
@@ -515,7 +512,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             fnew = TFile(newname, 'recreate')
             fnew.mkdir('TreeMaker2')
             fnew.cd('TreeMaker2')
-            print 'creating', newname
+            print ('creating', newname)
 
     tcounter.Fill()
     IsUniqueSeed[0] = 1
@@ -671,10 +668,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
                  
         if sayalot:
-            print ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi()
-            print 'Photons_genMatched', c.Photons_genMatched[ipho]
-            print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
-            print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
+            print (ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi())
+            print ('Photons_genMatched', c.Photons_genMatched[ipho])
+            print ('Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho]))
+            print ('Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho])
 
 
     recomuons.clear()
@@ -685,7 +682,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         tlvmu = TLorentzVector()
         tlvmu.SetPtEtaPhiE(mu.Pt(), mu.Eta(), mu.Phi(), mu.Pt()*TMath.CosH(mu.Eta()))
         if debugmode:
-            print ientry, 'acme muon', mu.Pt()				
+            print (ientry, 'acme muon', mu.Pt()				)
         usefulmu = UsefulJet(tlvmu, 0, 0, -1)
         acme_objects.push_back(usefulmu)
         if not abs(mu.Eta())<2.4: continue		
@@ -731,20 +728,20 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     if False: 
      for ipho in range(len(analysisPhotons)):
-        print ientry, ipho, 'analysisPhotons', analysisPhotons[ipho]
-        print ientry, ipho, 'analysisPhotons_passWp', analysisPhotons_passWp[ipho]
-        print ientry, ipho, 'analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3[ipho]
-        print ientry, ipho, 'analysisPhotons_passWpInvertPsv', analysisPhotons_passWpInvertPsv[ipho]        
-        print ientry, ipho, 'analysisPhotons_passWpInvertSieie', analysisPhotons_passWpInvertSieie[ipho]
-        print ientry, ipho, 'analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe[ipho]
-        print ientry, ipho, 'analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe[ipho]    
-        print ientry, ipho, 'analysisPhotons_hoe', analysisPhotons_hoe[ipho]
-        print ientry, ipho, 'analysisPhotons_sieie', analysisPhotons_sieie[ipho]
-        print ientry, ipho, 'analysisPhotons_hasPixelSeed', analysisPhotons_hasPixelSeed[ipho]
-        print ientry, ipho, 'analysisPhotons_isGenPho', analysisPhotons_isGenPho[ipho]
-        print ientry, ipho, 'analysisPhotons_isGenEle', analysisPhotons_isGenEle[ipho]
-        print ientry, ipho, 'analysisPhotons_isGenMu', analysisPhotons_isGenMu[ipho]
-        print ientry, ipho, 'analysisPhotons_isGenNone', analysisPhotons_isGenNone[ipho] 
+        print (ientry, ipho, 'analysisPhotons', analysisPhotons[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWp', analysisPhotons_passWp[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWpInvertPsv', analysisPhotons_passWpInvertPsv[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWpInvertSieie', analysisPhotons_passWpInvertSieie[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe[ipho])
+        print (ientry, ipho, 'analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe[ipho])
+        print (ientry, ipho, 'analysisPhotons_hoe', analysisPhotons_hoe[ipho])
+        print (ientry, ipho, 'analysisPhotons_sieie', analysisPhotons_sieie[ipho])
+        print (ientry, ipho, 'analysisPhotons_hasPixelSeed', analysisPhotons_hasPixelSeed[ipho])
+        print (ientry, ipho, 'analysisPhotons_isGenPho', analysisPhotons_isGenPho[ipho])
+        print (ientry, ipho, 'analysisPhotons_isGenEle', analysisPhotons_isGenEle[ipho])
+        print (ientry, ipho, 'analysisPhotons_isGenMu', analysisPhotons_isGenMu[ipho])
+        print (ientry, ipho, 'analysisPhotons_isGenNone', analysisPhotons_isGenNone[ipho])
         
         
     dphiGG = abs(analysisPhotons[0].DeltaPhi(analysisPhotons[1]))
@@ -757,8 +754,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if not c.Electrons_passIso[iel]: continue        
         tlvel = TLorentzVector()
         tlvel.SetPtEtaPhiE(el.Pt(), el.Eta(), el.Phi(), el.Pt()*TMath.CosH(el.Eta()))
-        if debugmode:
-            print ientry, 'acme electron', el.Pt()		
         usefulele = UsefulJet(tlvel, 0, 0, -1)
         #acme_objects.push_back(usefulele)		# this should have been counted as an electron
         if not abs(el.Eta())<2.4: continue		
@@ -802,7 +797,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             nMatchedAcmeOuterPairs+=1
             if jet.DeltaR(closestAcme)<0.4:
                 nMatchedAcmeInnerPairs+=1
-                if sayalot: print 'skipping reco jet with pT, eta', jet.Pt(), jet.Eta(), jet.DeltaR(acme_objects[0].tlv)
                 continue
         if jet.Pt()>AnHardMetJetPtCut and jet.JetId()<0.5: 
             passesJetId = False
@@ -811,7 +805,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         recojets.push_back(ujet)
 
     if not passesJetId: 
-        ###print ientry, 'failed jet ID'
         continue
 
 
@@ -836,7 +829,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             ujet = UsefulJet(jettlv, 0, 0, -1)
             closestAcme = getClosestObject(acme_objects, ujet, 0.1)
             if ujet.DeltaR(closestAcme)<0.1: 
-                if sayalot: print 'ueberspringen jet mit pT, eta', tlvjet.Pt(), tlvjet.Eta(), '(',tlvjet.DeltaR(acme_objects[0]),')'
+                if sayalot: print ('ueberspringen jet mit pT, eta', tlvjet.Pt(), tlvjet.Eta(), '(',tlvjet.DeltaR(acme_objects[0]),')')
                 continue
             genjets_.push_back(ujet.tlv)
         gHt = getHt(genjets_,AnHardMetJetPtCut)
@@ -867,18 +860,15 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tHardMetPt, tHardMetPhi = tHardMetVec.Pt(), tHardMetVec.Phi()
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
 
-    print ientry, "here we are", tHardMetPt
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
-        print ientry, rjet.Pt()
+        print (ientry, rjet.Pt())
         sumjetpt-=rjet.tlv
-    print "sum jet pt", sumjetpt.Pt()
-    print 'len photons', len(analysisPhotons)
 
 
     if tHardMetPt> met4skim:
-        print str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum)
+        print (str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum))
         #continue
 
 
@@ -965,9 +955,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
     Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
 
-    print ientry, 'tHardMetPt', tHardMetPt
     if mktree and tHardMetPt>met4skim:
-            print 'we made it in here!'
 
             IsRandS[0] = 0 
             JetsAUX.clear()
@@ -1035,7 +1023,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
             mva_BDT[0] = reader.EvaluateMVA("BDT")
             tree_out.Fill()
-            print ientry, 'surely this must happen sometimes'
             IsUniqueSeed[0] = 0            
 
 
@@ -1136,8 +1123,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         sortThatThang(RplusSJets)
         #if len(RplusSJets)>3:
-            #print ientry, RplusSJets[0].Pt(),RplusSJets[1].Pt(),RplusSJets[2].Pt(),RplusSJets[3].Pt()
-            #print 'nparams was', _Templates_.nparams
+
 
 
         if mktree:
@@ -1280,7 +1266,7 @@ if mktree:
     fnew.cd('TreeMaker2')
     tree_out.GetBranch("NJetsAUX").SetName("NJets")    
     tree_out.Write()
-print 'just created', fnew.GetName()
+print ('just created', fnew.GetName())
 fnew.Close()
 
 

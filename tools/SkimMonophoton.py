@@ -49,7 +49,6 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
-parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 parser.add_argument("-directoryout", "--directoryout", type=bool, default=False,help="only used in submitjobs.py")
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
@@ -67,7 +66,6 @@ debugmode = args.debugmode
 muversion = args.muversion
 printevery = args.printevery
 quickrun = args.quickrun
-sayalot = args.sayalot
 
 if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
 
@@ -569,12 +567,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if abs(pho.Eta())>=1.48:
             if not (c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001  and c.Photons_pfChargedIsoRhoCorr[ipho]< 0.442  and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715+0.0163*c.Photons[ipho].Pt()+0.000014*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863+0.0034*c.Photons[ipho].Pt())): continue
         recophotons_medium.push_back(tlvpho)            
-        if sayalot:
-            print (ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi())
-            print ('Photons_genMatched', c.Photons_genMatched[ipho])
-            print ('Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho]))
-            print ('Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho])
-
 
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
@@ -665,7 +657,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             nMatchedAcmeOuterPairs+=1
             if jet.DeltaR(closestAcme)<0.4:
                 nMatchedAcmeInnerPairs+=1
-                if sayalot: print ('skipping reco jet with pT, eta', jet.Pt(), jet.Eta(), jet.DeltaR(acme_objects[0].tlv))
                 continue
         if jet.Pt()>AnHardMetJetPtCut and jet.JetId()<0.5: 
             passesJetId = False
@@ -699,7 +690,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             ujet = UsefulJet(jettlv, 0, 0, -1)
             closestAcme = getClosestObject(acme_objects, ujet, 0.1)
             if ujet.DeltaR(closestAcme)<0.1: 
-                if sayalot: print ('ueberspringen jet mit pT, eta', tlvjet.Pt(), tlvjet.Eta(), '(',tlvjet.DeltaR(acme_objects[0]),')')
                 continue
             genjets_.push_back(ujet.tlv)
         gHt = getHt(genjets_,AnHardMetJetPtCut)
@@ -733,11 +723,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
-        print (ientry, rjet.Pt())
         sumjetpt-=rjet.tlv
 
     if tHardMetPt> met4skim:
-        print (str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum))
+        a = 1
+        #print (str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum))
         #continue
 
 
@@ -807,7 +797,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         hadronicJets.push_back(jet.tlv)
         
         
-    print (ientry, 'tHardMetPt', tHardMetPt)
     if mktree and tHardMetPt>met4skim:
 
             IsRandS[0] = 0 
