@@ -20,13 +20,15 @@ mkdir pdfs/ClosureTests
 I'm skipping the steps needed to create the prior and smearing templates. This command will run rebalance and smear and create histograms for the "truth" and "method" distributions with 10,000 events in one GJets file:
 
 ```
-python tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
+python3 tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
+#OR
+python3 tools/SkimMonophoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
 ```
 
 Generate plots overlaying observed and R&S histograms
 
 ```
-python tools/closurePlotter.py <output file from previous step>
+python3 tools/closurePlotter.py <output file from previous step>
 ```
 
 This creates pdfs and a root file with canvases. You'll notice your histograms will likely suffer from low statistics, which is why it's good to use the batch system heavily when doing this (iteration time can be about 20 minutes to an hour). 
@@ -38,7 +40,7 @@ This script defaults to submitting one job per input file. Assuming you have a v
 
 ```
 bash tools/CleanJobs.sh
-python tools/submitjobs.py --analyzer tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
+python3 tools/submitjobs.py --analyzer tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT --quickrun True
 ```
 The quickrun option set to true tells the script to only run over 10,000 events per file. This argument can be removed when you're ready to max out your statistics. Output files will be put in the local output/<keyword> directory matching the specified keyword for the filename. The status of the jobs can be checked with
 
