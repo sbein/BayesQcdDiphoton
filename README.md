@@ -4,8 +4,9 @@ This is the package for running a photon-friendly rebalance and smear implementa
 ## Set up code in a nobackup area (modify appropriately if you forked the repo)
 
 ```
-cmsrel CMSSW_10_1_0
-cd CMSSW_10_1_0/src
+export SCRAM_ARCH=slc7_amd64_gcc900
+cmsrel CMSSW_12_2_3
+cd CMSSW_12_2_3/src
 cmsenv
 git clone https://github.com/sbein/SusyPhotons/
 cd SusyPhotons/
