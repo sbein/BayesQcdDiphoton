@@ -25,6 +25,12 @@ python3 tools/SkimDiphoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --qu
 python3 tools/SkimMonophoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True
 ```
 
+## Then draw histograms from these skims:
+
+```
+python3 tools/DrawAnalyzeSinglePho.py <output of last step>
+```
+
 Generate plots overlaying observed and R&S histograms
 
 ```
