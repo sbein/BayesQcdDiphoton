@@ -1,4 +1,3 @@
-
 #Welcome to the industrial age of Sam's rebalance and smear code. You're going to have a lot of fun!
 import os,sys
 from ROOT import *
@@ -11,9 +10,14 @@ import time
 
 ###stuff that would be nice in a config file:
 met4skim = 200
+met4skim = 100#ONLY to synch with Alpana
 mhtjetetacut = 5.0 # also needs be be changed in UsefulJet.h
 AnHardMetJetPtCut = 30.0
 rebalancedMetCut = 150
+
+#photonWp = 'Medium'
+photonWp = 'Loose'
+
 
 nametag = {'Nom':'', 'Up': 'JerUp'}
 
@@ -24,7 +28,7 @@ gROOT.ProcessLine(open('src/BayesRandS.cc').read())
 exec('from ROOT import *')
 
 '''
-python tools/SkimSinglePhoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
+python tools/MaximizePosteriorMonophoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
 
 "/eos/uscms/store/group/lpcsusyphotons/TreeMaker/Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2AnalysisTree.root"
 '''
@@ -44,8 +48,11 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
+parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="for poofing electrons")
 parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
 parser.add_argument("-directoryout", "--directoryout", type=bool, default=False,help="only used in submitjobs.py")
+
 
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
 args = parser.parse_args()
@@ -60,9 +67,14 @@ verbosity = args.verbosity
 printevery = args.printevery
 debugmode = args.debugmode
 muversion = args.muversion
+poofmu = args.poofmu
+poofe = args.poofe
 printevery = args.printevery
 quickrun = args.quickrun
 sayalot = args.sayalot
+
+if poofmu or poofe:
+    met4skim = 0.0
 
 if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
 
@@ -105,24 +117,29 @@ elif 'DYJetsToLL_M-50_TuneC' in fnamekeyword: madranges = [(0, 100)]
 elif 'DYJetsToLL_M-50_HT' in fnamekeyword: madranges = [(100, inf)]
 else: madranges = [(0, inf)]
 
-if 'Fast' in fnamekeyword or 'pMSSM' in fnamekeyword: isfast = True
+if 'Fast' in fnamekeyword: isfast = True
 else: isfast = False
 
 
 if 'Run2016' in fnamekeyword or 'Summer16' in fnamekeyword: 
     BTAG_deepCSV = 0.6324
     is2016 = True
-    #xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
-    xmlfilename = "usefulthings/Phase1_BDT_T5Wg_m19XX_T6Wg_m17XX_normbyngen_Aug25_weights.xml"
+    xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    photonSF_file = TFile('usefulthings/Fall17V2_2016_Loose_photons.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
+    #xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth.weights.xml"
 if 'Run2017' in fnamekeyword or 'Fall17' in fnamekeyword: 
     BTAG_deepCSV = 0.4941
     is2017 = True
     xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
+    photonSF_file = TFile('usefulthings/2017_PhotonsLoose.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword: 
     BTAG_deepCSV = 0.4184#0.4941####
     is2018 = True
     xmlfilename = "usefulthings/TMVAClassification_BDT_200trees_4maxdepth_T5Wg_m19XX_T6Wg_m17XX_ngenweightedsignal_July28_2021.weights.xml"
-
+    photonSF_file = TFile('usefulthings/2018_PhotonsLoose.root')
+    photonSF_hist = photonSF_file.Get('EGamma_SF2D')
 
 #stuff for Matt's BDT
 reader = TMVA.Reader()
@@ -181,9 +198,7 @@ python tools/globthemfiles.py
 '''
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
-#fnamefilename = 'usefulthings/filelistDiphoton.txt'
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
-#fnamefilename = 'usefulthings/filelist_all.txt'
 #if not 'DoubleEG' in fnamekeyword:
 #    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
 #        fnamefilename = 'usefulthings/filelistV17.txt'
@@ -195,7 +210,7 @@ print 'going to check for ', shortfname
 fnamefile.close()
 c = TChain('TreeMaker2/PreSelection')
 filelist = []
-for line in lines:
+for iline, line in enumerate(lines):
     if not shortfname in line: continue
     fname = line.strip()
 #    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
@@ -207,11 +222,11 @@ for line in lines:
     print 'adding', fname
     c.Add(fname)
     filelist.append(fname)
-    if quickrun: break
+    if quickrun and iline>10: break
 n2process = c.GetEntries()
 nentries = c.GetEntries()
 if quickrun: 
-    n2process = min(1000,n2process)
+    n2process = min(20000,n2process)
 
 
 print 'will analyze', n2process, 'events'
@@ -220,9 +235,6 @@ c.Show(0)
 if issignal:
     c.GetEntry(0)
     par1, par2 = c.SignalParameters
-
-
-
 
 
 if ('Summer16' in fnamekeyword or 'Run2016' in fnamekeyword): 
@@ -257,13 +269,12 @@ newname = 'posterior-'+infileID+'.root'
 if issignal: 
     newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
 
+if muversion: newname = newname.replace('.root','_muskim.root')
+if poofmu: newname = newname.replace('.root','_poofmu.root')
+if poofe: newname = newname.replace('.root', '_poofe.root')
 fnew = TFile(newname, 'recreate')
 print 'creating', newname
 
-
-###--Get Scale Factor hist---------------
-photonSF2016_file = TFile('usefulthings/Fall17V2_2016_Loose_photons.root')
-photonSF2016_hist = photonSF2016_file.Get('EGamma_SF2D')
 
 if mktree:
     print 'cloning tree'
@@ -283,33 +294,60 @@ if mktree:
     tree_out.Branch('HardMETPhi', HardMETPhi, 'HardMETPhi/D')
     MinDPhiHardMetJets = np.zeros(1, dtype=float)
     tree_out.Branch('MinDPhiHardMetJets', MinDPhiHardMetJets, 'MinDPhiHardMetJets/D')
-    Pho1_hadTowOverEM = np.zeros(1, dtype=float)    
-    tree_out.Branch('Pho1_hadTowOverEM', Pho1_hadTowOverEM, 'Pho1_hadTowOverEM/D')
-    Pho1_passLooseSigmaIetaIeta = np.zeros(1, dtype=float)    
-    tree_out.Branch('Pho1_passLooseSigmaIetaIeta', Pho1_passLooseSigmaIetaIeta, 'Pho1_passLooseSigmaIetaIeta/D')
-    Pho1_hasPixelSeed = np.zeros(1, dtype=int)    
-    tree_out.Branch('Pho1_hasPixelSeed', Pho1_hasPixelSeed, 'Pho1_hasPixelSeed/I')
 
     Pho1_SF = np.zeros(1, dtype=float)
     tree_out.Branch('Pho1_SF', Pho1_SF, 'Pho1_SF/D')
+    Pho2_SF = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho2_SF', Pho2_SF, 'Pho2_SF/D')
     Pho1_SFE = np.zeros(1, dtype=float)
     tree_out.Branch('Pho1_SFE', Pho1_SFE, 'Pho1_SFE/D')
+    Pho2_SFE = np.zeros(1, dtype=float)
+    tree_out.Branch('Pho2_SFE', Pho2_SFE, 'Pho2_SFE/D')    
 
    
     NPhotons = np.zeros(1, dtype=int)
-    NPhotons_hpsv = np.zeros(1, dtype=int)
     mass_GG = np.zeros(1, dtype=float)
     mass_mumu = np.zeros(1, dtype=float)
     mass_ee = np.zeros(1, dtype=float)
-
-    
+            
     analysisPhotons = ROOT.std.vector('TLorentzVector')()
     tree_out.Branch('analysisPhotons', analysisPhotons)
+    analysisPhotons_passWp = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWp', analysisPhotons_passWp)
+    analysisPhotons_passWpNminus3 = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3)
+    analysisPhotons_passWpInvertPsv = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpInvertPsv', analysisPhotons_passWpInvertPsv)
+    analysisPhotons_passWpInvertSieie = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpInvertSieie', analysisPhotons_passWpInvertSieie)
+    analysisPhotons_passWpInvertHoe = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe)    
+    analysisPhotons_passWpInvertSieieAndHoe = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe)
+    analysisPhotons_hoe = ROOT.std.vector('double')()
+    tree_out.Branch('analysisPhotons_hoe', analysisPhotons_hoe)
+    analysisPhotons_sieie = ROOT.std.vector('double')()
+    tree_out.Branch('analysisPhotons_sieie', analysisPhotons_sieie)
+    analysisPhotons_hasPixelSeed = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_hasPixelSeed', analysisPhotons_hasPixelSeed)
+    analysisPhotons_isGenPho = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_isGenPho', analysisPhotons_isGenPho)
+    analysisPhotons_isGenEle = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_isGenEle', analysisPhotons_isGenEle)
+    analysisPhotons_isGenMu = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_isGenMu', analysisPhotons_isGenMu) 
+    analysisPhotons_isGenNone = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_isGenNone', analysisPhotons_isGenNone)     
+    
+    
+        
     tree_out.Branch('mass_mumu',mass_mumu, 'mass_mumu/D')
     tree_out.Branch('mass_GG', mass_GG, 'mass_GG/D')
     tree_out.Branch('mass_ee', mass_ee, 'mass_ee/D')
     tree_out.Branch('NPhotons', NPhotons, 'NPhotons/I')
-    tree_out.Branch('NPhotons_hpsv', NPhotons_hpsv, 'NPhotons_hpsv/I')
+
+
+
 
     HardMetMinusMet = np.zeros(1, dtype=float)
     tree_out.Branch('HardMetMinusMet', HardMetMinusMet, 'HardMetMinusMet/D')
@@ -341,6 +379,7 @@ if mktree:
     tree_out.Branch('IsRandS', IsRandS, 'IsRandS/I')  
     tree_out.Branch('NOrigJets15', NOrigJets15, 'NOrigJets15/I')           
 
+
     mva_Ngoodjets = np.zeros(1, dtype=float)
     tree_out.Branch('mva_Ngoodjets', mva_Ngoodjets, 'mva_Ngoodjets/D')
     mva_ST = np.zeros(1, dtype=float)
@@ -349,12 +388,14 @@ if mktree:
     tree_out.Branch('mva_Pt_jets', mva_Pt_jets, 'mva_Pt_jets/D')
     mva_dPhi_GG = np.zeros(1, dtype=float)
     tree_out.Branch('mva_dPhi_GG', mva_dPhi_GG, 'mva_dPhi_GG/D')
+    mva_Photons0Et = np.zeros(1, dtype=float)
+    tree_out.Branch('mva_Photons0Et', mva_Photons0Et, 'mva_Photons0Et/D')    
     mva_Photons1Et = np.zeros(1, dtype=float)
-    tree_out.Branch('mva_Photons1Et', mva_Photons1Et, 'mva_Photons1Et/D')    
+    tree_out.Branch('mva_Photons1Et', mva_Photons1Et, 'mva_Photons1Et/D')  
     mva_HardMET = np.zeros(1, dtype=float)
     tree_out.Branch('mva_HardMET', mva_HardMET, 'mva_HardMET/D')
-    mva_Pt_GG = np.zeros(1, dtype=float)
-    tree_out.Branch('mva_Pt_GG', mva_Pt_GG, 'mva_Pt_GG/D')    
+    mva_Pt_Gg = np.zeros(1, dtype=float)
+    tree_out.Branch('mva_Pt_Gg', mva_Pt_Gg, 'mva_Pt_Gg/D')
     mva_ST_jets = np.zeros(1, dtype=float)
     tree_out.Branch('mva_ST_jets', mva_ST_jets, 'mva_ST_jets/D')    
     mva_min_dPhi = np.zeros(1, dtype=float)
@@ -367,8 +408,12 @@ if mktree:
     tree_out.Branch('mva_dPhi_GGHardMET', mva_dPhi_GGHardMET, 'mva_dPhi_GGHardMET/D') 
     mva_dRjet1photon1 = np.zeros(1, dtype=float)
     tree_out.Branch('mva_dRjet1photon1', mva_dRjet1photon1, 'mva_dRjet1photon1/D')
+    mva_dRjet1photon2 = np.zeros(1, dtype=float)
+    tree_out.Branch('mva_dRjet1photon2', mva_dRjet1photon2, 'mva_dRjet1photon2/D')
     mva_dRjet2photon1 = np.zeros(1, dtype=float)
     tree_out.Branch('mva_dRjet2photon1', mva_dRjet2photon1, 'mva_dRjet2photon1/D')        
+    mva_dRjet2photon2 = np.zeros(1, dtype=float)
+    tree_out.Branch('mva_dRjet2photon2', mva_dRjet2photon2, 'mva_dRjet2photon2/D')    
 
 
     mva_BDT = np.zeros(1, dtype=float)
@@ -395,8 +440,6 @@ hTotFit.Sumw2()
 GleanTemplatesFromFile(ftemplate)#, fprior)
 
 acme_objects = vector('UsefulJet')()
-recophotons_loose = vector('TLorentzVector')()
-recophotons_medium = vector('TLorentzVector')()
 recojets_ = vector('UsefulJet')()
 recojets = vector('UsefulJet')()
 recoelectrons = vector('TLorentzVector')()
@@ -487,11 +530,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if isfast: 
         if not passesUniversalSelectionFast(c): continue
     else:
+
         if passesUniversalSelection(c)<0: 
             if len(c.Photons)>1: 
                 hfilterfails.Fill(passesUniversalSelection(c))
                 continue
-            elif len(c.Photons)>1: hfilterfails.Fill(0)
+            elif len(c.Photons)>1: hfilterfails.Fill(0)    
     #if not passesHadronicSusySelection(c): continue
 
 
@@ -501,71 +545,124 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if muversion: 
         if not len(c.Muons)>1: continue
     else:
-        if not len(c.Photons)>0: continue
+        if not len(c.Photons)>1: continue
 
+    if poofmu:
+        if not len(c.Muons)>1: continue
+        if not len(c.Photons)>1: continue
+
+        
+    if poofe:
+#        if not len(c.Electrons)>1: continue
+        if not len(c.Photons)>3: continue
 
 
     ipvelectrons.clear()
     acme_objects.clear()
-    recophotons_loose.clear()
-    recophotons_loose_hoe = []
-    recophotons_loose_sieie = [] 
-    recophotons_loose_hps = []    
-    recophotons_medium.clear()
+    analysisPhotons.clear()
+    analysisPhotons_passWp.clear()
+    analysisPhotons_passWpNminus3.clear()
+    analysisPhotons_passWpInvertPsv.clear()        
+    analysisPhotons_passWpInvertSieie.clear()
+    analysisPhotons_passWpInvertHoe.clear()
+    analysisPhotons_passWpInvertSieieAndHoe.clear()    
+    analysisPhotons_hoe.clear()
+    analysisPhotons_sieie.clear()
+    analysisPhotons_hasPixelSeed.clear()
+    analysisPhotons_isGenPho.clear()
+    analysisPhotons_isGenEle.clear()
+    analysisPhotons_isGenMu.clear()
+    analysisPhotons_isGenNone.clear()    
 
     #build up the vector of jets using TLorentzVectors; 
     #this is where you have to interface with the input format you're using
     if not (len(c.Photons)>0 or len(c.Electrons)>0 or len(c.Muons)>0): continue
     #idea: use HT to reference prior instead of ST
 
-
     npasspixelseed = 0
     for ipho, pho in enumerate(c.Photons):
-        if not pho.Pt()>20: continue #trigger is pho 70
 
+        if not pho.Pt()>20: continue #trigger is pho 70
+        if not pho.Pt()>30: continue #ONLY for synching with Alpana
 
         if not abs(pho.Eta())<2.4: continue        
 
-
-        if not bool(c.Photons_fullID[ipho]): continue 
-        '''
-        if abs(pho.Eta())<1.48:
-            if not (c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())): continue
-        if abs(pho.Eta())>=1.48:
-            if not (c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_pfChargedIsoRhoCorr[ipho]<2.089 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(19.722 +0.0117*pho.Pt()+0.000023*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(4.162 + 0.0037*pho.Pt())): continue
-        '''
+        if not bool(c.Photons_fullID[ipho]): continue ##might want to loosen this for CRs and stuff
 
         tlvpho = TLorentzVector()
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
         acme_objects.push_back(usefulpho)        
-
-
-        if not pho.Pt()>10: continue
-
-        if bool(c.Photons_hasPixelSeed[ipho]):
-            ipvelectrons.push_back(tlvpho)
         
-        if not bool(c.Photons_hasPixelSeed[ipho]):
-            NPhotons_hpsv[0] += 1
+        if photonWp=='Loose':
+            if abs(pho.Eta())<1.48:
+                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())):
+                    continue     
+            if abs(pho.Eta())>=1.48:
+                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<2.089 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(19.722 +0.0117*pho.Pt()+0.000023*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(4.162 + 0.0037*pho.Pt())):
+                    continue      
+        elif photonWp=='Medium':
+            if abs(pho.Eta())<1.48:
+                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725 +0.0148*pho.Pt()+0.000017*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571 + 0.0047*pho.Pt())):
+                    continue       
+            if abs(pho.Eta())>=1.48:
+                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<0.442 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715 +0.0163*pho.Pt()+0.000014*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863 + 0.0034*pho.Pt())):
+                    continue                                                  
+
+        analysisPhotons.push_back(tlvpho)
+        analysisPhotons_passWpNminus3.push_back(True)
+        analysisPhotons_passWp.push_back(False)
+        analysisPhotons_passWpInvertPsv.push_back(False)
+        analysisPhotons_passWpInvertSieie.push_back(False)
+        analysisPhotons_passWpInvertHoe.push_back(False)
+        analysisPhotons_passWpInvertSieieAndHoe.push_back(False)
+        analysisPhotons_hoe.push_back(-1)
+        analysisPhotons_sieie.push_back(-1)
+        analysisPhotons_hasPixelSeed.push_back(-1)
+        idx = analysisPhotons_passWp.size()-1
+        analysisPhotons_isGenPho.push_back(False)
+        analysisPhotons_isGenEle.push_back(False)
+        analysisPhotons_isGenMu.push_back(False)
+        analysisPhotons_isGenNone.push_back(False)
+        
+        if photonWp=='Loose':
+            if abs(pho.Eta())<1.48:
+                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+            if abs(pho.Eta())>=1.48:
+                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True        
+        elif photonWp=='Medium':
+            if abs(pho.Eta())<1.48:
+                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_pass[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+            if abs(pho.Eta())>=1.48:
+                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_pass[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                
+        analysisPhotons_hoe[idx] = c.Photons_hadTowOverEM[ipho]
+        analysisPhotons_sieie[idx] = c.Photons_sigmaIetaIeta[ipho]
+        analysisPhotons_hasPixelSeed[idx] = bool(c.Photons_hasPixelSeed[ipho])
+        
+        if analysisPhotons_passWpInvertPsv[idx]:
+            ipvelectrons.push_back(tlvpho)
 
         #if not c.Photons_genMatched[ipho]: continue
         #if bool(c.Photons_nonPrompt[ipho]): continue
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
-
-
-        recophotons_loose.push_back(tlvpho)
-        recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
-        if abs(pho.Eta())<1.48: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.01031))
-        else: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.03013))
-        recophotons_loose_hps.append(int(bool(c.Photons_hasPixelSeed[ipho])))
-        continue
-
-        if abs(pho.Eta())<1.48:   
-            if not (c.Photons_hadTowOverEM[ipho]<0.0396  and c.Photons_sigmaIetaIeta[ipho]<0.01022 and c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725+0.0148*c.Photons[ipho].Pt()+0.000017*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571+0.0047*c.Photons[ipho].Pt())): continue
-        if abs(pho.Eta())>=1.48:
-            if not (c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001  and c.Photons_pfChargedIsoRhoCorr[ipho]< 0.442  and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715+0.0163*c.Photons[ipho].Pt()+0.000014*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863+0.0034*c.Photons[ipho].Pt())): continue
-        recophotons_medium.push_back(tlvpho)            
+                 
         if sayalot:
             print ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi()
             print 'Photons_genMatched', c.Photons_genMatched[ipho]
@@ -589,27 +686,46 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         recomuons.push_back(tlvmu)		
     #if not len(recomuons)==0: continue  
 
-    if muversion: recophotons = recomuons
-    else: recophotons = recophotons_loose
-
-    recophotons_sieie = recophotons_loose_sieie
-    recophotons_hoe = recophotons_loose_hoe
-    recophotons_hps = recophotons_loose_hps
-
+    #if we're in muon mode, overrwrite the photons with muons:
+    if muversion: analysisPhotons = recomuons
     
-    NPhotons[0] = len(recophotons)
-    analysisPhotons.clear()
-    for photon in recophotons: 
-        analysisPhotons.push_back(photon)
     
-    if not int(recophotons.size())>0: continue
+    NPhotons[0] = len(analysisPhotons)
+    
+    if not int(analysisPhotons.size())>1: continue
 
-    if len(recophotons)>1: dphiGG = abs(recophotons[0].DeltaPhi(recophotons[1]))
-    else: dphiGG = -1
+
+    if not isdata:
+        genphos, genels, genmus, fakes = [],[],[],[]
+        for igen, gp in enumerate(c.GenParticles):
+            if not gp.Pt()>10: continue
+            if not c.GenParticles_Status[igen]==1: continue
+            pid = abs(c.GenParticles_PdgId[igen])
+            if not pid in [11,13,22]: continue
+            gpvec = TLorentzVector(gp.px(),gp.py(),gp.pz(),gp.e())
+            if pid==22: genphos.append(gpvec)
+            if pid==11: genels.append(gpvec)
+            if pid==13: genmus.append(gpvec)
+        for ipho, pho in enumerate(analysisPhotons):
+            drmin = 99                  
+            for gp in genphos: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenPho[ipho] = True
+            drmin = 99                  
+            for gp in genels: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenEle[ipho] = True
+            drmin = 99                  
+            for gp in genmus: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenMu[ipho] = True
+            if not (analysisPhotons_isGenPho[ipho] or analysisPhotons_isGenEle[ipho] or analysisPhotons_isGenMu[ipho]):
+                analysisPhotons_isGenNone[ipho] = True
+                        
         
-    if len(recophotons)>1: drGG = abs(recophotons[0].DeltaR(recophotons[1]))
-    else: drGG = -1
-        
+    dphiGG = abs(analysisPhotons[0].DeltaPhi(analysisPhotons[1]))
+    drGG = abs(analysisPhotons[0].DeltaR(analysisPhotons[1]))
+
     recoelectrons.clear()
     for iel, el in enumerate(c.Electrons):
         if not el.Pt()>20: continue
@@ -734,7 +850,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         print ientry, rjet.Pt()
         sumjetpt-=rjet.tlv
     print "sum jet pt", sumjetpt.Pt()
-    print 'len photons', len(recophotons)
+    print 'len photons', len(analysisPhotons)
 
 
     if tHardMetPt> met4skim:
@@ -747,20 +863,25 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tjets_pt = tHardMhtVec.Clone()
     tjets_pt*=-1
 
-    if len(recophotons)>1: mass_GG[0] = (recophotons[0]+recophotons[1]).M()
-    else: mass_GG[0] = -1.0
-    if muversion:      
-        Pho1_hadTowOverEM[0], Pho2_hadTowOverEM[0] = 0, 0
-        Pho1_passLooseSigmaIetaIeta[0], Pho2_passLooseSigmaIetaIeta[0] = 0, 0        
-        Pho1_hasPixelSeed[0], Pho2_hasPixelSeed[0] = 1, 1
-    else:
-        Pho1_hadTowOverEM[0] = recophotons_hoe[0]
-        Pho1_passLooseSigmaIetaIeta[0] = recophotons_sieie[0]
-        Pho1_hasPixelSeed[0] = recophotons_hps[0]
-        
+    if poofmu:
+        if len(recomuons)>1:
+            mass_mumu[0] = (recomuons[0]+recomuons[1]).M()
+            tHardMetVec+=recomuons[0]
+            tHardMetVec+=recomuons[1]
+            MetVec+=recomuons[0]
+            MetVec+=recomuons[1]
 
+    
+    if poofe:
+        if len(ipvelectrons)>1:
+            mass_ee[0] = (ipvelectrons[0]+ipvelectrons[1]).M()
+            tHardMetVec+=ipvelectrons[0]
+            tHardMetVec+=ipvelectrons[1]
+            MetVec+=ipvelectrons[0]
+            MetVec+=ipvelectrons[1]
+    
 
-
+    mass_GG[0] = (analysisPhotons[0]+analysisPhotons[1]).M()   
 
     #if  not abs(MetVec.Pt()-tHardMetVec.Pt())<60: continue
     HardMetMinusMet[0] = MetVec.Pt()-tHardMetVec.Pt()
@@ -781,33 +902,45 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if len(recojets)>1:
         tdphi1 = abs(recojets[0].tlv.DeltaPhi(tHardMetVec))
         tdphi2 = abs(recojets[1].tlv.DeltaPhi(tHardMetVec))
-        drjet1pho1 = abs(recojets[0].tlv.DeltaR(recophotons[0]))
-        drjet2pho1 = abs(recojets[1].tlv.DeltaR(recophotons[0]))
+        drjet1pho1 = abs(recojets[0].tlv.DeltaR(analysisPhotons[0]))
+        drjet1pho2 = abs(recojets[0].tlv.DeltaR(analysisPhotons[1]))
+        drjet2pho1 = abs(recojets[1].tlv.DeltaR(analysisPhotons[0]))
+        drjet2pho2 = abs(recojets[1].tlv.DeltaR(analysisPhotons[1]))
 
     elif len(recojets)>0:
         tdphi1 = abs(recojets[0].tlv.DeltaPhi(tHardMetVec))
         tdphi2 = 4.0
-        drjet1pho1 = abs(recojets[0].tlv.DeltaR(recophotons[0]))
+        drjet1pho1 = abs(recojets[0].tlv.DeltaR(analysisPhotons[0]))
+        drjet1pho2 = abs(recojets[0].tlv.DeltaR(analysisPhotons[1]))
         drjet2pho1 = -1.0
+        drjet2pho2 = -1.0
 
     else:
         tdphi1 = 4.0
         tdphi2 = 4.0
         drjet1pho1 = -1.0
+        drjet1pho2 = -1.0
         drjet2pho1 = -1.0
-
-    nsmears = smears*bootupfactor
-
-    pt1 = recophotons[0].Pt()
-    if pt1 > 500:
-        pt1 = 499
-    Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
+        drjet2pho2 = -1.0
 
     hadronicJets.clear()
     for jet in recojets:
         hadronicJets.push_back(jet.tlv)
         
         
+    nsmears = smears*bootupfactor
+
+    pt1 = analysisPhotons[0].Pt()
+    pt2 = analysisPhotons[1].Pt()
+    if pt1 > 500:
+        pt1 = 499
+    if pt1 > 500:
+        pt2 = 499
+    Pho1_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
+    Pho2_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
+    Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
+    Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
+
     print ientry, 'tHardMetPt', tHardMetPt
     if mktree and tHardMetPt>met4skim:
             print 'we made it in here!'
@@ -824,18 +957,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             NJetsAUX[0] = c.NJets
             BTagsAUX[0] = c.BTags
 
-
-    #        pt1 = recophotons[0].Pt()
-    #        pt2 = recophotons[1].Pt()
-    #        if pt1 > 500:
-    #            pt1 = 499
-    #        if pt1 > 500:
-    #            pt2 = 499
-    #        Pho1_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    #        Pho2_SF[0] = photonSF2016_hist.GetBinContent(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
-    #        Pho1_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[0].Eta(), pt1))
-    #        Pho2_SFE[0] = photonSF2016_hist.GetBinError(photonSF2016_hist.FindFixBin(recophotons[1].Eta(), pt2))
-
             HardMETPt[0] = tHardMetPt
             HardMETPhi[0] = tHardMetPhi
             MinDPhiHardMetJets[0] = tmindphi
@@ -844,34 +965,41 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             mva_ST[0] = tSt##
             mva_Pt_jets[0] = tjets_pt.Pt()#
             mva_dPhi_GG[0] = dphiGG#
-            mva_Photons1Et[0] = recophotons[0].Pt()#
+            mva_Photons0Et[0] = analysisPhotons[0].Pt()#
+            mva_Photons1Et[0] = analysisPhotons[1].Pt()#
             mva_HardMET[0] = tHardMetVec.Pt()
-            mva_Pt_GG[0] = -1#(recophotons[0]+recophotons[1]).Pt()#
+            mva_Pt_Gg[0] = (analysisPhotons[0]+analysisPhotons[1]).Pt()#
             mva_ST_jets[0] = tHt#
             mva_min_dPhi[0] = tmindphi#
-            mva_dPhi_GGHardMET[0] = -1 #abs(tHardMetVec.DeltaPhi(recophotons[0]+recophotons[1]))#
+            mva_dPhi_GGHardMET[0] = abs(tHardMetVec.DeltaPhi(analysisPhotons[0]+analysisPhotons[1]))#
             mva_dPhi1[0] = tdphi1
             mva_dPhi2[0] = tdphi2
             mva_dRjet1photon1[0] = drjet1pho1
+            mva_dRjet1photon2[0] = drjet1pho2
             mva_dRjet2photon1[0] = drjet2pho1
+            mva_dRjet2photon2[0] = drjet2pho2
 
             _Ngoodjets_[0] = int(mva_Ngoodjets[0])
             _ST_[0] = mva_ST[0]
             _Pt_jets_[0] = mva_Pt_jets[0]/_ST_[0]
             _dPhi_GG_[0] = mva_dPhi_GG[0]
-            _Photons0Et_[0] = mva_Photons1Et[0]/_ST_[0]
+            _Photons0Et_[0] = mva_Photons0Et[0]/_ST_[0]
+            _Photons1Et_[0] = mva_Photons1Et[0]/_ST_[0]
             _HardMET_[0] = mva_HardMET[0]/_ST_[0]
-            _Pt_GG_[0] = mva_Pt_GG[0]/_ST_[0]
+            _Pt_GG_[0] = mva_Pt_Gg[0]/_ST_[0]
             _ST_jets_[0] = mva_ST_jets[0]/_ST_[0]
             _min_dPhi_[0] = mva_min_dPhi[0]
             _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
             _dPhi1_[0] = mva_dPhi1[0]
             _dPhi2_[0] = mva_dPhi2[0]
             _dRjet1photon1_[0] = mva_dRjet1photon1[0]
+            _dRjet1photon2_[0] = mva_dRjet1photon2[0]
             _dRjet2photon1_[0] = mva_dRjet2photon1[0]
+            _dRjet1photon2_[0] = mva_dRjet2photon2[0]
 
             mva_BDT[0] = reader.EvaluateMVA("BDT")
             tree_out.Fill()
+            print ientry, 'surely this must happen sometimes'
             IsUniqueSeed[0] = 0            
 
 
@@ -879,6 +1007,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     fitsucceed = RebalanceJets(recojets)
     rebalancedJets = _Templates_.dynamicJets
+
 
 
     for obj in acme_objects: ##this has got to come after the rebalancing
@@ -940,20 +1069,26 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if len(RplusSJets)>1:
             rpsdphi1 = abs(RplusSJets[0].tlv.DeltaPhi(tHardMetVec))
             rpsdphi2 = abs(RplusSJets[1].tlv.DeltaPhi(tHardMetVec))
-            rpsdrjet1pho1 = abs(RplusSJets[0].tlv.DeltaR(recophotons[0]))
-            rpsdrjet2pho1 = abs(RplusSJets[1].tlv.DeltaR(recophotons[0]))
+            rpsdrjet1pho1 = abs(RplusSJets[0].tlv.DeltaR(analysisPhotons[0]))
+            rpsdrjet1pho2 = abs(RplusSJets[0].tlv.DeltaR(analysisPhotons[1]))
+            rpsdrjet2pho1 = abs(RplusSJets[1].tlv.DeltaR(analysisPhotons[0]))
+            rpsdrjet2pho2 = abs(RplusSJets[1].tlv.DeltaR(analysisPhotons[1]))
 
         elif len(RplusSJets)>0:
             rpsdphi1 = abs(RplusSJets[0].tlv.DeltaPhi(tHardMetVec))
             rpsdphi2 = 4.0
-            rpsdrjet1pho1 = abs(RplusSJets[0].tlv.DeltaR(recophotons[0]))
+            rpsdrjet1pho1 = abs(RplusSJets[0].tlv.DeltaR(analysisPhotons[0]))
+            rpsdrjet1pho2 = abs(RplusSJets[0].tlv.DeltaR(analysisPhotons[1]))
             rpsdrjet2pho1 = -1.0
+            rpsdrjet2pho2 = -1.0
 
         else:
             rpsdphi1 = 4.0
             rpsdphi2 = 4.0
             rpsdrjet1pho1 = -1.0
+            rpsdrjet1pho2 = -1.0
             rpsdrjet2pho1 = -1.0
+            rpsdrjet2pho2 = -1.0
 
 
 
@@ -993,33 +1128,40 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     mva_ST[0] = tSt##
                     mva_Pt_jets[0] = tjets_pt.Pt()#
                     mva_dPhi_GG[0] = dphiGG
-                    mva_Photons1Et[0] = recophotons[0].Pt()#
+                    mva_Photons0Et[0] = analysisPhotons[0].Pt()#
+                    mva_Photons1Et[0] = analysisPhotons[1].Pt()#
                     mva_HardMET[0] = tHardMetVec.Pt()#
-                    mva_Pt_GG[0] = -1#(recophotons[0]+recophotons[1]).Pt()#
+                    mva_Pt_Gg[0] = (analysisPhotons[0]+analysisPhotons[1]).Pt()#
                     mva_ST_jets[0] = tHt#
                     mva_min_dPhi[0] = tmindphi#
-                    mva_dPhi_GGHardMET[0] = -1 
+                    mva_dPhi_GGHardMET[0] = abs(tHardMetVec.DeltaPhi(analysisPhotons[0]+analysisPhotons[1]))#
                     mva_dPhi1[0] = tdphi1
                     mva_dPhi2[0] = tdphi2
 
                     mva_dRjet1photon1[0] = drjet1pho1
+                    mva_dRjet1photon2[0] = drjet1pho2
                     mva_dRjet2photon1[0] = drjet2pho1
+                    mva_dRjet2photon2[0] = drjet2pho2
 
 
                     _Ngoodjets_[0] = int(mva_Ngoodjets[0])
                     _ST_[0] = mva_ST[0]
                     _Pt_jets_[0] = mva_Pt_jets[0]/_ST_[0]
                     _dPhi_GG_[0] = mva_dPhi_GG[0]
-                    _Photons0Et_[0] = mva_Photons1Et[0]/_ST_[0]        
+                    _Photons0Et_[0] = mva_Photons0Et[0]/_ST_[0]
+                    _Photons1Et_[0] = mva_Photons1Et[0]/_ST_[0]            
                     _HardMET_[0] = mva_HardMET[0]/_ST_[0]
-                    _Pt_GG_[0] = mva_Pt_GG[0]/_ST_[0]
+                    _Pt_GG_[0] = mva_Pt_Gg[0]/_ST_[0]
                     _ST_jets_[0] = mva_ST_jets[0]/_ST_[0]
                     _min_dPhi_[0] = mva_min_dPhi[0]
                     _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
                     _dPhi1_[0] = mva_dPhi1[0]
                     _dPhi2_[0] = mva_dPhi2[0]
                     _dRjet1photon1_[0] = mva_dRjet1photon1[0]
+                    _dRjet1photon2_[0] = mva_dRjet1photon2[0]
                     _dRjet2photon1_[0] = mva_dRjet2photon1[0]
+                    _dRjet1photon2_[0] = mva_dRjet2photon2[0]
+
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
                     tree_out.Fill()
                     IsUniqueSeed[0] = 0
@@ -1049,30 +1191,39 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                     mva_ST[0] = rpsSt
                     mva_Pt_jets[0] = rps_jets_pt.Pt()
                     mva_dPhi_GG[0] = dphiGG
-                    mva_Photons1Et[0] = recophotons[0].Pt()
+                    mva_Photons0Et[0] = analysisPhotons[0].Pt()
+                    mva_Photons1Et[0] = analysisPhotons[1].Pt()
                     mva_HardMET[0] = rpsHardMetPt
-                    mva_Pt_GG[0] = -1#(recophotons[0]+recophotons[1]).Pt()
+                    mva_Pt_Gg[0] = (analysisPhotons[0]+analysisPhotons[1]).Pt()
                     mva_ST_jets[0] = rpsHt
                     mva_min_dPhi[0] = rpsmindphi
+                    mva_dPhi_GGHardMET[0] = abs(rpsHardMetVec.DeltaPhi(analysisPhotons[0]+analysisPhotons[1]))
                     mva_dPhi1[0] = rpsdphi1
                     mva_dPhi2[0] = rpsdphi2
 
                     mva_dRjet1photon1[0] = rpsdrjet1pho1
+                    mva_dRjet1photon2[0] = rpsdrjet1pho2
                     mva_dRjet2photon1[0] = rpsdrjet2pho1
+                    mva_dRjet2photon2[0] = rpsdrjet2pho2
 
 
                     _Ngoodjets_[0] = int(mva_Ngoodjets[0])
                     _ST_[0] = mva_ST[0]
                     _Pt_jets_[0] = mva_Pt_jets[0]/_ST_[0]
-                    _Photons0Et_[0] = mva_Photons1Et[0]/_ST_[0]
+                    _dPhi_GG_[0] = mva_dPhi_GG[0]
+                    _Photons0Et_[0] = mva_Photons0Et[0]/_ST_[0]
+                    _Photons1Et_[0] = mva_Photons1Et[0]/_ST_[0]
                     _HardMET_[0] = mva_HardMET[0]/_ST_[0]
-                    _Pt_GG_[0] = mva_Pt_GG[0]/_ST_[0]
+                    _Pt_GG_[0] = mva_Pt_Gg[0]/_ST_[0]
                     _ST_jets_[0] = mva_ST_jets[0]/_ST_[0]
                     _min_dPhi_[0] = mva_min_dPhi[0]
+                    _dPhi_GGHardMET_[0] = mva_dPhi_GGHardMET[0]
                     _dPhi1_[0] = mva_dPhi1[0]
                     _dPhi2_[0] = mva_dPhi2[0]
                     _dRjet1photon1_[0] = mva_dRjet1photon1[0]
+                    _dRjet1photon2_[0] = mva_dRjet1photon2[0]
                     _dRjet2photon1_[0] = mva_dRjet2photon1[0]
+                    _dRjet1photon2_[0] = mva_dRjet2photon2[0]
 
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
                     tree_out.Fill()

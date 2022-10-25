@@ -1,5 +1,3 @@
-
-
 #Welcome to the industrial age of Sam's rebalance and smear code. You're going to have a lot of fun!
 import os,sys
 from ROOT import *
@@ -8,7 +6,7 @@ from glob import glob
 from utils import *
 import numpy as np
 #from ra2blibs import *
-import time
+import time as thyme
 
 ###stuff that would be nice in a config file:
 met4skim = 100
@@ -16,9 +14,11 @@ mhtjetetacut = 5.0 # also needs be be changed in UsefulJet.h
 AnHardMetJetPtCut = 30.0
 rebalancedMetCut = 150
 
-#photonWp = 'Medium'
+photonWp = 'Medium' ###was used for N-1
 photonWp = 'Loose'
 
+#tools/SkimDiphoton.py
+#tools/DrawAnalylze.py
 
 nametag = {'Nom':'', 'Up': 'JerUp'}
 
@@ -29,9 +29,7 @@ gROOT.ProcessLine(open('src/BayesRandS.cc').read())
 exec('from ROOT import *')
 
 '''
-python tools/MaximizePosteriorDiphoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
-
-"/eos/uscms/store/group/lpcsusyphotons/TreeMaker/Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2AnalysisTree.root"
+python tools/SkimDiphoton.py --fnamekeyword Summer16v3.WGJets --smears 10 --quickrun True
 '''
 
 ##read in command line arguments
@@ -40,7 +38,7 @@ defaultInfile_ = "Summer16v3.GJets_DR-0p4_HT"
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=int, default=1,help="analyzer script to batch")
-parser.add_argument("-printevery", "--printevery", type=int, default=10000,help="short run")
+parser.add_argument("-printevery", "--printevery", type=int, default=1000,help="short run")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile_,help="file")
 parser.add_argument("-bootstrap", "--bootstrap", type=str, default='0',help="boot strapping (0,1of5,2of5,3of5,...)")
 parser.add_argument("-smears", "--smears", type=int, default=20,help="number smears per event")
@@ -81,8 +79,6 @@ if 'DYJets' in fnamekeyword or 'TTJets' in fnamekeyword: met4skim = 30
 
 
 debugmode = False
-
-llhdHardMetThresh = 15
 mktree = True
 
 
@@ -227,7 +223,7 @@ for iline, line in enumerate(lines):
 n2process = c.GetEntries()
 nentries = c.GetEntries()
 if quickrun: 
-    n2process = min(20000,n2process)
+    n2process = min(200000,n2process)
 
 
 print 'will analyze', n2process, 'events'
@@ -271,7 +267,7 @@ templateHtAxis = hHtTemplate.GetXaxis()
 infileID = fnamekeyword.split('/')[-1].replace('.root','')+'_part'+str(extended)
 newname = 'posterior-'+infileID+'.root'
 if issignal: 
-    newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
+    newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(thyme.time()%100000,2))+'.root'
 
 if muversion: newname = newname.replace('.root','_muskim.root')
 if poofmu: newname = newname.replace('.root','_poofmu.root')
@@ -340,8 +336,15 @@ if mktree:
     tree_out.Branch('analysisPhotons_isGenEle', analysisPhotons_isGenEle)
     analysisPhotons_isGenMu = ROOT.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenMu', analysisPhotons_isGenMu) 
+    analysisPhotons_isGenTau = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_isGenTau', analysisPhotons_isGenTau)     
     analysisPhotons_isGenNone = ROOT.std.vector('int')()
-    tree_out.Branch('analysisPhotons_isGenNone', analysisPhotons_isGenNone)     
+    tree_out.Branch('analysisPhotons_isGenNone', analysisPhotons_isGenNone) 
+    
+    analysisPhotons_minDrGenEle = ROOT.std.vector('double')()
+    tree_out.Branch('analysisPhotons_minDrGenEle', analysisPhotons_minDrGenEle)
+    analysisPhotons_minDrRecEle = ROOT.std.vector('double')()
+    tree_out.Branch('analysisPhotons_minDrRecEle', analysisPhotons_minDrRecEle)    
     
     
         
@@ -454,15 +457,16 @@ ipvelectrons = vector('TLorentzVector')()
 ntot = 0
 ndipho = 0
 
-t0 = time.time()
+t0 = thyme.time()
 
 ntot = 0
 n2pho = 0
 
+
 for ientry in range((extended-1)*n2process, extended*n2process):
 
-    if ientry%printevery==-1:
-        print "processing event", ientry, '/', extended*n2process, 'time', time.time()-t0
+    if ientry%printevery==0:
+        print "processing event", ientry, '/', extended*n2process, 'time', thyme.time()-t0
 
     if debugmode:
         #if not ientry>102000 and ientry < 112850: continue
@@ -471,7 +475,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry>nentries: break
     c.GetEntry(ientry)
-
     if issignal:
 
         '''
@@ -511,7 +514,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.SetDirectory(0)
             fnew.Close()
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.Reset()
-            newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
+            newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(thyme.time()%100000,2))+'.root'
             fnew = TFile(newname, 'recreate')
             fnew.mkdir('TreeMaker2')
             fnew.cd('TreeMaker2')
@@ -576,8 +579,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     analysisPhotons_isGenPho.clear()
     analysisPhotons_isGenEle.clear()
     analysisPhotons_isGenMu.clear()
-    analysisPhotons_isGenNone.clear()    
-
+    analysisPhotons_isGenTau.clear()    
+    analysisPhotons_isGenNone.clear()  
+    
+    analysisPhotons_minDrGenEle.clear()
+    analysisPhotons_minDrRecEle.clear()    
     #build up the vector of jets using TLorentzVectors; 
     #this is where you have to interface with the input format you're using
     if not (len(c.Photons)>0 or len(c.Electrons)>0 or len(c.Muons)>0): continue
@@ -590,12 +596,13 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         if not abs(pho.Eta())<2.4: continue        
 
-        ###if not bool(c.Photons_fullID[ipho]): continue 
+        if not bool(c.Photons_fullID[ipho]): continue #####this was off for VN-1
 
         tlvpho = TLorentzVector()
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
-        acme_objects.push_back(usefulpho)        
+        acme_objects.push_back(usefulpho)
+        #if not c.Photons_passElectronVeto[ipho]: continue
 
         if (poofmu or poofe) and (not pho.Pt()>30): continue
         elif not pho.Pt()>75: continue
@@ -630,31 +637,34 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         analysisPhotons_isGenPho.push_back(False)
         analysisPhotons_isGenEle.push_back(False)
         analysisPhotons_isGenMu.push_back(False)
+        analysisPhotons_isGenTau.push_back(False)        
         analysisPhotons_isGenNone.push_back(False)
-        
+        analysisPhotons_minDrGenEle.push_back(99)
+        analysisPhotons_minDrRecEle.push_back(99)        
+              
         if photonWp=='Loose':
             if abs(pho.Eta())<1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
                 if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True
             if abs(pho.Eta())>=1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
                 if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True        
         elif photonWp=='Medium':
             if abs(pho.Eta())<1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_pass[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
                 if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
             if abs(pho.Eta())>=1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_pass[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
+                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
                 if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
                 if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
@@ -675,8 +685,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             print 'Photons_genMatched', c.Photons_genMatched[ipho]
             print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
             print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
-
-
+            
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
         if not mu.Pt()>20: continue
@@ -696,39 +705,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #if we're in muon mode, overrwrite the photons with muons:
     if muversion: analysisPhotons = recomuons
     
-    
     NPhotons[0] = len(analysisPhotons)
     
     if not int(analysisPhotons.size())>1: continue
-
-
-    if not isdata:
-        genphos, genels, genmus, fakes = [],[],[],[]
-        for igen, gp in enumerate(c.GenParticles):
-            if not gp.Pt()>10: continue
-            if not c.GenParticles_Status[igen]==1: continue
-            pid = abs(c.GenParticles_PdgId[igen])
-            if not pid in [11,13,22]: continue
-            gpvec = TLorentzVector(gp.px(),gp.py(),gp.pz(),gp.e())
-            if pid==22: genphos.append(gpvec)
-            if pid==11: genels.append(gpvec)
-            if pid==13: genmus.append(gpvec)
-        for ipho, pho in enumerate(analysisPhotons):
-            drmin = 99                  
-            for gp in genphos: 
-                drmin = min(drmin,gp.DeltaR(pho))
-                if drmin<0.1: analysisPhotons_isGenPho[ipho] = True
-            drmin = 99                  
-            for gp in genels: 
-                drmin = min(drmin,gp.DeltaR(pho))
-                if drmin<0.1: analysisPhotons_isGenEle[ipho] = True
-            drmin = 99                  
-            for gp in genmus: 
-                drmin = min(drmin,gp.DeltaR(pho))
-                if drmin<0.1: analysisPhotons_isGenMu[ipho] = True
-            if not (analysisPhotons_isGenPho[ipho] or analysisPhotons_isGenEle[ipho] or analysisPhotons_isGenMu[ipho]):
-                analysisPhotons_isGenNone[ipho] = True
-
+        
     if False: 
      for ipho in range(len(analysisPhotons)):
         print ientry, ipho, 'analysisPhotons', analysisPhotons[ipho]
@@ -744,6 +724,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         print ientry, ipho, 'analysisPhotons_isGenPho', analysisPhotons_isGenPho[ipho]
         print ientry, ipho, 'analysisPhotons_isGenEle', analysisPhotons_isGenEle[ipho]
         print ientry, ipho, 'analysisPhotons_isGenMu', analysisPhotons_isGenMu[ipho]
+        print ientry, ipho, 'analysisPhotons_isGenTau', analysisPhotons_isGenTau[ipho]        
         print ientry, ipho, 'analysisPhotons_isGenNone', analysisPhotons_isGenNone[ipho] 
         
         
@@ -752,7 +733,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     recoelectrons.clear()
     for iel, el in enumerate(c.Electrons):
-        if not el.Pt()>20: continue
+        if not el.Pt()>10: continue
         if not c.Electrons_mediumID[iel]: continue
         if not c.Electrons_passIso[iel]: continue        
         tlvel = TLorentzVector()
@@ -765,11 +746,48 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         recoelectrons.push_back(tlvel)
     #if not len(recoelectrons)==0: continue      		
 
-    AcmeVector = TLorentzVector()
-    AcmeVector.SetPxPyPzE(0,0,0,0)
-    for obj in acme_objects: AcmeVector+=obj.tlv		
+    if not isdata:
+        genphos, genels, genmus, gentaus, fakes = [],[],[],[], []
+        for igen, gp in enumerate(c.GenParticles):
+            if not gp.Pt()>10: continue
+            if not c.GenParticles_Status[igen]==1: continue
+            pid = abs(c.GenParticles_PdgId[igen])
+            if not pid in [11,13,15,22]: continue
+            gpvec = TLorentzVector(gp.px(),gp.py(),gp.pz(),gp.e())
+            if pid==22: genphos.append(gpvec)
+            if pid==11: genels.append(gpvec)
+            if pid==13: genmus.append(gpvec)
+            if pid==15: gentaus.append(gpvec)
+        for ipho, pho in enumerate(analysisPhotons):
+            drmin = 99                  
+            for gp in genphos:
+                drmin = min(drmin,gp.DeltaR(pho))
+                analysisPhotons_minDrGenEle[ipho] = drmin
+                if drmin<0.1: analysisPhotons_isGenPho[ipho] = True
+            drmin = 99  
+            for gp in genels: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenEle[ipho] = True
+            drmin = 99                  
+            for gp in genmus: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenMu[ipho] = True
+            drmin = 99                  
+            for gp in gentaus: 
+                drmin = min(drmin,gp.DeltaR(pho))
+                if drmin<0.1: analysisPhotons_isGenTau[ipho] = True                
+            if not (analysisPhotons_isGenPho[ipho] or analysisPhotons_isGenEle[ipho] or analysisPhotons_isGenMu[ipho] or analysisPhotons_isGenTau[ipho]):
+                analysisPhotons_isGenNone[ipho] = True
+            drmin = 99                  
+            for rel in recoelectrons:
+                drmin = min(drmin,rel.DeltaR(pho))
+                analysisPhotons_minDrRecEle[ipho] = drmin                
+                
+    AcmeVector_ = TLorentzVector()
+    AcmeVector_.SetPxPyPzE(0,0,0,0)
+    for obj in acme_objects: AcmeVector_+=obj.tlv		
 
-    _Templates_.AcmeVector = AcmeVector	
+    _Templates_.AcmeVector = AcmeVector_	
 
     recojets_.clear()
     for ijet, jet in enumerate(c.Jets):
@@ -861,20 +879,16 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     for obj in acme_objects: tSt+=obj.Pt()
     tHardMhtVec = getHardMet(recojets,AnHardMetJetPtCut, mhtjetetacut)
     tHardMetVec = tHardMhtVec.Clone()
-    tHardMetVec-=AcmeVector # this still needed because the reco-jets don't contain the acme_objects
+    tHardMetVec-=AcmeVector_ # this still needed because the reco-jets don't contain the acme_objects
 
 
     tHardMetPt, tHardMetPhi = tHardMetVec.Pt(), tHardMetVec.Phi()
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
 
-    print ientry, "here we are", tHardMetPt
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
-        print ientry, rjet.Pt()
         sumjetpt-=rjet.tlv
-    print "sum jet pt", sumjetpt.Pt()
-    print 'len photons', len(analysisPhotons)
 
 
     if tHardMetPt> met4skim:
@@ -965,9 +979,9 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
     Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
 
-    print ientry, 'tHardMetPt', tHardMetPt
+    #print ientry, 'tHardMetPt', tHardMetPt, len(recojets), 'len(acme_objects)', len(acme_objects), _Templates_.AcmeVector.Pt()
+        
     if mktree and tHardMetPt>met4skim:
-            print 'we made it in here!'
 
             IsRandS[0] = 0 
             JetsAUX.clear()
@@ -980,18 +994,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             HTAUX[0] = c.HT
             NJetsAUX[0] = c.NJets
             BTagsAUX[0] = c.BTags
-
-
-    #        pt1 = analysisPhotons[0].Pt()
-    #        pt2 = analysisPhotons[1].Pt()
-    #        if pt1 > 500:
-    #            pt1 = 499
-    #        if pt1 > 500:
-    #            pt2 = 499
-    #        Pho1_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
-    #        Pho2_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
-    #        Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
-    #        Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
 
             HardMETPt[0] = tHardMetPt
             HardMETPhi[0] = tHardMetPhi
@@ -1035,12 +1037,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
             mva_BDT[0] = reader.EvaluateMVA("BDT")
             tree_out.Fill()
-            print ientry, 'surely this must happen sometimes'
             IsUniqueSeed[0] = 0            
 
 
     if nsmears==0: continue
-
+            
     fitsucceed = RebalanceJets(recojets)
     rebalancedJets = _Templates_.dynamicJets
 
@@ -1053,8 +1054,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
 
     mHardMetVec = getHardMet(rebalancedJets,AnHardMetJetPtCut, mhtjetetacut)
+    
+    #print ientry, 'mHardMetVec.Pt()', mHardMetVec.Pt()
+    #if len(rebalancedJets)>0: print 'here ya go', rebalancedJets[0].Pt(), recojets[0].Pt(), 'acme vector pt', AcmeVector_.Pt()
 
-    mHardMetVec-=AcmeVector # this is now done because the acme_objects were not stuck back into the reblanced jets
+    mHardMetVec-=AcmeVector_ # this is now done because the acme_objects were not stuck back into the reblanced jets
     mHardMetPt, mHardMetPhi = mHardMetVec.Pt(), mHardMetVec.Phi()
 
     rebalancedHardMet[0] = mHardMetPt
@@ -1073,10 +1077,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
     for ijet, jet in enumerate(rebalancedJets):
         jetsRebalanced.push_back(jet.tlv)
-
-
-
-
+        
+        
+        
+    
     for i in range(nsmears):
 
         if (not fitsucceed): break
@@ -1091,7 +1095,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
 
         rpsHardMetVec = getHardMet(RplusSJets,AnHardMetJetPtCut, mhtjetetacut)
-        rpsHardMetVec-=AcmeVector # this is now done because the acme_objects are not stuck back into the R&S jets yet
+        rpsHardMetVec-=AcmeVector_ # this is now done because the acme_objects are not stuck back into the R&S jets yet
         rpsHardMetPt, rpsHardMetPhi = rpsHardMetVec.Pt(), rpsHardMetVec.Phi()
 
 
@@ -1138,8 +1142,9 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         #if len(RplusSJets)>3:
             #print ientry, RplusSJets[0].Pt(),RplusSJets[1].Pt(),RplusSJets[2].Pt(),RplusSJets[3].Pt()
             #print 'nparams was', _Templates_.nparams
-
-
+            
+            
+        
         if mktree:
             if rpsHardMetPt>met4skim:
 
@@ -1200,6 +1205,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
                     tree_out.Fill()
+                    print ientry, 'fillin up the tank'
                     IsUniqueSeed[0] = 0
 
                 if True:##fill with the R&S entry

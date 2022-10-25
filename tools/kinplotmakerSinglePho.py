@@ -173,7 +173,7 @@ for key in keys:
     if not 'obs' in name: continue
     hObserved = fdata.Get(name).Clone()
     if datamc=='mc': hObserved.Scale(1000*lumi)
-    print 'here we are', name
+    print ('here we are', name)
 
     hObserved.SetTitle('Data ('+year+')')
     histoStyler(hObserved, 1)
@@ -181,7 +181,7 @@ for key in keys:
     
     for fkey, color in fkeys:
         fname_pred = prediction_sources[fkey]
-        print 'fkey', fkey
+        print ('fkey', fkey)
         if datamc=='data' and fkey=='t#bar{t}+jets': continue            
         if 'FakeMet' in fkey:
             if userands: 
@@ -194,14 +194,14 @@ for key in keys:
                 
 
                 ftt = TFile(prediction_sources['t#bar{t}+jets'])
-                print 'looking in ', prediction_sources['t#bar{t}+jets'], 'for', name.replace('obs','rands')
+                print ('looking in ', prediction_sources['t#bar{t}+jets'], 'for', name.replace('obs','rands'))
                 #htt = ftt.Get(name.replace('obs','rands'))
                 #if datamc=='mc': htt.Scale(1000*lumi)
                 #if finalstate == 'mumu': htt.Scale(0.75)
                 #hpred.Add(htt,-1)
                 ftt.Close()
 
-                print 'jamming', name.replace('obs','rands'), 'from', fdata.GetName(), 'into the list'
+                print ('jamming', name.replace('obs','rands'), 'from', fdata.GetName(), 'into the list')
                 #fdata.ls()
                 #exit(0)
             else:  
@@ -209,7 +209,7 @@ for key in keys:
                 hpred = fpred.Get(name)                            
                 hpred.SetTitle('DY#rightarrow ee/#mu#mu, fake MET MC')#namewizard(fname_pred.split('/')[-1].replace('.root','')))                
             
-            print 'getting from data file', name.replace('obs','rands')
+            print ('getting from data file', name.replace('obs','rands'))
             
         else:
             fname_pred = prediction_sources[fkey]
@@ -303,7 +303,7 @@ for key in keys:
     sighists = []
     leg2 = mklegend(x1=.16, y1=.58, x2=.5, y2=.82, color=kWhite)
     for isig, fsigname in enumerate(signals):
-        print 'looking for', name, 'in', fsigname
+        print ('looking for', name, 'in', fsigname)
         fsig = TFile(fsigname)
         hist = fsig.Get(name)
         hist.Scale(1000*lumi)
@@ -318,7 +318,7 @@ for key in keys:
         leg2.AddEntry(hist, fsigname.split('/')[-1].split('weightedHists_')[-1].split('-SUS')[0].split('SMS-')[-1].split('_RA2')[0].replace('.root',''))
     leg2.Draw('same')
     hratio.GetYaxis().SetRangeUser(0.0,2.0)
-    print 'setting', kinvar, 'title to', kinvar.replace('mva_','(for MVA) ')
+    print ('setting', kinvar, 'title to', kinvar.replace('mva_','(for MVA) '))
     hratio.GetXaxis().SetTitle(kinvar.replace('mva_','(for MVA) '))
     cname = 'c_'+name[1:]
     newfile.cd()
@@ -327,7 +327,7 @@ for key in keys:
     cGold.Print('pdfs/Validation/'+datasource.split('/')[-1].replace('.root','')+cname[1:]+'.png')
 
 
-print 'just created', newfile.GetName()
+print ('just created', newfile.GetName())
 '''
 scp pdfs/Validation/ beinsam@naf-cms11.desy.de:/afs/desy.de/user/b/beinsam/www/Diphoton/Validation/23March2021/TwoElectrons/
 '''

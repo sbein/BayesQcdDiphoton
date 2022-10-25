@@ -24,7 +24,6 @@ python tools/kinplotmaker.py 2018 Low
 
 
 datamc = 'mc'
-#datamc = 'data'
 
 
 dolimitinputs = True
@@ -124,10 +123,10 @@ if 'phopho' in topology:
     else: fkeys = [['e faking #gamma',kYellow+1],['FakeMet',kOrange+1],['#gamma#gamma Z,Z#rightarrow#nu#bar{#nu}',kViolet+2],['t#bar{t}+jets',kTeal-5]]#,['WJets',kYellow+1]
 
 
-doblinding = True
+doblinding = False
 
 if bdtselection=='Low': doblinding = False
-blindall = True
+#blindall = True
 userands = True
 
 
@@ -161,11 +160,11 @@ if year=='Run2':
     lumi = 131.94
 
 if year=='2018A':
-	lumi = 13.95
+    lumi = 13.95
 if year=='2018D':
-	lumi = 31.74
+    lumi = 31.74
 if year=='2018C':
-	lumi = 6.89
+    lumi = 6.89
 
 if datamc=='mc' and False:# this would be used also for some closure stuff, but maybe we're trying to turn in this script
     datasource = 'output/bigchunks/'+mcstring[year]+'.QCD.root'
@@ -176,7 +175,10 @@ fdata.ls()
 keys = fdata.GetListOfKeys()
 keys = sorted(keys,key=lambda thing: thing.GetName())
 
+print 'data source', datasource
+
 redoBinning = {}
+##
 redoBinning['HardMet'] = [130,150,185,250,500]
 #/uscms_data/d3/sbein/Diphoton/18Jan2019/CMSSW_10_1_0/src/limitcode
 
@@ -199,18 +201,19 @@ for key in keys:
     if not bdtselection in name: continue
     #if datamc == 'data':
     if not 'HardMet' in name: continue
-    print 'extracting', name, 'from', fdata.GetName()
+    print ('extracting', name, 'from', fdata.GetName())
     hObserved = fdata.Get(name)
     hObserved.SetDirectory(0)
     #if datamc=='mc': hObserved.Scale(1000*lumi)
 
     hObserved.SetTitle('Data ('+year+')')
     histoStyler(hObserved, 1)
+    print 'hObserved.GetEntries()', name,hObserved.GetEntries()
     hpreds = []
     
     for fkey, color in fkeys:
         fname_pred = prediction_sources[fkey]
-        print 'fkey', fkey
+        print ('fkey', fkey)
         if datamc=='data' and fkey=='t#bar{t}+jets': continue            
         if 'FakeMet' in fkey:
             if userands: 
@@ -225,12 +228,12 @@ for key in keys:
                 htt = ftt.Get(name.replace('obs','rands'))
                 if datamc=='mc': htt.Scale(1000*lumi)
                 if topology == 'mumu': htt.Scale(0.75)
-                hpred.Add(htt,-1)
+                #hpred.Add(htt,-1)
                 ftt.Close()
                 newfile.cd()
                 ##hpred.Write('h'+hpred.GetName())
 
-                print 'jamming', name.replace('obs','rands'), 'from', fdata.GetName(), 'into the list'
+                print ('jamming', name.replace('obs','rands'), 'from', fdata.GetName(), 'into the list')
                 #fdata.ls()
                 #exit(0)
             else:  
@@ -238,7 +241,7 @@ for key in keys:
                 hpred = fpred.Get(name)                            
                 hpred.SetTitle('DY#rightarrow ee/#mu#mu, fake MET MC')#namewizard(fname_pred.split('/')[-1].replace('.root','')))                
             
-            print 'getting from data file', name.replace('obs','rands')
+            print ('getting from data file', name.replace('obs','rands'))
             
         else:
             fname_pred = prediction_sources[fkey]
@@ -246,7 +249,7 @@ for key in keys:
             if datamc=='mc': thename = name
             elif datamc=='data': thename = histOfFile[fkey]
                 
-            print 'trying to get', thename, 'from', fpred.GetName()
+            print ('trying to get', thename, 'from', fpred.GetName())
             hpred = fpred.Get(thename)
             try: 
                hpred.SetTitle(fkey)#namewizard(fname_pred.split('/')[-1].replace('.root',''))
@@ -277,10 +280,10 @@ for key in keys:
     else: kinvar = name.split('_')[1]
     ###if not kinvar=='HardMet': continue
     
-    print 'found kinvar', kinvar, 'from', name
+    print ('found kinvar', kinvar, 'from', name)
     cGold = TCanvas('cEnchilada','cEnchilada', 800, 800)
     if kinvar in redoBinning.keys():
-        print 'redoing the binning', kinvar
+        print ('redoing the binning', kinvar)
         if len(redoBinning[kinvar])>3: ##this should be reinstated
             nbins = len(redoBinning[kinvar])-1
             newxs = array('d',redoBinning[kinvar])
@@ -296,31 +299,32 @@ for key in keys:
         hObserved = hObserved.Rebin(nbins,'',newxs)
         hObserved.SetDirectory(0)
         for ih in range(len(hpreds)):  hpreds[ih] = hpreds[ih].Rebin(nbins,'',newxs)
-        print 'weve still got', hObserved.GetName()
+        print ('weve still got', hObserved.GetName())
         fpred.Close()
-        print 'weve still got2', hObserved.GetName()
+        print ('weve still got2', hObserved.GetName())
 
     newfile.cd()
     #for ih in range(len(hpreds)): hpreds[ih].Write(hpreds[ih].GetTitle())
         
-        
+    print 'doblinding is', doblinding
     if doblinding:
-    	xax = hObserved.GetXaxis()
+        xax = hObserved.GetXaxis()
         if (kinvar=='MinDPhiHardMetJets' or kinvar=='mva_min_dPhi') and not 'LowBDT' in name:
             for ibin in range(1,xax.GetNbins()+1):
                 if hObserved.GetBinLowEdge(ibin)>0.3: 
-                	hObserved.SetBinContent(ibin, 0)
-                	hObserved.SetBinError(ibin, 0)
+                    hObserved.SetBinContent(ibin, 0)
+                    hObserved.SetBinError(ibin, 0)
         elif kinvar=='HardMet' and ('LowBDT' in name):
             for ibin in range(1,xax.GetNbins()+1):
-                if hObserved.GetBinLowEdge(ibin)>=150: 
-                	hObserved.SetBinContent(ibin, 0)
-                	hObserved.SetBinError(ibin, 0)
+                if hObserved.GetBinLowEdge(ibin)>150: 
+                    print('zeroing out', ibin, hObserved.GetBinLowEdge(ibin))
+                    hObserved.SetBinContent(ibin, 0)
+                    hObserved.SetBinError(ibin, 0)
         elif ('BDT' in kinvar):            
             for ibin in range(1,xax.GetNbins()+1):
                 if hObserved.GetBinLowEdge(ibin)>-0.2: 
-                	hObserved.SetBinContent(ibin, 0)
-                	hObserved.SetBinError(ibin, 0)
+                    hObserved.SetBinContent(ibin, 0)
+                    hObserved.SetBinError(ibin, 0)
         else:
             for ibin in range(1,xax.GetNbins()+1):
                 if hObserved.GetBinLowEdge(ibin)>-0.2: hObserved.SetBinContent(ibin, -99)                                    
@@ -357,7 +361,7 @@ for key in keys:
         fsig = TFile(fsigname)
         hist = fsig.Get(name)
         hist.Scale(1000*lumi)
-        hist = hist.Rebin(nbins,'',newxs)
+        if kinvar in redoBinning.keys(): hist = hist.Rebin(nbins,'',newxs)
         hist.SetDirectory(0)        
         histoStyler(hist, sigcolors[isig])
         #histoStyler(hist, kBlue+isig)
@@ -370,16 +374,16 @@ for key in keys:
         hist.Write(fsigname.split('SMS-')[-1].split('_RA2')[0])
     leg2.Draw('same')
     hratio.GetYaxis().SetRangeUser(0.0,2.0)
-    print 'setting', kinvar, 'title to', kinvar.replace('mva_','(for MVA) ')
+    print ('setting', kinvar, 'title to', kinvar.replace('mva_','(for MVA) '))
     hratio.GetXaxis().SetTitle(kinvar.replace('mva_','(for MVA) '))
     cname = 'c_'+name[1:]
     
     cGold.Write(cname)
-    #print 'trying:','pdfs/ClosureTests/'+selection+'_'+method+'And'+standard+'_'+kinvar+'.pdf'
-    cGold.Print('pdfs/Validation/'+datasource.split('/')[-1].replace('.root','')+cname[1:]+'.png')
+    #print 'trying:','figures/ClosureTests/'+selection+'_'+method+'And'+standard+'_'+kinvar+'.pdf'
+    cGold.Print('figures/Validation/'+datasource.split('/')[-1].replace('.root','')+cname[1:]+'.png')
 
 
-print 'just created', newfile.GetName()
+print ('just created', newfile.GetName())
 '''
 scp pdfs/Validation/ beinsam@naf-cms11.desy.de:/afs/desy.de/user/b/beinsam/www/Diphoton/Validation/23March2021/TwoElectrons/
 '''
