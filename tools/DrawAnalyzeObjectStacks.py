@@ -6,8 +6,8 @@ gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 lumi = 36
 dopred = False
-wp = 'Medium'
 wp = 'Loose'
+wp = 'Medium'
 
 '''
 eosls /store/group/lpcsusyphotons/Skims_medPhotonElVetoV10/ > usefulthings/filelistDiphotonSkims.txt
@@ -26,15 +26,18 @@ else: dosignals = False
 
 #eosls /store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8 > usefulthings/filelistDiphotonSignalSkims.txt
 if dosignals: eosdir = '/store/group/lpcsusyphotons/Skims_loosePhotonSignalsV8'
-else: eosdir = '/store/group/lpcsusyphotons/Skims_loosePhotonV10FullId/'
+else: 
+    eosdir = '/store/group/lpcsusyphotons/Skims_loosePhotonV10FullId/'
+    eosdir = '/store/group/lpcsusyphotons/Skims_mediumPhotonV10'
 
 
+logscale = False
 print 'fileskey', fileskey
 if 'Run20' in fileskey: isdata = True
 else: isdata = False
 
 
-universalconstraint = 'HardMETPt>130  && NPhotons>=2 && abs(HardMetMinusMet)<100 && mva_Photons1Et>80 && mva_Ngoodjets>1 && (abs(analysisPhotons[0].Eta())<1.5 || abs(analysisPhotons[1].Eta())<1.5) && analysisPhotons_minDrRecEle[0]>0.1 && analysisPhotons_minDrRecEle[1]>0.1 && NMuons==0 && IsRandS==0'
+universalconstraint = 'HardMETPt>130  && NPhotons>=2 && abs(HardMetMinusMet)<100 && mva_Photons1Et>75 && mva_Ngoodjets>1 && (abs(analysisPhotons[0].Eta())<1.5 || abs(analysisPhotons[1].Eta())<1.5) && analysisPhotons_minDrRecEle[0]>0.1 && analysisPhotons_minDrRecEle[1]>0.1 && NMuons==0 && IsRandS==0'
 
 print dosignals
 
@@ -74,8 +77,8 @@ else: evtweight = 'CrossSection/'+str(nev_total)
 
 
 variables = {}
-variables['LeadPhotonPt']  = 'min(analysisPhotons[0].Pt(),559)>>hadc(24,60,560)'
-variables['TrailPhotonPt']  = 'min(analysisPhotons[1].Pt(),559)>>hadc(24,60,560)'
+variables['LeadPhotonPt']  = 'min(analysisPhotons[0].Pt(),559)>>hadc(25,55,555)'
+variables['TrailPhotonPt']  = 'min(analysisPhotons[1].Pt(),559)>>hadc(25,55,555)'
 variables['LeadPhotonEta']  = 'analysisPhotons[0].Eta()>>hadc(24,-2.4,2.4)'
 variables['TrailPhotonEta']  = 'analysisPhotons[1].Eta()>>hadc(24,-2.4,2.4)'
 variables['LeadPhotonSieie']  = 'min(analysisPhotons_sieie[0],0.0199)>>hadc(24,0,0.02)'
@@ -115,14 +118,14 @@ categories = {}
 categories['#geq 1 #gamma is #mu'] = ['(analysisPhotons_isGenMu[0]==1 || analysisPhotons_isGenMu[1]==1)', kViolet]
 categories['#gamma/#gamma'] = ['(analysisPhotons_isGenPho[0]==1 && analysisPhotons_isGenPho[1]==1)', kOrange]
 categories['#gamma/e'] = ['((analysisPhotons_isGenPho[0]==1 && analysisPhotons_isGenEle[1]==1) || (analysisPhotons_isGenPho[1]==1 && analysisPhotons_isGenEle[0]==1))',kTeal-5]
-categories['#gamma/jet'] = ['((analysisPhotons_isGenPho[0]==1 && analysisPhotons_isGenNone[1]==1) || (analysisPhotons_isGenNone[1]==1 && analysisPhotons_isGenPho[0]==1))', kBlue+1]
+categories['#gamma/jet'] = ['((analysisPhotons_isGenPho[0]==1 && analysisPhotons_isGenNone[1]==1) || (analysisPhotons_isGenPho[1]==1 && analysisPhotons_isGenNone[0]==1))', kBlue+1]
 categories['e/jet'] = ['((analysisPhotons_isGenEle[0]==1 && analysisPhotons_isGenNone[1]==1) || (analysisPhotons_isGenEle[1]==1 && analysisPhotons_isGenNone[0]==1))', kViolet+1]
 categories['e/e'] = ['(analysisPhotons_isGenEle[0]==1 && analysisPhotons_isGenEle[1]==1)', kGray+2]
-categories['jet/jet'] = ['(analysisPhotons_isGenNone[0]==1 && analysisPhotons_isGenNone[1]==1)',kGray]
-categories['#gamma/#tau'] = ['((analysisPhotons_isGenPho[0]==1 && analysisPhotons_isGenTau[1]==1) || (analysisPhotons_isGenPho[1]==1 && analysisPhotons_isGenTau[0]==1))',kRed+1]
+categories['jet/jet'] = ['(analysisPhotons_isGenNone[0]==1 && analysisPhotons_isGenNone[1]==1)',kRed+1]
+categories['#geq 1 #gamma is #tau'] = ['(analysisPhotons_isGenTau[0]==1 || analysisPhotons_isGenTau[1]==1)',kGray+1]
+categories['e/#mu'] = ['((analysisPhotons_isGenEle[0]==1 && analysisPhotons_isGenMu[1]==1) || (analysisPhotons_isGenEle[1]==1 && analysisPhotons_isGenMu[0]==1))', kYellow]
 
-
-thakeys = ['#gamma/jet','e/jet','jet/jet','e/e','#gamma/#gamma','#gamma/#tau','#gamma/e'] 
+thakeys = ['#gamma/jet','e/jet','jet/jet','e/e','#gamma/e', '#geq 1 #gamma is #mu']#,'e/#mu','#gamma/#gamma','#geq 1 #gamma is #tau'
 #thakeys.reverse()
 #categories['#geq 1 #gamma is #mu'] = ['analysisPhotons_isGenMu[0]==1 || analysisPhotons_isGenMu[1]==1 ']
 #categories['#geq 1 #gamma is #mu'] = ['analysisPhotons_isGenMu[0]==1 || analysisPhotons_isGenMu[1]==1 ']
@@ -171,13 +174,13 @@ for key in plotBundle:
     leg = mklegend(x1=.71, y1=.3, x2=.98, y2=.8, color=kWhite)
     hobs.SetTitle('MC (WG)')
     hobs.GetXaxis().SetTitle(key.split('PassPass_')[-1].split('PassFail_')[-1].split('PixNoPix_')[-1].split('mva_')[-1])
-    hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hobs,hcomponents,datamc='MC',lumi=str(lumi), title = '', LinearScale=False, fractionthing='total / component')
-    if not ('Vs' in key): 
+    hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hobs,hcomponents,datamc='MC',lumi=str(lumi), title = '', LinearScale=not logscale, fractionthing='total / component')
+    if logscale and not ('Vs' in key): 
     	hobs.GetYaxis().SetRangeUser(0.01,100*hobs.GetMaximum())
     	for h in hcomponents: h.GetYaxis().SetRangeUser(0.001,10*hobs.GetMaximum())
     c1.Update()
     c1.Write('c_'+key)
-    c1.Print('figures/Components'+wp+'/'+key+'.png')
+    c1.Print('figures/Components'+'/'+key+'.png')
     #c1.Print('pdfs/Components'+wp+'_vetoRecEle/'+key+'.png')
 
 

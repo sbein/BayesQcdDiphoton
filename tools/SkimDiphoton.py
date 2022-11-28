@@ -14,8 +14,8 @@ mhtjetetacut = 5.0 # also needs be be changed in UsefulJet.h
 AnHardMetJetPtCut = 30.0
 rebalancedMetCut = 150
 
-photonWp = 'Medium' ###was used for N-1
 photonWp = 'Loose'
+photonWp = 'Medium' ###was used for N-1
 
 #tools/SkimDiphoton.py
 #tools/DrawAnalylze.py
@@ -324,6 +324,10 @@ if mktree:
     tree_out.Branch('analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe)    
     analysisPhotons_passWpInvertSieieAndHoe = ROOT.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe)
+    analysisPhotons_passWpInvertChargedIso = ROOT.std.vector('int')()
+    tree_out.Branch('analysisPhotons_passWpInvertChargedIso', analysisPhotons_passWpInvertChargedIso)
+    analysisPhotons_chargedIso = ROOT.std.vector('double')()
+    tree_out.Branch('analysisPhotons_chargedIso', analysisPhotons_chargedIso)
     analysisPhotons_hoe = ROOT.std.vector('double')()
     tree_out.Branch('analysisPhotons_hoe', analysisPhotons_hoe)
     analysisPhotons_sieie = ROOT.std.vector('double')()
@@ -340,6 +344,10 @@ if mktree:
     tree_out.Branch('analysisPhotons_isGenTau', analysisPhotons_isGenTau)     
     analysisPhotons_isGenNone = ROOT.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenNone', analysisPhotons_isGenNone) 
+   
+    #c.Photons_pfChargedIsoRhoCorr[ipho]<1.694
+    # c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2))
+    #c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt()))
     
     analysisPhotons_minDrGenEle = ROOT.std.vector('double')()
     tree_out.Branch('analysisPhotons_minDrGenEle', analysisPhotons_minDrGenEle)
@@ -572,7 +580,9 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     analysisPhotons_passWpInvertPsv.clear()        
     analysisPhotons_passWpInvertSieie.clear()
     analysisPhotons_passWpInvertHoe.clear()
-    analysisPhotons_passWpInvertSieieAndHoe.clear()    
+    analysisPhotons_passWpInvertSieieAndHoe.clear()
+    analysisPhotons_passWpInvertChargedIso.clear()      
+    analysisPhotons_chargedIso.clear()
     analysisPhotons_hoe.clear()
     analysisPhotons_sieie.clear()
     analysisPhotons_hasPixelSeed.clear()
@@ -596,7 +606,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         if not abs(pho.Eta())<2.4: continue        
 
-        if not bool(c.Photons_fullID[ipho]): continue #####this was off for VN-1
+        #if not bool(c.Photons_fullID[ipho]): continue #####this was off for VN-1
 
         tlvpho = TLorentzVector()
         tlvpho.SetPtEtaPhiE(pho.Pt(), pho.Eta(), pho.Phi(), pho.E())
@@ -610,17 +620,15 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         
         if photonWp=='Loose':
             if abs(pho.Eta())<1.48:
-                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())):
-                    continue     
+                if not (c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())): continue# and c.Photons_pfChargedIsoRhoCorr[ipho]<1.694
             if abs(pho.Eta())>=1.48:
-                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<2.089 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(19.722 +0.0117*pho.Pt()+0.000023*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(4.162 + 0.0037*pho.Pt())):
-                    continue      
+                if not (c.Photons_pfNeutralIsoRhoCorr[ipho]<(19.722 +0.0117*pho.Pt()+0.000023*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(4.162 + 0.0037*pho.Pt())): continue  # and c.Photons_pfChargedIsoRhoCorr[ipho]<2.089
         elif photonWp=='Medium':
             if abs(pho.Eta())<1.48:
-                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725 +0.0148*pho.Pt()+0.000017*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571 + 0.0047*pho.Pt())):
+                if not (c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725 +0.0148*pho.Pt()+0.000017*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571 + 0.0047*pho.Pt())): # c.Photons_pfChargedIsoRhoCorr[ipho]<0.441
                     continue       
             if abs(pho.Eta())>=1.48:
-                if not (c.Photons_pfChargedIsoRhoCorr[ipho]<0.442 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715 +0.0163*pho.Pt()+0.000014*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863 + 0.0034*pho.Pt())):
+                if not (c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715 +0.0163*pho.Pt()+0.000014*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863 + 0.0034*pho.Pt())):
                     continue                                                  
 
         analysisPhotons.push_back(tlvpho)
@@ -630,8 +638,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         analysisPhotons_passWpInvertSieie.push_back(False)
         analysisPhotons_passWpInvertHoe.push_back(False)
         analysisPhotons_passWpInvertSieieAndHoe.push_back(False)
+        analysisPhotons_chargedIso.push_back(-1)
         analysisPhotons_hoe.push_back(-1)
         analysisPhotons_sieie.push_back(-1)
+        analysisPhotons_passWpInvertChargedIso.push_back(-1)
+        analysisPhotons_chargedIso.push_back(-1)
         analysisPhotons_hasPixelSeed.push_back(-1)
         idx = analysisPhotons_passWp.size()-1
         analysisPhotons_isGenPho.push_back(False)
@@ -644,32 +655,36 @@ for ientry in range((extended-1)*n2process, extended*n2process):
               
         if photonWp=='Loose':
             if abs(pho.Eta())<1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<1.694  and c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<1.694  and c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<1.694  and c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<1.694  and c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<1.694  and c.Photons_hadTowOverEM[ipho]>=0.04596 and c.Photons_sigmaIetaIeta[ipho]>=0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<=1.694 and c.Photons_hadTowOverEM[ipho]<0.04596 and c.Photons_sigmaIetaIeta[ipho]<0.01031 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertChargedIso[idx] = True
             if abs(pho.Eta())>=1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertHoe[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertSieieAndHoe[idx] = True        
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<2.089  and c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWp[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<2.089  and c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]):analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<2.089  and c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<2.089  and c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<2.089  and c.Photons_hadTowOverEM[ipho]>=0.0590 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertSieieAndHoe[idx] = True        
+                if c.Photons_pfChargedIsoRhoCorr[ipho]>=2.089 and c.Photons_hadTowOverEM[ipho]<0.0590 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])):analysisPhotons_passWpInvertChargedIso[idx] = True
         elif photonWp=='Medium':
             if abs(pho.Eta())<1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.441  and c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.441  and c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.441  and c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.441  and c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.441  and c.Photons_hadTowOverEM[ipho]>=0.0396 and c.Photons_sigmaIetaIeta[ipho]>=0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]>=0.441 and c.Photons_hadTowOverEM[ipho]<0.0396 and c.Photons_sigmaIetaIeta[ipho]<0.01022 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertChargedIso[idx] = True
             if abs(pho.Eta())>=1.48:
-                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
-                if c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieie[idx] = True
-                if c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
-                
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.442  and c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWp[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.442  and c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and bool(c.Photons_hasPixelSeed[ipho]): analysisPhotons_passWpInvertPsv[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.442  and c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.442  and c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieie[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]<0.442  and c.Photons_hadTowOverEM[ipho]>=0.0219 and c.Photons_sigmaIetaIeta[ipho]>=0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertSieieAndHoe[idx] = True
+                if c.Photons_pfChargedIsoRhoCorr[ipho]>=0.442 and c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001 and (not bool(c.Photons_hasPixelSeed[ipho])): analysisPhotons_passWpInvertChargedIso[idx] = True
         analysisPhotons_hoe[idx] = c.Photons_hadTowOverEM[ipho]
+        analysisPhotons_chargedIso[idx] = c.Photons_pfChargedIsoRhoCorr[ipho]
         analysisPhotons_sieie[idx] = c.Photons_sigmaIetaIeta[ipho]
         analysisPhotons_hasPixelSeed[idx] = bool(c.Photons_hasPixelSeed[ipho])
         
@@ -685,7 +700,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             print 'Photons_genMatched', c.Photons_genMatched[ipho]
             print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
             print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
-            
+
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
         if not mu.Pt()>20: continue
@@ -708,6 +723,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     NPhotons[0] = len(analysisPhotons)
     
     if not int(analysisPhotons.size())>1: continue
+
         
     if False: 
      for ipho in range(len(analysisPhotons)):
@@ -762,11 +778,11 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             drmin = 99                  
             for gp in genphos:
                 drmin = min(drmin,gp.DeltaR(pho))
-                analysisPhotons_minDrGenEle[ipho] = drmin
                 if drmin<0.1: analysisPhotons_isGenPho[ipho] = True
             drmin = 99  
             for gp in genels: 
                 drmin = min(drmin,gp.DeltaR(pho))
+                analysisPhotons_minDrGenEle[ipho] = drmin                
                 if drmin<0.1: analysisPhotons_isGenEle[ipho] = True
             drmin = 99                  
             for gp in genmus: 
@@ -831,7 +847,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if not passesJetId: 
         ###print ientry, 'failed jet ID'
         continue
-
 
     shouldskipevent = False
     if not nMatchedAcmeOuterPairs==nMatchedAcmeInnerPairs: 
@@ -1205,7 +1220,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
                     mva_BDT[0] = reader.EvaluateMVA("BDT")
                     tree_out.Fill()
-                    print ientry, 'fillin up the tank'
                     IsUniqueSeed[0] = 0
 
                 if True:##fill with the R&S entry
