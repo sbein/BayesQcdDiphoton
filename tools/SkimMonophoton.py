@@ -208,11 +208,11 @@ else:
     print ('adding', fname)
     c.Add(fname)
     filelist.append(fname)
-    if quickrun: break
+    if quickrun and len(filelist)>3: break
 n2process = c.GetEntries()
 nentries = c.GetEntries()
 if quickrun: 
-    n2process = min(1000,n2process)
+    n2process = min(20000,n2process)
 
 
 print ('will analyze', n2process, 'events')
