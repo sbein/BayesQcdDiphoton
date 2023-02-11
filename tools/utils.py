@@ -235,7 +235,7 @@ def findbin(thebins, value):
         if value>=bin[0] and value<=bin[1]:
             return bin
     if value>thebins[-1]: return thebins[-1]
-    if value<thebins[0]: return thebins[0]	
+    if value<thebins[0]: return thebins[0]    
 
 
 def namewizard(name):
@@ -254,7 +254,7 @@ def namewizard(name):
     if 'NLeptons' == name:
         return r'n_{#ell}'
     if 'NPhotons' == name:
-        return r'n_{#gamma}'		
+        return r'n_{#gamma}'        
     if 'NMuons' == name:
         return r'n(#mu)'
     if 'NTags' == name:
@@ -338,7 +338,7 @@ def writeHistoStruct(hStructDict, opt='BranchObservedGenSmearedGenRebalancedRplu
 
 def pause(str_='push enter key when ready'):
         import sys
-        print str_
+        print (str_)
         sys.stdout.flush() 
         raw_input('')
 
@@ -376,7 +376,7 @@ def stamp2(lumi,datamc='MC'):
     tl.SetTextFont(regularfont)
     if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
     else: tl.DrawLatex(0.47,0.82,'#sqrt{s} = 13 TeV, L = '+str(lumi)+' fb^{-1}')
-    #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
+    #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')    
     tl.SetTextSize(tl.GetTextSize()/1.6)
 
 def calcTrackIso(trk, tracks):
@@ -413,7 +413,7 @@ def calcSumPt(jets, obj, conesize=0.6, thresh=10):
         if not (obj.DeltaR(jet)<conesize):
             continue
         sumpt_+=jet.Pt()
-    return sumpt_	
+    return sumpt_    
 
 
 def getDPhis(metvec,jetvec):
@@ -511,7 +511,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
     for h in hComponents[1:]: 
         h.Draw('hist same')
         cGold.Update()
-        print 'updating stack', h
+        print ('updating stack', h)
     hComponents[0].Draw('same') 
     hTruth.Draw('p same')
     hTruth.Draw('e same')    
@@ -601,7 +601,7 @@ def FabDraw(cGold,leg,hObserved,hComponents,datamc='mc',lumi='arbitrary', title 
             leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
         leg.AddEntry(hObserved,title0,'lp')    
     hObserved.SetTitle('')
-    hComponents[0].SetTitle('')	
+    hComponents[0].SetTitle('')    
     hComponents[0].Draw('hist')
     for h in hComponents[1:]: 
         h.Draw('hist same')
@@ -704,7 +704,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
             table+='\n'
             table+=r'\hline'+'\n'
         table+=r'''\end{tabular}'''
-        print table
+        print (table)
         hComponents.reverse()
         
     #pad1.SetGridx()
@@ -730,31 +730,31 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
         leg.AddEntry(hObserved,hObserved.GetTitle(),'lpf')        
         for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
     else:
-    	leg.AddEntry(hObserved,title0,'lp')    
+        leg.AddEntry(hObserved,title0,'lp')    
         for ihComp, hComp in enumerate(hComponents):
             leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
         
     hObserved.SetTitle('')
-    hComponents[0].SetTitle('')	
+    hComponents[0].SetTitle('')    
     xax = hComponents[0].GetXaxis()
     hComponentsUp = hComponents[0].Clone(hComponents[0].GetName()+'UpVariation')
-    hComponentsUp.SetLineColor(kWhite)	
-    hComponentsDown = hComponents[0].Clone(hComponents[0].GetName()+'DownVariation')	
+    hComponentsUp.SetLineColor(kWhite)    
+    hComponentsDown = hComponents[0].Clone(hComponents[0].GetName()+'DownVariation')    
     hComponentsDown.SetFillColor(10)
     hComponentsDown.SetFillStyle(1001)
     hComponentsDown.SetLineColor(kWhite)
     for ibin in range(1, xax.GetNbins()+1):
         hComponentsUp.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)+hComponents[0].GetBinError(ibin))
-        hComponentsDown.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)-hComponents[0].GetBinError(ibin))		
+        hComponentsDown.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)-hComponents[0].GetBinError(ibin))        
 
     hComponents[0].Draw('hist e1')
     #hComponentsUp.Draw('hist')
     #hComponentsDown.Draw('hist same')
     for h in hComponents[1:]: 
-        print 'there are actually components here!'
+        print ('there are actually components here!')
         h.Draw('hist same')
         cGold.Update()
-        print 'updating stack', h
+        print ('updating stack', h)
     #hComponents[0].Draw('same') 
     hError = hComponents[0].Clone(hComponents[0].GetName()+'_err')
     hError.SetFillStyle(3244)
@@ -814,8 +814,8 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
     histoMethodFracErrorNom.SetFillStyle(1)
     histoMethodFracErrorUp = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystUp')
     histoMethodFracErrorUp.SetFillStyle(3001)
-    histoMethodFracErrorUp.SetLineColor(kWhite)	
-    histoMethodFracErrorUp.SetFillColor(hComponents[0].GetFillColor())	
+    histoMethodFracErrorUp.SetLineColor(kWhite)    
+    histoMethodFracErrorUp.SetFillColor(hComponents[0].GetFillColor())    
     histoMethodFracErrorDown = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystDown')
     histoMethodFracErrorDown.SetLineColor(kWhite)
     #histoMethodFracErrorDown.SetFillStyle(1001)
@@ -827,12 +827,12 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,datamc='mc',lumi=35.9, tit
         histoMethodFracErrorUp.SetBinContent(ibin, 1+err)
         histoMethodFracErrorUp.SetBinError(ibin, 0)
         histoMethodFracErrorDown.SetBinContent(ibin, 1-err)
-        histoMethodFracErrorDown.SetBinError(ibin, 0)		
-        histoMethodFracErrorNom.SetBinContent(ibin, 1)		
+        histoMethodFracErrorDown.SetBinError(ibin, 0)        
+        histoMethodFracErrorNom.SetBinContent(ibin, 1)        
         histoMethodFracErrorNom.SetBinError(ibin, 0)
-    hRatio.GetYaxis().SetRangeUser(-0.2,3.2)	
+    hRatio.GetYaxis().SetRangeUser(-0.2,3.2)    
     hRatio.Draw('e0')    
-    histoMethodFracErrorUp.Draw('same hist')	
+    histoMethodFracErrorUp.Draw('same hist')    
     histoMethodFracErrorNom.Draw('same')
     histoMethodFracErrorDown.Draw('same hist')
     hRatio.Draw('e0 same')
@@ -854,7 +854,7 @@ def stampFab(lumi = 'n/a',datamc='MC'):
     tl.SetTextFont(regularfont)
     if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
     else: tl.DrawLatex(0.6,0.82,str(lumi)+' fb^{-1}'+'(13 TeV)')
-    #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
+    #tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')    
     tl.SetTextSize(tl.GetTextSize()/1.6)
 
 

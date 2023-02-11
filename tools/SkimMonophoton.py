@@ -1,12 +1,15 @@
 #Welcome to the industrial age of Sam's rebalance and smear code. You're going to have a lot of fun!
 import os,sys
 from ROOT import *
-from array import array
+from array import array as array_orig
 from glob import glob
 from utils import *
 import numpy as np
 #from ra2blibs import *
-import time
+import time as normaltime
+import cppyy
+from cppyy.gbl import *
+
 
 ###stuff that would be nice in a config file:
 met4skim = 200
@@ -24,13 +27,16 @@ nametag = {'Nom':'', 'Up': 'JerUp'}
 ##load in UsefulJet class, which the rebalance and smear code uses
 gROOT.ProcessLine(open('src/UsefulJet.cc').read())
 exec('from ROOT import *')
+
 gROOT.ProcessLine(open('src/BayesRandS.cc').read())
 exec('from ROOT import *')
 
 '''
+#python2
 python tools/MaximizePosteriorMonophoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
-
-"/eos/uscms/store/group/lpcsusyphotons/TreeMaker/Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2AnalysisTree.root"
+#python3
+python3 tools/SkimMonophoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True --smears 1
+python3 tools/SkimMonophoton.py --fnamekeyword file:ntuple/Summer16v3.GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_0_RA2AnalysisTree.root --smears 1 
 '''
 
 ##read in command line arguments
@@ -48,9 +54,7 @@ parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
-parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
-parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="for poofing electrons")
-parser.add_argument("-sayalot", "--sayalot", type=bool, default=False,help="short run")
+
 parser.add_argument("-directoryout", "--directoryout", type=bool, default=False,help="only used in submitjobs.py")
 
 
@@ -71,7 +75,6 @@ poofmu = args.poofmu
 poofe = args.poofe
 printevery = args.printevery
 quickrun = args.quickrun
-sayalot = args.sayalot
 
 if poofmu or poofe:
     met4skim = 0.0
@@ -95,7 +98,7 @@ else:
     from random import randint
     thisbootstrap, nbootstraps = bootstrap.split('of')
     thisbootstrap, nbootstraps = int(thisbootstrap), int(nbootstraps)
-    print 'thisbootstrap, nbootstraps', thisbootstrap, nbootstraps
+    print ('thisbootstrap, nbootstraps', thisbootstrap, nbootstraps)
     bootupfactor = nbootstraps
 
 
@@ -143,23 +146,23 @@ if 'Run2018' in fnamekeyword or 'Autumn18' in fnamekeyword:
 
 #stuff for Matt's BDT
 reader = TMVA.Reader()
-_Ngoodjets_ = array('i',[0])
-_ST_ = array('f',[0])
-_Pt_jets_ = array('f',[0])
-_dPhi_GG_ = array('f',[0])
-_Photons0Et_ = array('f',[0])
-_Photons1Et_ = array('f',[0])
-_HardMET_ = array('f',[0])
-_Pt_GG_ = array('f',[0])
-_ST_jets_ = array('f',[0])
-_min_dPhi_ = array('f',[0])
-_dPhi1_ = array('f',[0])
-_dPhi2_ = array('f',[0])
-_dPhi_GGHardMET_ = array('f',[0])
-_dRjet1photon1_ = array('f',[0])
-_dRjet1photon2_ = array('f',[0])
-_dRjet2photon1_ = array('f',[0])
-_dRjet2photon2_ = array('f',[0])
+_Ngoodjets_ = array_orig('i',[0])
+_ST_ = array_orig('f',[0])
+_Pt_jets_ = array_orig('f',[0])
+_dPhi_GG_ = array_orig('f',[0])
+_Photons0Et_ = array_orig('f',[0])
+_Photons1Et_ = array_orig('f',[0])
+_HardMET_ = array_orig('f',[0])
+_Pt_GG_ = array_orig('f',[0])
+_ST_jets_ = array_orig('f',[0])
+_min_dPhi_ = array_orig('f',[0])
+_dPhi1_ = array_orig('f',[0])
+_dPhi2_ = array_orig('f',[0])
+_dPhi_GGHardMET_ = array_orig('f',[0])
+_dRjet1photon1_ = array_orig('f',[0])
+_dRjet1photon2_ = array_orig('f',[0])
+_dRjet2photon1_ = array_orig('f',[0])
+_dRjet2photon2_ = array_orig('f',[0])
 
 
 
@@ -199,18 +202,20 @@ python tools/globthemfiles.py
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
-#if not 'DoubleEG' in fnamekeyword:
-#    if 'Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword: #or 'Run20' in fnamekeyword
-#        fnamefilename = 'usefulthings/filelistV17.txt'
-print 'as file list, using', fnamefilename
+print ('as file list, using', fnamefilename)
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
 shortfname = fnamekeyword.split('/')[-1].strip().replace('*','')
-print 'going to check for ', shortfname
+print ('going to check for ', shortfname)
 fnamefile.close()
 c = TChain('TreeMaker2/PreSelection')
 filelist = []
-for iline, line in enumerate(lines):
+
+#this might not make sense, as it's from a merge
+if 'file:' in fnamekeyword:
+    c.Add(fnamekeyword)
+else:
+  for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
 #    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
@@ -219,7 +224,7 @@ for iline, line in enumerate(lines):
     else:
         fname = fname.replace('/store/','root://cmseos.fnal.gov//store/')
     #if 'WJets' in fnamekeyword: fname = fname.replace('root://cmsxrootd.fnal.gov///store/group/lpcsusyhad','root://hepxrd01.colorado.edu:1094//store/user/aperloff')
-    print 'adding', fname
+    print ('adding', fname)
     c.Add(fname)
     filelist.append(fname)
     if quickrun and iline>10: break
@@ -229,7 +234,7 @@ if quickrun:
     n2process = min(20000,n2process)
 
 
-print 'will analyze', n2process, 'events'
+print ('will analyze', n2process, 'events')
 c.Show(0)
 
 if issignal:
@@ -245,7 +250,7 @@ if ('Autumn18' in fnamekeyword or 'Run2018' in fnamekeyword):
     templateFileName = 'usefulthings/ResponseFunctionsMC18'+nametag[JerUpDown]+'_deepCsv.root'
 if not forcetemplates=='': templateFileName = forcetemplates
 
-print 'using templates from',templateFileName
+print ('using templates from',templateFileName)
 ftemplate = TFile(templateFileName)
 ftemplate.ls()
 hPtTemplate = ftemplate.Get('hPtTemplate')
@@ -273,11 +278,11 @@ if muversion: newname = newname.replace('.root','_muskim.root')
 if poofmu: newname = newname.replace('.root','_poofmu.root')
 if poofe: newname = newname.replace('.root', '_poofe.root')
 fnew = TFile(newname, 'recreate')
-print 'creating', newname
+print ('creating', newname)
 
 
 if mktree:
-    print 'cloning tree'
+    print ('cloning tree')
     fnew.mkdir('TreeMaker2')
     fnew.cd('TreeMaker2/')
     tree_out = c.CloneTree(0)
@@ -286,7 +291,7 @@ if mktree:
     tree_out.SetBranchStatus('BTags',0)
     tree_out.SetBranchStatus('Jets',0)
     tree_out.SetBranchStatus('Jets_bJetTagDeepCSVBvsAll',0)    
-    print 'cloned tree'    
+    print ('cloned tree')
 
     HardMETPt = np.zeros(1, dtype=float)
     tree_out.Branch('HardMETPt', HardMETPt, 'HardMETPt/D')
@@ -309,8 +314,8 @@ if mktree:
     mass_GG = np.zeros(1, dtype=float)
     mass_mumu = np.zeros(1, dtype=float)
     mass_ee = np.zeros(1, dtype=float)
-            
-    analysisPhotons = ROOT.std.vector('TLorentzVector')()
+    
+    analysisPhotons = cppyy.gbl.std.vector('TLorentzVector')()
     tree_out.Branch('analysisPhotons', analysisPhotons)
     analysisPhotons_passWp = ROOT.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWp', analysisPhotons_passWp)
@@ -353,16 +358,16 @@ if mktree:
     tree_out.Branch('HardMetMinusMet', HardMetMinusMet, 'HardMetMinusMet/D')
     IsUniqueSeed = np.zeros(1, dtype=int)
     tree_out.Branch('IsUniqueSeed', IsUniqueSeed, 'IsUniqueSeed/I')
-    JetsAUX = ROOT.std.vector('TLorentzVector')()
+    JetsAUX = cppyy.gbl.std.vector('TLorentzVector')()
     tree_out.Branch('JetsAUX', JetsAUX)
-    hadronicJets = ROOT.std.vector('TLorentzVector')()
+    hadronicJets = cppyy.gbl.std.vector('TLorentzVector')()
     tree_out.Branch('hadronicJets', hadronicJets)    
-    jetsRebalanced = ROOT.std.vector('TLorentzVector')()
+    jetsRebalanced = cppyy.gbl.std.vector('TLorentzVector')()
     tree_out.Branch('JetsRebalanced', jetsRebalanced)
     rebalancedHardMet =np.zeros(1, dtype=float)
     tree_out.Branch('rebalancedHardMet', rebalancedHardMet, 'rebalancedHardMet/D')
 
-    JetsAUX_bJetTagDeepCSVBvsAll = ROOT.std.vector('float')()
+    JetsAUX_bJetTagDeepCSVBvsAll = cppyy.gbl.std.vector('float')()
     tree_out.Branch('Jets_bJetTagDeepCSVBvsAll', JetsAUX_bJetTagDeepCSVBvsAll)
     HTAUX = np.zeros(1, dtype=float)
     NJetsAUX = np.zeros(1, dtype=int)
@@ -420,7 +425,7 @@ if mktree:
     tree_out.Branch('mva_BDT', mva_BDT, 'mva_BDT/D')
 
 
-print 'n(entries) =', n2process
+print ('n(entries) =', n2process)
 
 hHt = TH1F('hHt','hHt',120,0,2500)
 hHt.Sumw2()
@@ -450,7 +455,7 @@ ipvelectrons = vector('TLorentzVector')()
 ntot = 0
 ndipho = 0
 
-t0 = time.time()
+t0 = normaltime.time()
 
 ntot = 0
 n2pho = 0
@@ -458,7 +463,7 @@ n2pho = 0
 for ientry in range((extended-1)*n2process, extended*n2process):
 
     if ientry%printevery==-1:
-        print "processing event", ientry, '/', extended*n2process, 'time', time.time()-t0
+        print ("processing event", ientry, '/', extended*n2process, 'time', normaltime.time()-t0)
 
     if debugmode:
         #if not ientry>102000 and ientry < 112850: continue
@@ -487,10 +492,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         par1_, par2_ = c.SignalParameters
         if not (par1_==par1 and par2_==par2):
-            print 'starting new file'
+            print ('starting new file')
 
             par1, par2 = par1_, par2_
-            print 'cross section', par1, par2, c.CrossSection
+            print ('cross section', par1, par2, c.CrossSection)
             fnew.cd()
             fnew.cd('../')
             hHt.Write()
@@ -503,7 +508,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
                 fnew.cd()
                 fnew.cd('TreeMaker2')
                 tree_out.Write()
-            print 'just created', fnew.GetName()
+            print ('just created', fnew.GetName())
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.SetDirectory(0)
             fnew.Close()
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.Reset()
@@ -511,7 +516,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             fnew = TFile(newname, 'recreate')
             fnew.mkdir('TreeMaker2')
             fnew.cd('TreeMaker2')
-            print 'creating', newname
+            print ('creating', newname)
 
     tcounter.Fill()
     IsUniqueSeed[0] = 1
@@ -662,13 +667,25 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         #if not c.Photons_genMatched[ipho]: continue
         #if bool(c.Photons_nonPrompt[ipho]): continue
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
-                 
         if sayalot:
             print ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi()
             print 'Photons_genMatched', c.Photons_genMatched[ipho]
             print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
             print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
 
+        recophotons_loose.push_back(tlvpho)
+        recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
+        if abs(pho.Eta())<1.48: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.01031))
+        else: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.03013))
+        recophotons_loose_hps.append(int(bool(c.Photons_hasPixelSeed[ipho])))
+        continue
+
+        if abs(pho.Eta())<1.48:   
+            if not (c.Photons_hadTowOverEM[ipho]<0.0396  and c.Photons_sigmaIetaIeta[ipho]<0.01022 and c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725+0.0148*c.Photons[ipho].Pt()+0.000017*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571+0.0047*c.Photons[ipho].Pt())): continue
+        if abs(pho.Eta())>=1.48:
+            if not (c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001  and c.Photons_pfChargedIsoRhoCorr[ipho]< 0.442  and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715+0.0163*c.Photons[ipho].Pt()+0.000014*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863+0.0034*c.Photons[ipho].Pt())): continue
+        recophotons_medium.push_back(tlvpho)            
+>>>>>>> 99cebce9d1f6ad70006b9ada0882c2a3c620e608
 
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
@@ -678,7 +695,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         tlvmu = TLorentzVector()
         tlvmu.SetPtEtaPhiE(mu.Pt(), mu.Eta(), mu.Phi(), mu.Pt()*TMath.CosH(mu.Eta()))
         if debugmode:
-            print ientry, 'acme muon', mu.Pt()				
+            print (ientry, 'acme muon', mu.Pt())
         usefulmu = UsefulJet(tlvmu, 0, 0, -1)
         acme_objects.push_back(usefulmu)
         if not abs(mu.Eta())<2.4: continue		
@@ -734,7 +751,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         tlvel = TLorentzVector()
         tlvel.SetPtEtaPhiE(el.Pt(), el.Eta(), el.Phi(), el.Pt()*TMath.CosH(el.Eta()))
         if debugmode:
-            print ientry, 'acme electron', el.Pt()		
+            print (ientry, 'acme electron', el.Pt())
         usefulele = UsefulJet(tlvel, 0, 0, -1)
         #acme_objects.push_back(usefulele)		# this should have been counted as an electron
         if not abs(el.Eta())<2.4: continue		
@@ -778,7 +795,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             nMatchedAcmeOuterPairs+=1
             if jet.DeltaR(closestAcme)<0.4:
                 nMatchedAcmeInnerPairs+=1
-                if sayalot: print 'skipping reco jet with pT, eta', jet.Pt(), jet.Eta(), jet.DeltaR(acme_objects[0].tlv)
                 continue
         if jet.Pt()>AnHardMetJetPtCut and jet.JetId()<0.5: 
             passesJetId = False
@@ -812,7 +828,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             ujet = UsefulJet(jettlv, 0, 0, -1)
             closestAcme = getClosestObject(acme_objects, ujet, 0.1)
             if ujet.DeltaR(closestAcme)<0.1: 
-                if sayalot: print 'ueberspringen jet mit pT, eta', tlvjet.Pt(), tlvjet.Eta(), '(',tlvjet.DeltaR(acme_objects[0]),')'
                 continue
             genjets_.push_back(ujet.tlv)
         gHt = getHt(genjets_,AnHardMetJetPtCut)
@@ -843,18 +858,14 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     tHardMetPt, tHardMetPhi = tHardMetVec.Pt(), tHardMetVec.Phi()
     HardMETPt[0], HardMETPhi[0] = tHardMetPt, tHardMetPhi
 
-    print ientry, "here we are", tHardMetPt
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
-        print ientry, rjet.Pt()
         sumjetpt-=rjet.tlv
-    print "sum jet pt", sumjetpt.Pt()
-    print 'len photons', len(analysisPhotons)
-
 
     if tHardMetPt> met4skim:
-        print str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum)
+        a = 1
+        #print (str(c.RunNum)+':'+str(c.LumiBlockNum)+':'+str(c.EvtNum))
         #continue
 
 
@@ -928,6 +939,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         hadronicJets.push_back(jet.tlv)
         
         
+#<<<<<<< HEAD
     nsmears = smears*bootupfactor
 
     pt1 = analysisPhotons[0].Pt()
@@ -942,8 +954,9 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     Pho2_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[1].Eta(), pt2))
 
     print ientry, 'tHardMetPt', tHardMetPt
+#=======
+#>>>>>>> 99cebce9d1f6ad70006b9ada0882c2a3c620e608
     if mktree and tHardMetPt>met4skim:
-            print 'we made it in here!'
 
             IsRandS[0] = 0 
             JetsAUX.clear()
@@ -1244,7 +1257,7 @@ if mktree:
     fnew.cd('TreeMaker2')
     tree_out.GetBranch("NJetsAUX").SetName("NJets")    
     tree_out.Write()
-print 'just created', fnew.GetName()
+print ('just created', fnew.GetName())
 fnew.Close()
 
 
@@ -1252,4 +1265,37 @@ fnew.Close()
 '''
 tree->GetBranch("xxx")->SetName("yyy");
 tree->GetLeaf("xxx")->SetTitle("yyy");
+'''
+
+
+'''
+gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch")
+gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/aten/src/")
+gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/build")
+gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/build/aten/src")
+gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/torch/csrc/api/include/")
+
+
+gROOT.ProcessLine('#include <torch/script.h>')
+#gInterpreter.Declare("#include <torch/script.h>")
+#gInterpreter.Declare("#include <torch/torch.h>")
+#gInterpreter.Declare("#include <iostream")
+
+#gInterpreter.AddIncludePath("")
+#gSystem.AddLinkedLibs("-L$PWD -l/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/SusyPhotons/src/build/CMakeFiles/tfunc.dir/myTorchFunction.cpp.o");
+#gSystem.AddLinkedLibs("-L/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/SusyPhotons/src/build/CMakeFiles/tfunc.dir");
+
+#gInterpreter.Declare("#include <torch/script.h>")
+
+gROOT.ProcessLine(open('src/myTorchFunction.cpp').read())
+exec('from ROOT import *')
+
+print (dir(ROOT))
+print ('cppyy....')
+print(dir(cppyy))
+
+runthingy()
+
+print('hello?')
+exit(0)
 '''
