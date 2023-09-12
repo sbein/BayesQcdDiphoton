@@ -588,7 +588,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     for ipho, pho in enumerate(c.Photons):
 
         if not pho.Pt()>20: continue #trigger is pho 70
-        if not pho.Pt()>30: continue #ONLY for synching with Alpana
+        #if not pho.Pt()>30: continue #ONLY for synching with Alpana
 
         if not abs(pho.Eta())<2.4: continue        
 
@@ -599,7 +599,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
         acme_objects.push_back(usefulpho)        
         
-        if photonWp=='Loose':
+        if photonWp=='Loose':#with fullID already required, the continues in this if should really do nothing
             if abs(pho.Eta())<1.48:
                 if not (c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())):
                     continue     
