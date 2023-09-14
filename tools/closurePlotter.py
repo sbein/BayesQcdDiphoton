@@ -88,7 +88,7 @@ for key in keys:
     newfile.cd()
     cGold.Write(cname)
     #print 'trying:','pdfs/ClosureTests/'+selection+'_'+method+'And'+standard+'_'+kinvar+'.pdf'
-    cGold.Print('pdfs/Closure/'+year+cname[1:]+'.pdf')
+    cGold.Print('figures/Closure/'+year+cname[1:]+'.png')
 
 
 print ('just created', newfile.GetName())

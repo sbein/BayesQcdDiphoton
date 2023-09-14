@@ -6,11 +6,38 @@ gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 
 dopred = False
+doelveto = False##leave off because it's bubkik
 
+fullId = True
+
+tryolder = False
+BaseOnSavedGit = False
+
+if BaseOnSavedGit: tryolder = True #switch this on by default
 '''
-eosls /store/group/lpcsusyphotons/TreeMakerRandS_skimsv8/ > usefulthings/filelistDiphotonSkims.txt
 python tools/DrawAnalyze.py Summer16v3.DYJetsToLL_M-50_HT-2500 NoTau
 python tools/DrawAnalyze.py Run2016B-17Jul2018_ver2-v1.DoubleEG &
+
+ analysisPhotons = (vector<TLorentzVector>*)0x801a3d0
+ analysisPhotons_passWp = (vector<int>*)0x80331c0
+ analysisPhotons_passWpNminus3 = (vector<int>*)0x8043140
+ analysisPhotons_passWpInvertPsv = (vector<int>*)0x80530c0
+ analysisPhotons_passWpInvertSieie = (vector<int>*)0x8063040
+ analysisPhotons_passWpInvertHoe = (vector<int>*)0x8072fd0
+ analysisPhotons_passWpInvertSieieAndHoe = (vector<int>*)0x8082f50
+ analysisPhotons_hoe = (vector<double>*)0x8092ee0
+ analysisPhotons_sieie = (vector<double>*)0x80a2e60
+ analysisPhotons_hasPixelSeed = (vector<int>*)0x80b2de0
+ analysisPhotons_isGenPho = (vector<int>*)0x80c2d60
+ analysisPhotons_isGenEle = (vector<int>*)0x80d2ce0
+ analysisPhotons_isGenMu = (vector<int>*)0x80e2c60
+ analysisPhotons_isGenTau = (vector<int>*)0x80f2be0
+ analysisPhotons_isGenNone = (vector<int>*)0x8102b60
+ analysisPhotons_minDrGenEle = (vector<double>*)0x8112ae0
+ analysisPhotons_minDrRecEle = (vector<double>*)0x8122a60
+ 
+ #getting my head on right
+ python tools/DrawAnalyze.py posterior-Summer16v3.GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_102_RA2AnalysisTree_part1.root  SR
 '''
 
 try: fileskey = sys.argv[1].split('/')[-1]
@@ -22,12 +49,26 @@ else: dosignals = False
 
 #eosls /store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8 > usefulthings/filelistDiphotonSignalSkims.txt
 if dosignals: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_signalskimsv8'
-else: eosdir = '/store/group/lpcsusyphotons/TreeMakerRandS_skimsv8'
+else: 
+    if doelveto: eosdir = '/store/group/lpcsusyphotons/Skims_medPhotonElVetoV10'
+    else: eosdir = '/store/group/lpcsusyphotons/Skims_medPhotonNoElVetoV10'
+    if tryolder: eosdir = '/store/group/lpcsusyphotons/Skims_loosePhotonV8'
+    if BaseOnSavedGit: eosdir = '/store/group/lpcsusyphotons/Skims_Git18Apr2022'
+    if fullId: eosdir = '/store/group/lpcsusyphotons/Skims_loosePhotonV10bFullId'
+    
+'''
+eosls /store/group/lpcsusyphotons/Skims_medPhotonElVetoV10/ > usefulthings/filelistDiphotonSkimsV10.txt
+eosls /store/group/lpcsusyphotons/Skims_medPhotonNoElVetoV10/ > usefulthings/filelistDiphotonSkimsV10NoElVeto.txt
+eosls /store/group/lpcsusyphotons/Skims_loosePhotonV10bFullId > usefulthings/filelistDiphoton_loosePhotonV10bFullId.txt
+'''
 
 
 print 'fileskey', fileskey
 if 'Run20' in fileskey: isdata = True
 else: isdata = False
+
+
+isdata = True
 
 try: SpecialSettings = ''.join(sys.argv[2:])
 except: SpecialSettings =  ''
@@ -36,15 +77,19 @@ if 'NoTau' in SpecialSettings: taustring = "&& @GenTaus.size()==0"
 elif 'WithTau' in SpecialSettings: taustring = "&& @GenTaus.size()>0"
 else: taustring = ""
 
-if 'TwoPixelSeeds' in SpecialSettings: pixelseedstring = "&& (Pho1_hasPixelSeed==1 && Pho2_hasPixelSeed==1)"
-else: pixelseedstring = "&& (Pho1_hasPixelSeed==0 && Pho2_hasPixelSeed==0)"
+if 'TwoPixelSeeds' in SpecialSettings: pixelseedstring = "&& (analysisPhotons_hasPixelSeed[0]==1 && analysisPhotons_hasPixelSeed[1]==1)"
+else: 
+    if tryolder: pixelseedstring = "&& (Pho1_hasPixelSeed==0 && Pho2_hasPixelSeed==0)"
+    else: pixelseedstring = "&& (analysisPhotons_hasPixelSeed[0]==0 && analysisPhotons_hasPixelSeed[1]==0)"
 
 if 'TwoShowerShapeFail' in SpecialSettings: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==0 && Pho2_passLooseSigmaIetaIeta==0)"
 elif 'OneShowerShapeFail' in SpecialSettings: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta + Pho2_passLooseSigmaIetaIeta==1)"
 elif 'FirstShowerShapeFail' in SpecialSettings: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==0 && Pho2_passLooseSigmaIetaIeta==1)"
 elif 'SecondShowerShapeFail' in SpecialSettings: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==1 && Pho2_passLooseSigmaIetaIeta==0)"
 elif 'AgnosticShowerShape' in SpecialSettings: showershapestring = ''
-else: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta + Pho2_passLooseSigmaIetaIeta==2)"
+else: 
+    if tryolder: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta + Pho2_passLooseSigmaIetaIeta==2)"
+    else: showershapestring = "&& (analysisPhotons_passWp[0]==1 && analysisPhotons_passWp[1]==1)"
 
 print 'SpecialSettings:', SpecialSettings, showershapestring
 #exit(0)
@@ -57,7 +102,12 @@ universalconstraint += pixelseedstring
 print dosignals
 
 if dosignals: filefile = open('usefulthings/filelistDiphotonSignalSkims.txt')
-else: filefile = open('usefulthings/filelistDiphotonSkims.txt')
+else: 
+    if doelveto: filefile = open('usefulthings/filelistDiphotonSkimsV10.txt')
+    else: filefile = open('usefulthings/filelistDiphotonSkimsV10NoElVeto.txt')
+    if tryolder: filefile = open('usefulthings/filelistDiphotonSkimsv8.txt')
+    if fullId: filefile = open('usefulthings/filelistDiphoton_loosePhotonV10bFullId.txt')
+    
 fins = filefile.readlines()
     
 if not isdata:
@@ -114,7 +164,7 @@ plotBundle['TwoPho_HardMETPhi'] = ['HardMETPhi>>hadc(32,0,3.2)','HardMETPt>130 &
 '''
 
 #SR plots
-if False and not ('SR' in SpecialSettings or 'Agnostic' in SpecialSettings):
+if not ('SR' in SpecialSettings or 'Agnostic' in SpecialSettings):
     plotBundle['TwoPho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>130 && NPhotons>=2',False]
     plotBundle['TwoPho_HardMet'] = ['min(HardMETPt,499)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2',False]
     plotBundle['TwoPho_massGG'] = ['mass_GG>>hadc(80,0,400)','HardMETPt>130 && NPhotons>=2',False]
@@ -240,6 +290,11 @@ infilekey = fileskey.split('/')[-1].replace('*','').replace('.root','')
 newfilename = 'output/mediumchunks/weightedHists_'+infilekey+'_'+SpecialSettings+'.root'
 if 'T5' in infilekey or 'T6' in infilekey: newfilename = newfilename.replace('mediumchunks','signals')
 
+if tryolder: newfilename = newfilename.replace('.root','_older.root')
+if BaseOnSavedGit: newfilename = newfilename.replace('.root','SavedGit.root')
+if fullId: newfilename = newfilename.replace('.root','_fullId.root')
+
+
     
 fnew = TFile(newfilename, 'recreate')
 print 'will make file', fnew.GetName()
@@ -275,15 +330,16 @@ for key in plotBundle:
     if 'ZGG' in fileskey: hobs.SetTitle('Summer16 ZGG')
     else: hobs.SetTitle('observed')
     hobs.GetXaxis().SetTitle(key.split('_')[-1])
+    hobs.Write('h'+hobs.GetName())        
     hrands.GetXaxis().SetTitle(key.split('_')[-1])
     hrands.SetTitle('rebalance and smeared')
+    hrands.Write('h'+hrands.GetName())
+    
     if dopred: 
         hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hobs,[hrands],datamc='MC',lumi='n/a', title = '', LinearScale=False, fractionthing='observed / method')
         c1.Update()
         c1.Write('c_'+key)
         c1.Print('pdfs/Closure/'+key+'.pdf')        
-    hrands.Write('h'+hrands.GetName())
-    hobs.Write('h'+hobs.GetName())
     print sys.argv
 
 
