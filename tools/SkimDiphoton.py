@@ -724,7 +724,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         
     if False: 
      for ipho in range(len(analysisPhotons)):
-#<<<<<<< HEAD
+
         print (ientry, ipho, 'analysisPhotons', analysisPhotons[ipho])
         print (ientry, ipho, 'analysisPhotons_passWp', analysisPhotons_passWp[ipho])
         print (ientry, ipho, 'analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3[ipho])
@@ -739,23 +739,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         print (ientry, ipho, 'analysisPhotons_isGenEle', analysisPhotons_isGenEle[ipho])
         print (ientry, ipho, 'analysisPhotons_isGenMu', analysisPhotons_isGenMu[ipho])
         print (ientry, ipho, 'analysisPhotons_isGenNone', analysisPhotons_isGenNone[ipho])
-#=======
-#        print ientry, ipho, 'analysisPhotons', analysisPhotons[ipho]
-#        print ientry, ipho, 'analysisPhotons_passWp', analysisPhotons_passWp[ipho]
-#        print ientry, ipho, 'analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3[ipho]
-#        print ientry, ipho, 'analysisPhotons_passWpInvertPsv', analysisPhotons_passWpInvertPsv[ipho]        
-#        print ientry, ipho, 'analysisPhotons_passWpInvertSieie', analysisPhotons_passWpInvertSieie[ipho]
-#        print ientry, ipho, 'analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe[ipho]
-#        print ientry, ipho, 'analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe[ipho]    
-#        print ientry, ipho, 'analysisPhotons_hoe', analysisPhotons_hoe[ipho]
-#        print ientry, ipho, 'analysisPhotons_sieie', analysisPhotons_sieie[ipho]
-#        print ientry, ipho, 'analysisPhotons_hasPixelSeed', analysisPhotons_hasPixelSeed[ipho]
-#        print ientry, ipho, 'analysisPhotons_isGenPho', analysisPhotons_isGenPho[ipho]
-#        print ientry, ipho, 'analysisPhotons_isGenEle', analysisPhotons_isGenEle[ipho]
-#        print ientry, ipho, 'analysisPhotons_isGenMu', analysisPhotons_isGenMu[ipho]
-#        print ientry, ipho, 'analysisPhotons_isGenTau', analysisPhotons_isGenTau[ipho]        
-#        print ientry, ipho, 'analysisPhotons_isGenNone', analysisPhotons_isGenNone[ipho] 
-#>>>>>>> d1b6c17d55eac9bdac44a91fbeb7ddcfab76c990
+
         
         
     dphiGG = abs(analysisPhotons[0].DeltaPhi(analysisPhotons[1]))
@@ -913,11 +897,8 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     sumjetpt = TLorentzVector()
     for irjet, rjet in enumerate(recojets):
         if not rjet.Pt()>30: continue
-
         print (ientry, rjet.Pt())
-#=======
-#>>>>>>> d1b6c17d55eac9bdac44a91fbeb7ddcfab76c990
-#        sumjetpt-=rjet.tlv
+        sumjetpt-=rjet.tlv
 
 
     if tHardMetPt> met4skim:
@@ -1167,7 +1148,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         sortThatThang(RplusSJets)
         #if len(RplusSJets)>3:
-        
+
         if mktree:
             if rpsHardMetPt>met4skim:
 

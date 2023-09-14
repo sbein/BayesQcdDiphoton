@@ -35,6 +35,7 @@ exec('from ROOT import *')
 python3 tools/SkimMonophoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --quickrun True --smears 1
 python3 tools/SkimMonophoton.py --fnamekeyword file:ntuple/Summer16v3.GJets_DR-0p4_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_0_RA2AnalysisTree.root --smears 1
 python tools/MaximizePosteriorMonophoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
+#python2
 '''
 
 ##read in command line arguments
@@ -199,6 +200,8 @@ python tools/globthemfiles.py
 
 ra2bspace = '/eos/uscms//store/group/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/'
 fnamefilename = 'usefulthings/filelistDiphoton.txt'
+
+print ('as file list, using', fnamefilename)
 fnamefile = open(fnamefilename)
 lines = fnamefile.readlines()
 shortfname = fnamekeyword.split('/')[-1].strip().replace('*','')
@@ -206,10 +209,11 @@ print ('going to check for ', shortfname)
 fnamefile.close()
 c = TChain('TreeMaker2/PreSelection')
 filelist = []
+
 if 'file:' in fnamekeyword:
     c.Add(fnamekeyword)
 else:
-for line in lines:
+  for line in lines:
     if not shortfname in line: continue
     fname = line.strip()
 #    if ('Summer16v3.QCD_HT' in fnamekeyword or 'WJets' in fnamekeyword): fname = ra2bspace+fname# or 'Summer16v3.WGJets_MonoPhoton' in fnamekeyword
@@ -583,7 +587,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     for ipho, pho in enumerate(c.Photons):
 
         if not pho.Pt()>20: continue #trigger is pho 70
-        if not pho.Pt()>30: continue #ONLY for synching with Alpana
+        #if not pho.Pt()>30: continue #ONLY for synching with Alpana
 
         if not abs(pho.Eta())<2.4: continue        
 
@@ -594,7 +598,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         usefulpho = UsefulJet(tlvpho, 0, 0, -1)
         acme_objects.push_back(usefulpho)        
         
-        if photonWp=='Loose':
+        if photonWp=='Loose':#with fullID already required, the continues in this if should really do nothing
             if abs(pho.Eta())<1.48:
                 if not (c.Photons_pfChargedIsoRhoCorr[ipho]<1.694 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(24.032 +0.01512*pho.Pt()+0.00002259*pow(pho.Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.876 + 0.004017*pho.Pt())):
                     continue     
@@ -663,6 +667,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         #if bool(c.Photons_nonPrompt[ipho]): continue
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
 
+        if sayalot:
+            print ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi()
+            print 'Photons_genMatched', c.Photons_genMatched[ipho]
+            print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
+            print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
+
         recophotons_loose.push_back(tlvpho)
         recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
         if abs(pho.Eta())<1.48: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.01031))
@@ -675,7 +685,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if abs(pho.Eta())>=1.48:
             if not (c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001  and c.Photons_pfChargedIsoRhoCorr[ipho]< 0.442  and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715+0.0163*c.Photons[ipho].Pt()+0.000014*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863+0.0034*c.Photons[ipho].Pt())): continue
         recophotons_medium.push_back(tlvpho)            
-
 
     recomuons.clear()
     for imu, mu in enumerate(c.Muons):
@@ -928,11 +937,15 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     for jet in recojets:
         hadronicJets.push_back(jet.tlv)
         
+
+    nsmears = smears*bootupfactor
+
     pt1 = analysisPhotons[0].Pt()
     if pt1 > 500:
         pt1 = 499
     Pho1_SF[0] = photonSF_hist.GetBinContent(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
     Pho1_SFE[0] = photonSF_hist.GetBinError(photonSF_hist.FindFixBin(analysisPhotons[0].Eta(), pt1))
+
     if mktree and tHardMetPt>met4skim:
 
             IsRandS[0] = 0 
