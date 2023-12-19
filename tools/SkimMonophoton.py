@@ -668,10 +668,10 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
 
         if sayalot:
-            print ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi()
-            print 'Photons_genMatched', c.Photons_genMatched[ipho]
-            print 'Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho])
-            print 'Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho]
+            print (ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi())
+            print ('Photons_genMatched', c.Photons_genMatched[ipho])
+            print ('Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho]))
+            print ('Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho])
 
         recophotons_loose.push_back(tlvpho)
         recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
@@ -1002,7 +1002,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
             mva_BDT[0] = reader.EvaluateMVA("BDT")
             tree_out.Fill()
-            print ientry, 'surely this must happen sometimes'
+            print (ientry, 'surely this must happen sometimes')
             IsUniqueSeed[0] = 0            
 
 
