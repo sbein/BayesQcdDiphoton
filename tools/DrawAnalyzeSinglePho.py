@@ -10,26 +10,25 @@ dopred = False
 
 '''
 rm output/mediumsphonks/*
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-100To200*" SR & 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-200To400*" SR & 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-400To600*" SR & 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-600ToInf*" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.TTJets_Tune*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.ZGTo2NuG_Tune*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-70To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-100To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-200To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-400To*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-600To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-800To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-1200To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-2500To*.root" SR &
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_106_19786-SUS-RunIIAutumn18*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_473_54451-SUS-RunIIAutumn18*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_86_7257-SUS-RunIIAutumn18*.root" SR 
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_70_90438-SUS-RunIIAutumn18*.root" SR
-python3 tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" SR
-
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-100To200*" & 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-200To400*" & 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-400To600*" & 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-600ToInf*" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.TTJets_Tune*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.ZGTo2NuG_Tune*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-70To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-100To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-200To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-400To*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-600To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-800To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-1200To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-2500To*.root" &
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_106_19786-SUS-RunIIAutumn18*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_473_54451-SUS-RunIIAutumn18*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_86_7257-SUS-RunIIAutumn18*.root" 
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_70_90438-SUS-RunIIAutumn18*.root"
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" 
 
 
 rm output/bigsphonks/bigphotons/*
@@ -43,7 +42,7 @@ rm output/sphognals/*
 cp output/mediumsphonks/weightedHists_pMSSM_MCMC*Autumn18_SR.root output/sphognals/
 
 
-#python tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" SR 
+#python tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" 
 '''
 
 try: fileskey = sys.argv[1]
@@ -59,17 +58,10 @@ try: SpecialSettings = ''.join(sys.argv[2:])
 except: SpecialSettings =  ''
 
 
-if 'TwoPixelSeeds' in SpecialSettings: pixelseedstring = "&& (Pho1_hasPixelSeed==1)"
-else: pixelseedstring = "&& (Pho1_hasPixelSeed==0)"
-
+pixelseedstring = "&& (Pho1_hasPixelSeed==0)"
 showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==1)"
-
-
-#exit(0)
-
-
 universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>20 && mva_Ngoodjets>1' + showershapestring
-universalconstraint
+universalconstraint += showershapestring
 universalconstraint += pixelseedstring
 
 
@@ -86,10 +78,7 @@ for fname in fins: chain.Add(fname.replace('/eos/uscms/','root://cmseos.fnal.gov
 chain.Show(0)
 print ('nevents in skim =', chain.GetEntries())
 
-#chain.SetBranchStatus('NJets', 1)
-#chain.SetBranchStatus('HT', 1)
-#chain.SetBranchStatus('BTags', 1)
-#chain.SetBranchStatus('Jets', 1)
+
 isprivatesignal = bool('pMSSM' in fins)
 if isprivatesignal:
     xsecdict = {'pMSSM_MCMC_106_19786': 1.26100000e-01, 'pMSSM_MCMC_399_10275': 3.98200000e-02, 'pMSSM_MCMC_473_54451': 9.87200000e-01, 'pMSSM_MCMC_86_7257': 2.99100000e-03, 'pMSSM_MCMC_70_90438':7.52100000e-01}
@@ -99,17 +88,12 @@ if isprivatesignal:
 elif isdata: evtweight = '1'
 else: evtweight = 'CrossSection/'+str(nev_total)
 
-
-
 promptname = 'Photons_nonPrompt'
 #promptname = 'Photons_genMatched'
 WP = 'Medium/2'
 WP = 'Loose'
 
-
-
 plotBundle = {}
-
 
 #2d plots
 plotBundle['OnePho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>200 && NPhotons>=1',False]

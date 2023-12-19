@@ -50,6 +50,8 @@ parser.add_argument("-bootstrap", "--bootstrap", type=str, default='0',help="boo
 parser.add_argument("-smears", "--smears", type=int, default=20,help="number smears per event")
 parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (JerNom, JerUp, ...)")
 parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default='',help="you can use this to override the template choice")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="for poofing muons")
+parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="for poofing electrons")
 parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="short run")
 parser.add_argument("-debugmode", "--debugmode", type=bool, default=False,help="short run")
 parser.add_argument("-muversion", "--muversion", type=bool, default=False,help="short run")
@@ -271,7 +273,7 @@ templateHtAxis = hHtTemplate.GetXaxis()
 infileID = fnamekeyword.split('/')[-1].replace('.root','')+'_part'+str(extended)
 newname = 'posterior-'+infileID+'.root'
 if issignal: 
-    newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
+    newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(normaltime.time()%100000,2))+'.root'
 
 if muversion: newname = newname.replace('.root','_muskim.root')
 if poofmu: newname = newname.replace('.root','_poofmu.root')
@@ -511,7 +513,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.SetDirectory(0)
             fnew.Close()
             for obj in [hHt, hHtWeighted, hfilterfails, tcounter, tree_out, hPassFit, hTotFit]: obj.Reset()
-            newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(time.time()%100000,2))+'.root'
+            newname = newname.split('_')[0]+'_m'+str(par1)+'d'+str(par2)+'_time'+str(round(normaltime.time()%100000,2))+'.root'
             fnew = TFile(newname, 'recreate')
             fnew.mkdir('TreeMaker2')
             fnew.cd('TreeMaker2')

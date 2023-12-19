@@ -12,8 +12,8 @@ parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="Qu
 parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default=False,help="you can use this to override the template choice")
 parser.add_argument("-hemcut", "--hemcut", type=str, default='',help="you can use this to override the template choice")
 parser.add_argument("-branchonly", "--branchonly", type=bool, default=False,help="skip rebalancing and smearing")
-parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="used to poof the muons from MET")
-parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="used to poof the electrons from MET")
+#parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="used to poof the muons from MET")
+#parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="used to poof the electrons from MET")
 parser.add_argument("-genmatch", "--genmatch", type=str, default='False',help="short run")
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
 parser.add_argument("-deactivateAcme", "--deactivateAcme", type=str, default='False')
@@ -30,8 +30,8 @@ args = parser.parse_args()
 deactivateAcme = args.deactivateAcme=='True'
 extended = args.extended
 branchonly = args.branchonly
-poofmu = args.poofmu
-poofe = args.poofe
+#poofmu = args.poofmu
+#poofe = args.poofe
 hemcut = args.hemcut
 fnamekeyword = args.fnamekeyword.strip()
 analyzer = args.analyzer
