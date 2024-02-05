@@ -37,6 +37,7 @@ python3 tools/SkimMonophoton.py --fnamekeyword file:ntuple/Summer16v3.GJets_DR-0
 python tools/MaximizePosteriorMonophoton.py --fnamekeyword Summer16v3.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_60_RA2 --smears 0
 #python2
 '''
+sayalot = False
 
 ##read in command line arguments
 defaultInfile_ = "Summer16v3.GJets_DR-0p4_HT"
@@ -318,31 +319,31 @@ if mktree:
 
     analysisPhotons = cppyy.gbl.std.vector('TLorentzVector')()
     tree_out.Branch('analysisPhotons', analysisPhotons)
-    analysisPhotons_passWp = ROOT.std.vector('int')()
+    analysisPhotons_passWp = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWp', analysisPhotons_passWp)
-    analysisPhotons_passWpNminus3 = ROOT.std.vector('int')()
+    analysisPhotons_passWpNminus3 = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpNminus3', analysisPhotons_passWpNminus3)
-    analysisPhotons_passWpInvertPsv = ROOT.std.vector('int')()
+    analysisPhotons_passWpInvertPsv = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpInvertPsv', analysisPhotons_passWpInvertPsv)
-    analysisPhotons_passWpInvertSieie = ROOT.std.vector('int')()
+    analysisPhotons_passWpInvertSieie = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpInvertSieie', analysisPhotons_passWpInvertSieie)
-    analysisPhotons_passWpInvertHoe = ROOT.std.vector('int')()
+    analysisPhotons_passWpInvertHoe = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpInvertHoe', analysisPhotons_passWpInvertHoe)    
-    analysisPhotons_passWpInvertSieieAndHoe = ROOT.std.vector('int')()
+    analysisPhotons_passWpInvertSieieAndHoe = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_passWpInvertSieieAndHoe', analysisPhotons_passWpInvertSieieAndHoe)
-    analysisPhotons_hoe = ROOT.std.vector('double')()
+    analysisPhotons_hoe = cppyy.gbl.std.vector('double')()
     tree_out.Branch('analysisPhotons_hoe', analysisPhotons_hoe)
-    analysisPhotons_sieie = ROOT.std.vector('double')()
+    analysisPhotons_sieie = cppyy.gbl.std.vector('double')()
     tree_out.Branch('analysisPhotons_sieie', analysisPhotons_sieie)
-    analysisPhotons_hasPixelSeed = ROOT.std.vector('int')()
+    analysisPhotons_hasPixelSeed = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_hasPixelSeed', analysisPhotons_hasPixelSeed)
-    analysisPhotons_isGenPho = ROOT.std.vector('int')()
+    analysisPhotons_isGenPho = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenPho', analysisPhotons_isGenPho)
-    analysisPhotons_isGenEle = ROOT.std.vector('int')()
+    analysisPhotons_isGenEle = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenEle', analysisPhotons_isGenEle)
-    analysisPhotons_isGenMu = ROOT.std.vector('int')()
+    analysisPhotons_isGenMu = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenMu', analysisPhotons_isGenMu) 
-    analysisPhotons_isGenNone = ROOT.std.vector('int')()
+    analysisPhotons_isGenNone = cppyy.gbl.std.vector('int')()
     tree_out.Branch('analysisPhotons_isGenNone', analysisPhotons_isGenNone)     
     
     
@@ -665,47 +666,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         if analysisPhotons_passWpInvertPsv[idx]:
             ipvelectrons.push_back(tlvpho)
 
-        #if not c.Photons_genMatched[ipho]: continue
-        #if bool(c.Photons_nonPrompt[ipho]): continue
-        ########if bool(c.Photons_hasPixelSeed[ipho]): continue 
-
-        if sayalot:
-            print (ientry, 'acme photon', pho.Pt(), pho.Eta(), pho.Phi())
-            print ('Photons_genMatched', c.Photons_genMatched[ipho])
-            print ('Photons_nonPrompt', bool(c.Photons_nonPrompt[ipho]))
-            print ('Photons_pfGammaIsoRhoCorr', c.Photons_pfGammaIsoRhoCorr[ipho])
-
-        recophotons_loose.push_back(tlvpho)
-        recophotons_loose_hoe.append(c.Photons_hadTowOverEM[ipho])
-        if abs(pho.Eta())<1.48: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.01031))
-        else: recophotons_loose_sieie.append(int(c.Photons_sigmaIetaIeta[ipho]<0.03013))
-        recophotons_loose_hps.append(int(bool(c.Photons_hasPixelSeed[ipho])))
-        continue
-
-        if abs(pho.Eta())<1.48:   
-            if not (c.Photons_hadTowOverEM[ipho]<0.0396  and c.Photons_sigmaIetaIeta[ipho]<0.01022 and c.Photons_pfChargedIsoRhoCorr[ipho]<0.441 and c.Photons_pfNeutralIsoRhoCorr[ipho]<(2.725+0.0148*c.Photons[ipho].Pt()+0.000017*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(2.571+0.0047*c.Photons[ipho].Pt())): continue
-        if abs(pho.Eta())>=1.48:
-            if not (c.Photons_hadTowOverEM[ipho]<0.0219 and c.Photons_sigmaIetaIeta[ipho]<0.03001  and c.Photons_pfChargedIsoRhoCorr[ipho]< 0.442  and c.Photons_pfNeutralIsoRhoCorr[ipho]<(1.715+0.0163*c.Photons[ipho].Pt()+0.000014*pow(c.Photons[ipho].Pt(),2)) and c.Photons_pfGammaIsoRhoCorr[ipho]<(3.863+0.0034*c.Photons[ipho].Pt())): continue
-        recophotons_medium.push_back(tlvpho)            
-
-    recomuons.clear()
-    for imu, mu in enumerate(c.Muons):
-        if not mu.Pt()>20: continue
-        if not c.Muons_mediumID[imu]: continue
-        if not c.Muons_passIso[imu]: continue
-        tlvmu = TLorentzVector()
-        tlvmu.SetPtEtaPhiE(mu.Pt(), mu.Eta(), mu.Phi(), mu.Pt()*TMath.CosH(mu.Eta()))
-        if debugmode:
-            print (ientry, 'acme muon', mu.Pt())
-        usefulmu = UsefulJet(tlvmu, 0, 0, -1)
-        acme_objects.push_back(usefulmu)
-        if not abs(mu.Eta())<2.4: continue		
-        if not mu.Pt()>30: continue  #Changed from 75 to 30 to check muon poofing (5/3/2021)
-        recomuons.push_back(tlvmu)		
-    #if not len(recomuons)==0: continue  
-
-    #if we're in muon mode, overrwrite the photons with muons:
-    if muversion: analysisPhotons = recomuons
     
     
     NPhotons[0] = len(analysisPhotons)
