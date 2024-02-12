@@ -17,7 +17,7 @@ parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, M
 parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-ps", "--analyzeskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
-parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
+parser.add_argument("-outdir", "--outdir", type=str, default='output_singlepho/smallchunks')
 args = parser.parse_args()
 nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
@@ -29,20 +29,16 @@ JerUpDown = args.JerUpDown
 smearvar = args.smearvar
 outdir = args.outdir
 
-
-
 #try: 
 moreargs = ' '.join(sys.argv)
 moreargs = moreargs.split('--fnamekeyword')[-1]
 moreargs = ' '.join(moreargs.split()[1:])
 
-
-
 args4name = moreargs.replace(' ','').replace('--','-')
 
 
 moreargs = moreargs.strip()
-print 'moreargs', moreargs
+print ('moreargs', moreargs)
 
 cwd = os.getcwd()
 filelist = glob(filenames)
@@ -51,8 +47,8 @@ filelist = glob(filenames)
 
 filesperjob = nfpj
 
-print 'len(filelist)', len(filelist)
-print 'filesperjob', filesperjob
+print ('len(filelist)', len(filelist))
+print ('filesperjob', filesperjob)
 
 def main():
 	ijob = 1
@@ -66,7 +62,7 @@ def main():
 			if len(args4name.split())>0: 
 				jobname = jobname+args4name.replace(' ','-').replace('---','-').replace('--','-')
 			if os.path.isfile('jobs/'+jobname+'.sh'):
-				print 'skipping', fname, 'since', 'jobs/'+jobname+'.sh', 'exists'
+				print ('skipping', fname, 'since', 'jobs/'+jobname+'.sh', 'exists')
 				continue
 			fjob = open('jobs/'+jobname+'.sh','w')
 			files = files[:-1]#this just drops the comma
@@ -75,7 +71,7 @@ def main():
 			os.chdir('jobs')
 			command = 'condor_qsub -cwd '+jobname+'.sh &'
 			jobcounter_+=1
-			print 'command', command
+			print ('command', command)
 			if not test: os.system(command)
 			os.chdir('..')
 			files = ''
@@ -85,7 +81,7 @@ def main():
 			#print 'press the any key'
 			#sys.stdout.flush() 
 			#raw_input('')
-	print 'submitted', jobcounter_, 'jobs'
+	print ('submitted', jobcounter_, 'jobs')
 
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh
@@ -101,13 +97,14 @@ cd $THISDIR
 export timestamp=$(date +%Y%m%d_%H%M%S%N)
 mkdir $timestamp
 cd $timestamp
+mkdir -p OUTDIR
 cp -r CWD/tools .
 cp -r CWD/usefulthings .
 echo doing a good old pwd:
 pwd
-python tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
-mv *.root CWD/OUTDIR
-mv *.json CWD/OUTDIR
+python3 tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
+mv OUTDIR/*.root CWD/OUTDIR
+mv OUTDIR/*.json CWD/OUTDIR
 cd ../
 rm -rf $timestamp
 '''

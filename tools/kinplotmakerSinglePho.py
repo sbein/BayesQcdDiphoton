@@ -13,12 +13,6 @@ from random import shuffle
 #datamc = 'mc'
 
 
-#/eos/uscms//store/group/lpcsusyphotons/hists_20July2021/ElectronBkgEst_BDTcut.root
-#BinDivMET
-#/eos/uscms//store/group/lpcsusyphotons/hists_22June2021/ZGGToNuNuGG_2016_hbdttwopsv.root
-#hpred_mva_HardMET
-
-#os.system('rm pdfs/Validation/*.png')
 
 finalstate = 'mumu'
 finalstate = 'badphopho'
