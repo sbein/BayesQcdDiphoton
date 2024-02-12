@@ -11,7 +11,7 @@ cmsenv
 git clone https://github.com/sbein/SusyPhotons/
 cd SusyPhotons/
 mkdir jobs
-mkdir output
+mkdir -p output_mopho/{smallchunks,mediumchunks,bigchunks,signals}
 mkdir pdfs
 mkdir pdfs/ClosureTests
 #generate file lists at FNAL
@@ -31,6 +31,8 @@ python3 tools/SkimMonophoton.py --fnamekeyword Summer16v3.GJets_DR-0p4_HT-600 --
 
 ```
 python3 tools/DrawAnalyzeSinglePho.py <output of last step>
+#for example,
+python3 tools/DrawAnalyzeSinglePho.py --fnamekeyword "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-100To200*" & 
 ```
 
 Generate plots overlaying observed and R&S histograms

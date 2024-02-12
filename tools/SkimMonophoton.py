@@ -591,9 +591,7 @@ for ientry in range((extended-1)*n2process, extended*n2process):
 
         if not pho.Pt()>20: continue #trigger is pho 70
         #if not pho.Pt()>30: continue #ONLY for synching with Alpana
-
         if not abs(pho.Eta())<2.4: continue        
-
         if not bool(c.Photons_fullID[ipho]): continue ##might want to loosen this for CRs and stuff
 
         tlvpho = TLorentzVector()
@@ -665,8 +663,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
         
         if analysisPhotons_passWpInvertPsv[idx]:
             ipvelectrons.push_back(tlvpho)
-
-    
     
     NPhotons[0] = len(analysisPhotons)
     

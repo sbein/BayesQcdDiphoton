@@ -10,39 +10,39 @@ dopred = False
 
 '''
 #/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8
-rm output_singlepho/mediumchunks/*
-rm output_singlepho/smallchunks/*
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-100To200*" & 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-200To400*" & 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-400To600*" & 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.GJets_DR-0p4_HT-600ToInf*" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.TTJets_Tune*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.ZGTo2NuG_Tune*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-70To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-100To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-200To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-400To*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-600To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-800To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-1200To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*Autumn18.WJetsToLNu_HT-2500To*.root" &
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_106_19786-SUS-RunIIAutumn18*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_473_54451-SUS-RunIIAutumn18*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_86_7257-SUS-RunIIAutumn18*.root" 
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_70_90438-SUS-RunIIAutumn18*.root"
-python3 tools/submitjobs_naf.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/Photons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" 
+rm output_mopho/mediumchunks/*
+rm output_mopho/smallchunks/*
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.GJets_DR-0p4_HT-100To200" & 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.GJets_DR-0p4_HT-200To400" & 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.GJets_DR-0p4_HT-400To600" & 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.GJets_DR-0p4_HT-600ToInf" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.TTJets_Tune*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.ZGTo2NuG_Tune*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-70To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-100To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-200To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-400To*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-600To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-800To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-1200To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "Autumn18.WJetsToLNu_HT-2500To*.root" &
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "pMSSM_MCMC_106_19786-SUS-RunIIAutumn18*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "pMSSM_MCMC_473_54451-SUS-RunIIAutumn18*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "pMSSM_MCMC_86_7257-SUS-RunIIAutumn18*.root" 
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "pMSSM_MCMC_70_90438-SUS-RunIIAutumn18*.root"
+python3 tools/submitjobs_fnal.py --analyzer tools/DrawAnalyzeSinglePho.py --fnamekeyword "pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" 
 
 python3 tools/mergeHistosFinalizeWeights.py
 
-rm output_singlepho/bigchunks/*
-hadd -f output_singlepho/bigchunks/Autumn18.GJets.root output_singlepho/mediumchunks/weightedHists_Autumn18.GJets_DR-0p4_HT*.root 
-hadd -f output_singlepho/bigchunks/Autumn18.TTJets.root output_singlepho/mediumchunks/weightedHists_Autumn18.TTJets_Tune*.root 
-hadd -f output_singlepho/bigchunks/Autumn18.ZGTo2NuG.root output_singlepho/mediumchunks/weightedHists_Autumn18.ZGTo2NuG_Tune*.root 
-hadd -f output_singlepho/bigchunks/Autumn18.WJetsToLNu.root output_singlepho/mediumchunks/weightedHists_Autumn18.WJetsToLNu_*.root 
-hadd -f output_singlepho/bigchunks/Run2018_DoubleEG.root output_singlepho/mediumchunks/weightedHists_Autumn18.GJets_DR-0p4_HT*.root
-hadd -f output_singlepho/bigchunks/Run2018_DoubleEG.root output_singlepho/mediumchunks/weightedHists_Autumn18.*.root
-rm output_singlepho/signals/*
-cp output_singlepho/smallchunks/weightedHists_pMSSM_MCMC*Autumn18_SR.root output_singlepho/signals/
+rm output_mopho/bigchunks/*
+hadd -f output_mopho/bigchunks/Autumn18.GJets.root output_mopho/mediumchunks/weightedHists_Autumn18.GJets_DR-0p4_HT*.root 
+hadd -f output_mopho/bigchunks/Autumn18.TTJets.root output_mopho/mediumchunks/weightedHists_Autumn18.TTJets_Tune*.root 
+hadd -f output_mopho/bigchunks/Autumn18.ZGTo2NuG.root output_mopho/mediumchunks/weightedHists_Autumn18.ZGTo2NuG_Tune*.root 
+hadd -f output_mopho/bigchunks/Autumn18.WJetsToLNu.root output_mopho/mediumchunks/weightedHists_Autumn18.WJetsToLNu_*.root 
+hadd -f output_mopho/bigchunks/Run2018_DoubleEG.root output_mopho/mediumchunks/weightedHists_Autumn18.GJets_DR-0p4_HT*.root
+hadd -f output_mopho/bigchunks/Run2018_DoubleEG.root output_mopho/mediumchunks/weightedHists_Autumn18.*.root
+rm output_mopho/signals/*
+cp output_mopho/smallchunks/weightedHists_pMSSM_MCMC*Autumn18_SR.root output_mopho/signals/
 
 
 #python tools/DrawAnalyzeSinglePho.py "/eos/uscms//store/group/lpcsusyphotons/SinglePhoRandS_skimsv8/*pMSSM_MCMC_399_10275-SUS-RunIIAutumn18*.root" 
@@ -60,7 +60,7 @@ parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, M
 parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-ps", "--analyzeskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
-parser.add_argument("-outdir", "--outdir", type=str, default='output_singlepho/smallchunks')
+parser.add_argument("-outdir", "--outdir", type=str, default='output_mopho/smallchunks')
 args = parser.parse_args()
 nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
@@ -80,10 +80,9 @@ else: isdata = False
 
 
 
-pixelseedstring = "&& (Pho1_hasPixelSeed==0)"
-showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==1)"
-universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>20 && mva_Ngoodjets>1' + showershapestring
-universalconstraint += showershapestring
+pixelseedstring = "&& (analysisPhotons_hasPixelSeed[0]==0)"
+#showershapestring = "&& (Pho1_passLooseSigmaIetaIeta==1)"
+universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>20 && mva_Ngoodjets>1'# + showershapestring
 universalconstraint += pixelseedstring
 
 if ',' in fileskey: fins = fileskey.split(',')
@@ -119,7 +118,6 @@ WP = 'Loose'
 plotBundle = {}
 
 #2d plots
-plotBundle['OnePho_BDT'] = ['mva_BDT>>hadc(24,-1.2,1.2)','HardMETPt>200 && NPhotons>=1',False]
 plotBundle['OnePho_HardMet'] = ['min(HardMETPt,999)>>hadchadc(20,0,1000)','HardMETPt>200 && NPhotons>=1',False]
 plotBundle['OnePho_NJets'] = ['min(mva_Ngoodjets,9)>>hadc(11,-1,10)','HardMETPt>200 && NPhotons>=1',False]
 plotBundle['OnePho_Pho1Pt'] = ['min(analysisPhotons[0].Pt(),499.9)>>hadc(100,0,500)','HardMETPt>200 && NPhotons>=1',False]
@@ -132,7 +130,7 @@ plotBundle['OnePho_nPhotons'] = ['NPhotons>>hadc(3,1,4)','HardMETPt>200 && NPhot
 
 
 infilekey = fileskey.split('/')[-1].replace('*','').replace('.root','')
-newfilename = 'output_singlepho/smallchunks/hists_'+infilekey+'.root'
+newfilename = 'output_mopho/smallchunks/hists_'+infilekey+'.root'
 if 'T5' in infilekey or 'T6' in infilekey: newfilename = newfilename.replace('smallchunks','sphognals')
 
     
