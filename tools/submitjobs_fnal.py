@@ -12,14 +12,14 @@ parser.add_argument("-quickrun", "--quickrun", type=bool, default=False,help="Qu
 parser.add_argument("-forcetemplates", "--forcetemplates", type=str, default=False,help="you can use this to override the template choice")
 parser.add_argument("-hemcut", "--hemcut", type=str, default='',help="you can use this to override the template choice")
 parser.add_argument("-branchonly", "--branchonly", type=bool, default=False,help="skip rebalancing and smearing")
-#parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="used to poof the muons from MET")
-#parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="used to poof the electrons from MET")
+parser.add_argument("-poofmu", "--poofmu", type=bool, default=False, help="used to poof the muons from MET")
+parser.add_argument("-poofe", "--poofe", type=bool, default=False, help="used to poof the electrons from MET")
 parser.add_argument("-genmatch", "--genmatch", type=str, default='False',help="short run")
 parser.add_argument("-extended", "--extended", type=int, default=1,help="short run")
 parser.add_argument("-deactivateAcme", "--deactivateAcme", type=str, default='False')
 #parser.add_argument("-directoryout", "--directoryout", type=str, default="Skims_medPhotonFullId", help="This is the directory where the output will go")
 #parser.add_argument("-directoryout", "--directoryout", type=str, default="Skims_loosePhotonV10bFullId", help="This is the directory where the output will go")
-parser.add_argument("-directoryout", "--directoryout", type=str, default="Skims_mediumPhotonV10", help="This is the directory where the output will go")
+parser.add_argument("-directoryout", "--directoryout", type=str, default="SinglePhoRandS_skimsv9", help="This is the directory where the output will go")
 # TreeMakerRandS_signal_fragmentedv8 # TreeMakerRandS_skimsv8_ph1bdt # SinglePhoRandS_skimsv8 # TreeMakerRandS_skimsv8
 parser.add_argument("-filelist", "--filelist", type=str, default="usefulthings/filelistDiphoton.txt", help="This is the filelist to be used with the analyzer")
 parser.add_argument("-year", "--year", type=str)
@@ -111,9 +111,9 @@ def main():
         newshstr = shtemplate.replace('ANALYZER',analyzer).replace('FNAMEKEYWORD',fname).replace('MOREARGS',moreargs).replace('DOUT',dout)
         newsh.write(newshstr)
         newsh.close()
-        if not os.path.exists('output/'+fnamekeyword.replace(' ','')): 
-            os.system('mkdir output/'+fnamekeyword.replace(' ',''))
-        os.chdir('output/'+fnamekeyword.replace(' ',''))
+        if not os.path.exists('output_mopho/'+fnamekeyword.replace(' ','')): 
+            os.system('mkdir output_mopho/'+fnamekeyword.replace(' ',''))
+        os.chdir('output_mopho/'+fnamekeyword.replace(' ',''))
         cmd =  'condor_submit '+'../../jobs/'+job+'.jdl'        
         print cmd
         if not istest: os.system(cmd)

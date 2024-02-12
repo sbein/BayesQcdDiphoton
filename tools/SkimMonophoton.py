@@ -562,8 +562,6 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     if poofe:
 #        if not len(c.Electrons)>1: continue
         if not len(c.Photons)>3: continue
-
-
     ipvelectrons.clear()
     acme_objects.clear()
     analysisPhotons.clear()
@@ -991,16 +989,12 @@ for ientry in range((extended-1)*n2process, extended*n2process):
     #redoneMET = redoMET(MetVec,recojets,rebalancedJets)
     #mMetPt,mMetPhi = redoneMET.Pt(), redoneMET.Phi()
 
-
     fillth1(hTotFit, mBTags, weight)
 
     if fitsucceed: fillth1(hPassFit, mBTags, weight)
 
     for ijet, jet in enumerate(rebalancedJets):
         jetsRebalanced.push_back(jet.tlv)
-
-
-
 
     for i in range(nsmears):
 
@@ -1207,43 +1201,3 @@ if mktree:
     tree_out.Write()
 print ('just created', fnew.GetName())
 fnew.Close()
-
-
-
-'''
-tree->GetBranch("xxx")->SetName("yyy");
-tree->GetLeaf("xxx")->SetTitle("yyy");
-'''
-
-
-'''
-gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch")
-gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/aten/src/")
-gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/build")
-gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/build/aten/src")
-gInterpreter.AddIncludePath("/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/FromPytorch/pytorch/torch/csrc/api/include/")
-
-
-gROOT.ProcessLine('#include <torch/script.h>')
-#gInterpreter.Declare("#include <torch/script.h>")
-#gInterpreter.Declare("#include <torch/torch.h>")
-#gInterpreter.Declare("#include <iostream")
-
-#gInterpreter.AddIncludePath("")
-#gSystem.AddLinkedLibs("-L$PWD -l/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/SusyPhotons/src/build/CMakeFiles/tfunc.dir/myTorchFunction.cpp.o");
-#gSystem.AddLinkedLibs("-L/nfs/dust/cms/user/beinsam/Photons/CMSSW_12_2_3/src/SusyPhotons/src/build/CMakeFiles/tfunc.dir");
-
-#gInterpreter.Declare("#include <torch/script.h>")
-
-gROOT.ProcessLine(open('src/myTorchFunction.cpp').read())
-exec('from ROOT import *')
-
-print (dir(ROOT))
-print ('cppyy....')
-print(dir(cppyy))
-
-runthingy()
-
-print('hello?')
-exit(0)
-'''
