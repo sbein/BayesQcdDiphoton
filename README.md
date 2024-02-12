@@ -14,6 +14,8 @@ mkdir jobs
 mkdir output
 mkdir pdfs
 mkdir pdfs/ClosureTests
+#generate file lists at FNAL
+python tools/globthemfiles.py
 ```
 
 ### Run the rebalance and smear code
