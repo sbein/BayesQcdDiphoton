@@ -19,7 +19,7 @@ parser.add_argument("-extended", "--extended", type=int, default=1,help="short r
 parser.add_argument("-deactivateAcme", "--deactivateAcme", type=str, default='False')
 #parser.add_argument("-directoryout", "--directoryout", type=str, default="Skims_medPhotonFullId", help="This is the directory where the output will go")
 #parser.add_argument("-directoryout", "--directoryout", type=str, default="Skims_loosePhotonV10bFullId", help="This is the directory where the output will go")
-parser.add_argument("-directoryout", "--directoryout", type=str, default="SinglePhoRandS_skimsv9", help="This is the directory where the output will go")
+parser.add_argument("-directoryout", "--directoryout", type=str, default="SinglePhoRandS_skimsv9minmt", help="This is the directory where the output will go")
 # TreeMakerRandS_signal_fragmentedv8 # TreeMakerRandS_skimsv8_ph1bdt # SinglePhoRandS_skimsv8 # TreeMakerRandS_skimsv8
 parser.add_argument("-filelist", "--filelist", type=str, default="usefulthings/filelistDiphoton.txt", help="This is the filelist to be used with the analyzer")
 parser.add_argument("-year", "--year", type=str)
@@ -52,14 +52,14 @@ skipFilesWithErrorFile = True
 
 
 try: 
-	moreargs = ' '.join(sys.argv)
-	moreargs = moreargs.split('--fnamekeyword')[-1]	
-	moreargs = ' '.join((moreargs.split()[1:]))
-        print moreargs
+    moreargs = ' '.join(sys.argv)
+    moreargs = moreargs.split('--fnamekeyword')[-1]    
+    moreargs = ' '.join((moreargs.split()[1:]))
+    print (moreargs)
 except: moreargs = ''
 
 moreargs = moreargs.strip()
-print 'moreargs', moreargs
+print ('moreargs', moreargs)
 
 
 
@@ -105,7 +105,7 @@ def main():
         if skipFilesWithErrorFile:
             errfilename = 'jobs/'+job+'.err'
             if os.path.exists(errfilename): 
-                print 'skipping you...', errfilename
+                print ('skipping you...', errfilename)
                 continue
         newsh = open('jobs/'+job+'.sh','w')
         newshstr = shtemplate.replace('ANALYZER',analyzer).replace('FNAMEKEYWORD',fname).replace('MOREARGS',moreargs).replace('DOUT',dout)
@@ -115,13 +115,13 @@ def main():
             os.system('mkdir output_mopho/'+fnamekeyword.replace(' ',''))
         os.chdir('output_mopho/'+fnamekeyword.replace(' ',''))
         cmd =  'condor_submit '+'../../jobs/'+job+'.jdl'        
-        print cmd
+        print (cmd)
         if not istest: os.system(cmd)
         counter+=1
         os.chdir('../../')
         
 
-    print 'counter', counter
+    print ('counter', counter)
 jdltemplate = '''
 universe = vanilla
 Executable = CWD/jobs/JOBKEY.sh
@@ -137,17 +137,17 @@ Queue 1
 
 shtemplate = '''#!/bin/bash
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-export SCRAM_ARCH=slc7_amd64_gcc820
+export SCRAM_ARCH=slc7_amd64_gcc12
 echo $PWD
 ls
-scram project CMSSW_10_2_21
-cd CMSSW_10_2_21/src
+scram project CMSSW_13_3_1
+cd CMSSW_13_3_1/src
 eval `scramv1 runtime -sh`
 cd ${_CONDOR_SCRATCH_DIR}
 echo $PWD
 export x509userproxy=/uscms/home/mjoyce/x509up_u51387
 ls
-python ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
+python3 ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
 for f in *.root
 
 do
@@ -158,7 +158,7 @@ rm *.root
 '''
 
 main()
-print 'done'
+print ('done')
 #   xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_signal_fragmented/
 #  xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_skimsv7/
 #   xrdcp "$f" root://cmseos.fnal.gov//store/group/lpcsusyphotons/TreeMakerRandS_muskimsv7/

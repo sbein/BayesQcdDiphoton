@@ -8,7 +8,8 @@ gStyle.SetOptStat(0)
 dopred = False
 doelveto = False##leave off because it's bubkik
 
-fullId = True
+#fullId = True
+fullId = False
 
 tryolder = False
 BaseOnSavedGit = False
@@ -63,7 +64,7 @@ eosls /store/group/lpcsusyphotons/Skims_loosePhotonV10bFullId > usefulthings/fil
 '''
 
 
-print 'fileskey', fileskey
+print ('fileskey', fileskey)
 if 'Run20' in fileskey: isdata = True
 else: isdata = False
 
@@ -91,7 +92,7 @@ else:
     if tryolder: showershapestring = "&& (Pho1_passLooseSigmaIetaIeta + Pho2_passLooseSigmaIetaIeta==2)"
     else: showershapestring = "&& (analysisPhotons_passWp[0]==1 && analysisPhotons_passWp[1]==1)"
 
-print 'SpecialSettings:', SpecialSettings, showershapestring
+print ('SpecialSettings:', SpecialSettings, showershapestring)
 #exit(0)
 
 
@@ -99,7 +100,7 @@ universalconstraint = ' abs(HardMetMinusMet)<100 && mva_Photons1Et>80 && mva_Ngo
 universalconstraint += taustring
 universalconstraint += pixelseedstring
 
-print dosignals
+print (dosignals)
 
 if dosignals: filefile = open('usefulthings/filelistDiphotonSignalSkims.txt')
 else: 
@@ -115,21 +116,21 @@ if not isdata:
     for fname in fins:
         if not fileskey in fname: continue
         thing2add = 'root://cmseos.fnal.gov/'+eosdir+'/'+fname.strip()
-        print 'trying to add to ccounter', thing2add.strip()
+        print ('trying to add to ccounter', thing2add.strip())
         ccounter.Add(thing2add)
     nev_total = ccounter.GetEntries()
-    print 'nevents in total =', nev_total
+    print ('nevents in total =', nev_total)
 
     
 chain = TChain('TreeMaker2/PreSelection')
-print 'fileskey', fileskey
+print ('fileskey', fileskey)
 for fname in fins:
     if not fileskey in fname: continue
     thing2add = 'root://cmseos.fnal.gov/'+eosdir+'/'+fname.strip()
-    print 'trying to add to chain', thing2add
+    print ('trying to add to chain', thing2add)
     chain.Add(thing2add)
 chain.Show(0)
-print 'nevents in skim =', chain.GetEntries()
+print ('nevents in skim =', chain.GetEntries())
 
 
 #chain.SetBranchStatus('NJets', 1)
@@ -282,10 +283,11 @@ if 'Summer' in fileskey and False:
     plotBundle['TwoPho_mva_DPhi_GG'] = ['mva_dPhi_GG>>hadc(18,-3.6,3.6)','HardMETPt>130 && NPhotons>=2',False]    
     plotBundle['BasleineTwoPho_mva_min_dPhi'] = ['mva_min_dPhi>>hadc(18,-0.2,3.4)','HardMETPt>130 && NPhotons>=2',False]    
 
-    
+plotBundle = {}
+plotBundle['TwoPho_MinMt'] = ['min(MinMt,499)>>hadchadc(74,130,500)','HardMETPt>130 && NPhotons>=2',False]
 
 
-print 'fileskey', fileskey
+print ('fileskey', fileskey)
 infilekey = fileskey.split('/')[-1].replace('*','').replace('.root','')
 newfilename = 'output/mediumchunks/weightedHists_'+infilekey+'_'+SpecialSettings+'.root'
 if 'T5' in infilekey or 'T6' in infilekey: newfilename = newfilename.replace('mediumchunks','signals')
@@ -297,7 +299,7 @@ if fullId: newfilename = newfilename.replace('.root','_fullId.root')
 
     
 fnew = TFile(newfilename, 'recreate')
-print 'will make file', fnew.GetName()
+print ('will make file', fnew.GetName())
 c1 = mkcanvas()
 c2 = mkcanvas('c2')
 
@@ -305,7 +307,7 @@ for key in plotBundle:
     drawarg, constraint, blinding = plotBundle[key]
     obsweight = evtweight+'*('+constraint + ' && '+ universalconstraint + ' && IsRandS==0)'
     #puWeight
-    print 'drawing', drawarg, ', with constraint:', obsweight
+    print ('drawing', drawarg, ', with constraint:', obsweight)
     chain.Draw(drawarg,obsweight, 'e')
     hobs = chain.GetHistogram().Clone(key+'_obs')
     if not ('Vs' in key): hobs.GetYaxis().SetRangeUser(0.01,10000*hobs.GetMaximum())
@@ -316,7 +318,7 @@ for key in plotBundle:
     randsconstraint = constraint
     methweight = evtweight+'/NSmearsPerEvent*('+ randsconstraint + ' && '+universalconstraint+ ' && IsRandS==1 && rebalancedHardMet<120)'
     #puWeight
-    print 'drawing', drawarg, ', with constraint:', methweight
+    print ('drawing', drawarg, ', with constraint:', methweight)
     chain.Draw(drawarg, methweight, 'e')
     hrands = chain.GetHistogram().Clone(key+'_rands') 
     if blinding and 'Run20' in fileskey: hobs = hrands.Clone(key+'_obs')
@@ -340,12 +342,12 @@ for key in plotBundle:
         c1.Update()
         c1.Write('c_'+key)
         c1.Print('pdfs/Closure/'+key+'.pdf')        
-    print sys.argv
+    print (sys.argv)
 
 
 
 
 
-print 'just created', fnew.GetName()
+print ('just created', fnew.GetName())
 fnew.Close()
 

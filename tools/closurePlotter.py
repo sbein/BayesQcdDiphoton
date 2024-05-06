@@ -80,7 +80,7 @@ for key in keys:
         if linscale:            
             hpreds[ih].GetYaxis().SetRangeUser(0.0,80)
         else:
-            hpreds[ih].GetYaxis().SetRangeUser(0.04,500)
+            hpreds[ih].GetYaxis().SetRangeUser(max(0.0001,min(0.01, 0.01*hObserved.GetMinimum())),max(700000, 10*hObserved.GetMaximum()))
         
     hratio.GetYaxis().SetRangeUser(-0.2,2.2)
     hratio.GetXaxis().SetTitle(kinvar.replace('mva_','(for MVA) '))

@@ -392,6 +392,15 @@ def calcTrackJetIso(trk, jets):
         if  TMath.Sqrt( (trk.eta()-jet.eta())**2 + (trk.phi()-jet.phi())**2)<0.5: return False
     return True
 
+def getMinMt(hardMetVec, jets, ptThreshold):
+    minMt = float('inf')
+    for jet in jets:
+        if jet.Pt() > ptThreshold and abs(jet.Eta()) <= 2.4:
+            deltaPhi = TMath.Abs(TMath.Pi() - TMath.Abs(TMath.Pi() - TMath.Abs(hardMetVec.Phi() - jet.Phi())))
+            mt = sqrt(2 * hardMetVec.Pt() * jet.Pt() * (1 - TMath.Cos(deltaPhi)))
+            minMt = min(minMt, mt)
+    return minMt if minMt != float('inf') else None
+    
 '''
 def calcMiniIso(trk, tracks):
     pt = trk.pt()
@@ -476,9 +485,6 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
     #pad1.SetGridy()
     pad1.Draw()
     pad1.cd()
-
-
-
         
     for ih in range(1,len(hComponents[1:])+1):
         hComponents[ih].Add(hComponents[ih-1])
